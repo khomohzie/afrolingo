@@ -99,7 +99,7 @@ export function Navbar() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md transition-shadow"
+      className="sticky top-0 z-50 bg-surface/80 backdrop-blur-sm"
       style={{ backdropFilter: "blur(8px)" }} 
     >
       <div className="container mx-auto flex items-center justify-between px-6 py-4">

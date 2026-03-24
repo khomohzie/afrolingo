@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FaGithub, FaTwitter } from "react-icons/fa";
+import { FaGithub, FaXTwitter } from "react-icons/fa6";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -120,16 +120,16 @@ export function Footer() {
               <FaGithub className="h-5 w-5 text-on-surface-variant" />
             </a>
             <a
-              href="https://twitter.com/afrolingo"
+              href="https://x.com/afrolingo"
               target="_blank"
               rel="noopener noreferrer"
               ref={(el) => {
                 if (el) socialRefs.current[1] = el;
               }}
               className="h-10 w-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors"
-              aria-label="Twitter"
+              aria-label="X (formerly Twitter)"
             >
-              <FaTwitter className="h-5 w-5 text-on-surface-variant" />
+              <FaXTwitter className="h-5 w-5 text-on-surface-variant" />
             </a>
           </div>
         </div>
