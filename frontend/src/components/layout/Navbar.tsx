@@ -63,9 +63,8 @@ export function Navbar() {
             <Link
               key={href}
               href={href}
-              className={`transition-colors hover:text-primary ${
-                isActive(href) ? "text-primary" : ""
-              }`}
+              className={`transition-colors hover:text-primary ${isActive(href) ? "text-primary" : ""
+                }`}
             >
               {label}
             </Link>
@@ -89,7 +88,7 @@ export function Navbar() {
                 <Moon className="h-5 w-5" />
               )
             ) : (
-              <div className="h-5 w-5" /> 
+              <div className="h-5 w-5" />
             )}
           </Button>
 
@@ -114,15 +113,15 @@ export function Navbar() {
             // Logged out state
             <>
               <Button
-                variant="ghost"
-                className="text-on-surface-variant hover:text-primary"
+                variant="outline"
+                className="border-2 border-outline-variant text-on-surface-variant hover:bg-surface-container px-6 py-6 hover:text-primary"
                 asChild
               >
                 <Link href="/login">Login</Link>
               </Button>
               <Button
                 variant="default"
-                className="bg-primary text-on-primary hover:bg-primary/90 rounded-lg font-bold"
+                className="bg-primary px-6 py-6 text-on-primary hover:bg-primary/90 rounded-lg font-bold"
                 asChild
               >
                 <Link href="/register">Sign Up</Link>
@@ -144,9 +143,8 @@ export function Navbar() {
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`text-lg font-medium transition-colors hover:text-primary ${
-                      isActive(href) ? "text-primary" : ""
-                    }`}
+                    className={`text-lg font-medium transition-colors hover:text-primary ${isActive(href) ? "text-primary" : ""
+                      }`}
                   >
                     {label}
                   </Link>

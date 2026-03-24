@@ -17,7 +17,7 @@ export default function Home() {
       </Head>
       <Navbar />
       <main>
-        <section className="py-12 md:py-20 bg-surface-container-low">
+        <section className="py-12 md:py-20 bg-surface">
           <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-xs font-bold tracking-widest text-primary uppercase mb-4">
@@ -27,7 +27,7 @@ export default function Home() {
                 Unlock the <br />
                 <span className="text-secondary">voices</span> of Africa.<br />
               </h1>
-              <p className="body-md text-on-surface-variant max-w-md mb-8">
+              <p className="body-md text-gray-500 text-base md:text-lg leading-relaxed max-w-md mb-8">
                 Master indigenous languages like Yoruba, Hausa, and Igbo.
                 Connect deeply with a vibrant community of learners from across
                 the globe. Professional courses for real-world fluency.
@@ -73,7 +73,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-24 bg-[#FAFAFA]">
+        <section className="py-24 bg-surface-container-low">
           <div className="container mx-auto px-6 max-w-6xl">
             <div className="text-center max-w-2xl mx-auto mb-16">
               <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-[#4A331A]">
@@ -132,7 +132,8 @@ export default function Home() {
               </p>
               <Button
                 size="lg"
-                className="bg-white text-[#4A331A] hover:bg-gray-100 rounded-2xl px-10 py-7 text-base font-bold shadow-xl transition-transform hover:scale-105"
+                variant="ghost"
+                className="bg-surface text-primary px-8 py-8 rounded-2xl font-black hover:opacity-90 hover:text-primary transition-all duration-200"
                 asChild
               >
                 <Link href="/register">Get Started Today</Link>
