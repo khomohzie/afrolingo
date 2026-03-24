@@ -1,65 +1,157 @@
-import { Geist } from "next/font/google";
-import Layout from "../components/Layout";
-// import Image from "next/image"; // Uncomment this when you have your image file!
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import Head from "next/head";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Users, BookOpen, Globe } from "lucide-react";
 
 export default function Home() {
   return (
-    <Layout>
-      <div className={`${geistSans.className} font-sans`}>
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center pt-16 pb-24">
-          
-          <div className="flex flex-col gap-8 text-left">
-            <header className="space-y-4">
-              <span className="text-[11px] font-bold tracking-[0.25em] text-gray-400 uppercase">
+    <>
+      <Head>
+        <title>Afrolingo – Unlock the Voices of Africa</title>
+        <meta
+          name="description"
+          content="Learn African languages like Yoruba, Hausa, and Igbo with AI voice comparison and cultural immersion."
+        />
+      </Head>
+      <Navbar />
+      <main>
+        {/* Hero Section */}
+        <section className="py-12 md:py-20 bg-surface-container-low">
+          <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-xs font-bold tracking-widest text-primary uppercase mb-4">
                 Learn African Dialects
-              </span>
-              <h1 className="text-6xl md:text-[84px] font-black text-[#1B252E] leading-[0.9] tracking-tighter">
+              </p>
+              <h1 className="display-lg mb-6">
                 Unlock the <br />
-                <span className="text-[#4A331A]">voices</span> of <br />
-                Africa.
+                <span className="text-secondary">voices</span> of Africa.<br />
+                
               </h1>
-            </header>
-
-            <p className="text-gray-500 text-lg max-w-md leading-relaxed">
-              Master indigenous languages like Yoruba, Hausa, and Igbo. Connect deeply with a vibrant community of learners from across the globe. Professional courses for real-world fluency.
-            </p>
-
-            <div className="flex flex-wrap gap-4 pt-2">
-              <button className="bg-[#4A331A] text-white px-10 py-4 rounded-2xl font-bold hover:bg-[#3a2815] transition-all shadow-lg shadow-amber-900/20 active:scale-95">
-                Start Learning Now
-              </button>
-              <button className="border-2 border-gray-100 bg-white text-[#4A331A] px-10 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all active:scale-95">
-                View Courses
-              </button>
-            </div>
-
-            <div className="flex items-center gap-4 mt-2">
-              <div className="flex -space-x-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-4 border-[#FAFAFA] bg-[#FFD29D] shadow-sm" />
-                ))}
+              <p className="body-md text-on-surface-variant max-w-md mb-8">
+                Master indigenous languages like Yoruba, Hausa, and Igbo.
+                Connect deeply with a vibrant community of learners from across
+                the globe. Professional courses for real-world fluency.
+              </p>
+              <div className="flex flex-wrap gap-4 mb-10">
+                <Button
+                  size="lg"
+                  className="bg-primary text-on-primary hover:bg-primary/90 px-8 py-8 rounded-xl font-bold  hover:-translate-y-1 transition-all"
+                  asChild
+                >
+                  <Link href="/register">Start Learning Now</Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-outline-variant text-on-surface-variant hover:bg-surface-container px-8 py-8 rounded-xl font-bold"
+                  asChild
+                >
+                  <Link href="/courses">View Courses</Link>
+                </Button>
               </div>
-              <p className="text-sm font-bold text-gray-400">
-                <span className="text-black">2,500+</span> learners joined this week
+              {/* Social Proof */}
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-3">
+                  <div className="h-10 w-10 rounded-full border-2 border-white bg-orange-200" />
+                  <div className="h-10 w-10 rounded-full border-2 border-white bg-orange-300" />
+                  <div className="h-10 w-10 rounded-full border-2 border-white bg-orange-400" />
+                </div>
+                <p className="text-sm text-gray-500 font-medium">
+                  <span className="font-bold text-gray-800">2,500+</span> learners joined this week
+                </p>
+              </div>
+            </div>
+            {/* Hero Image */}
+            <div className="relative">
+              <div className="rounded-3xl overflow-hidden shadow-2xl rotate-1 md:rotate-2">
+                <img
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgP5zrsI7H-rEeHpkb8qFc4CMnV20VjjkJu_8zlSYGKSE-8QJ43yIoLyyk0tezcd2MVHYMYReJ9RGpW4jb4uKW7JA84-IETrYn_cjNYaPZ4Gie1iT0kjE3fzZSWNBxbfUaltTwW1j2e6DN6rv9FNEatS4gBpUzBy9d5ysGdmuQMegjY-zDyiJxwCCYphE82CTmx6sgLnOWn805qlr8Lf9napYRcRK_2_6yLR86_3Px7ymII02a3ULnpZCZr0N_wsA_BlSlA6sKeHeQ"
+                  alt="Stylized digital art of three African women representing Yoruba, Hausa, and Igbo cultures in traditional attire"
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-primary/10 blur-3xl"></div>
+            </div>
+          </div>
+        </section>
+
+        {/* Why Choose Us Section */}
+        <section className="py-24 bg-surface-container">
+          <div className="container mx-auto px-6">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <h2 className="headline-sm mb-4 text-primary">
+                Why Learn with Afrolingo?
+              </h2>
+              <p className="body-md text-on-surface-variant">
+                We combine linguistic expertise with cultural immersion to
+                provide the most effective learning experience for African
+                languages.
               </p>
             </div>
-          </div>
-
-          <div className="relative">
-            <div className="absolute -inset-4 bg-[#E8E1D5] rounded-[40px] rotate-3" />
-            
-            <div className="relative aspect-[5/6] w-full bg-[#f3e8d6] rounded-[32px] overflow-hidden border-[12px] border-white shadow-2xl flex items-center justify-center">
-              <span className="text-gray-400 italic font-medium">Illustration Placeholder</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Feature 1 */}
+              <div className="card-editorial p-8 bg-surface-container-lowest hover:shadow-ambient transition-shadow">
+                <div className="mb-6 h-12 w-12 rounded-lg bg-surface-container-high flex items-center justify-center">
+                  <Users className="h-6 w-6 text-on-surface-variant" />
+                </div>
+                <h3 className="title-sm mb-3 text-on-surface">Native Speakers</h3>
+                <p className="body-sm text-on-surface-variant leading-relaxed">
+                  Learn from certified instructors living in Lagos, Nairobi,
+                  Dakar, and across the continent for authentic pronunciation.
+                </p>
+              </div>
+              {/* Feature 2 */}
+              <div className="card-editorial p-8 bg-surface-container-lowest hover:shadow-ambient transition-shadow">
+                <div className="mb-6 h-12 w-12 rounded-lg bg-surface-container-high flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-on-surface-variant" />
+                </div>
+                <h3 className="title-sm mb-3 text-on-surface">Interactive Courses</h3>
+                <p className="body-sm text-on-surface-variant leading-relaxed">
+                  Gamified lessons, speech recognition tools, and real-time
+                  feedback to keep you engaged and motivated.
+                </p>
+              </div>
+              {/* Feature 3 */}
+              <div className="card-editorial p-8 bg-surface-container-lowest hover:shadow-ambient transition-shadow">
+                <div className="mb-6 h-12 w-12 rounded-lg bg-surface-container-high flex items-center justify-center">
+                  <Globe className="h-6 w-6 text-on-surface-variant" />
+                </div>
+                <h3 className="title-sm mb-3 text-on-surface">Cultural Context</h3>
+                <p className="body-sm text-on-surface-variant leading-relaxed">
+                  Go beyond vocabulary. Understand idioms, traditions, and the
+                  cultural heartbeat behind every language.
+                </p>
+              </div>
             </div>
           </div>
-
         </section>
-      </div>
-    </Layout>
+
+        {/* CTA Section */}
+        <section className="container mx-auto px-6 py-20">
+          <div className="bg-primary rounded-[40px] p-12 md:p-24 text-center text-on-primary relative overflow-hidden">
+            <div className="relative z-10">
+              <h2 className="headline-md mb-6 text-on-primary">
+                Ready to speak your heritage?
+              </h2>
+              <p className="body-md opacity-90 mb-12 max-w-2xl mx-auto">
+                Join thousands of students on the most comprehensive African
+                language platform in the world.
+              </p>
+              <Button
+                size="lg"
+                className="bg-surface text-primary hover:bg-surface-container-lowest rounded-2xl font-black shadow-xl"
+                asChild
+              >
+                <Link href="/register">Get Started Today</Link>
+              </Button>
+            </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-white/5 blur-[100px] pointer-events-none"></div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </>
   );
 }
