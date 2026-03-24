@@ -36,19 +36,19 @@ export function Footer() {
               href="https://github.com/afrolingo"
               target="_blank"
               rel="noopener noreferrer"
-              className="h-10 w-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors"
+              className="h-10 w-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors text-on-surface-variant"
               aria-label="GitHub"
             >
-              <FaGithub className="h-5 w-5 text-on-surface-variant" />
+              <FaGithub size={20} color="currentColor" aria-hidden="true" />
             </a>
             <a
               href="https://twitter.com/afrolingo"
               target="_blank"
               rel="noopener noreferrer"
-              className="h-10 w-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors"
+              className="h-10 w-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors text-on-surface-variant"
               aria-label="Twitter"
             >
-              <FaTwitter className="h-5 w-5 text-on-surface-variant" />
+              <FaTwitter size={20} color="currentColor" aria-hidden="true" />
             </a>
           </div>
         </div>
