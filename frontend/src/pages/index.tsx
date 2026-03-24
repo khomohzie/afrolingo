@@ -1,11 +1,110 @@
+import { useEffect, useRef } from "react";
 import Head from "next/head";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Users, BookOpen, Globe } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function Home() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const heroImageRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // --- Hero Section Animation ---
+    const heroTimeline = gsap.timeline({
+      scrollTrigger: {
+        trigger: heroRef.current,
+        start: "top 80%",
+        end: "bottom 20%",
+        toggleActions: "restart none restart none", 
+      },
+    });
+    heroTimeline
+      .fromTo(
+        ".hero-title",
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power3.out" }
+      )
+      .fromTo(
+        ".hero-text",
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        "-=0.4"
+      )
+      .fromTo(
+        ".hero-buttons",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+        "-=0.3"
+      )
+      .fromTo(
+        ".hero-stats",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+        "-=0.2"
+      );
+  
+    gsap.to(heroImageRef.current, {
+      y: 50,
+      ease: "none",
+      scrollTrigger: {
+        trigger: heroRef.current,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: true,
+      },
+    });
+  
+    const cards = gsap.utils.toArray<HTMLElement>(".feature-card");
+    cards.forEach((card, i) => {
+      gsap.fromTo(
+        card,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          delay: i * 0.15,
+          scrollTrigger: {
+            trigger: card,              
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "restart none restart none", 
+          },
+        }
+      );
+    });
+  
+    gsap.fromTo(
+      ctaRef.current,
+      { opacity: 0, scale: 0.95 },
+      {
+        opacity: 1,
+        scale: 1,
+        duration: 0.8,
+        scrollTrigger: {
+          trigger: ctaRef.current,
+          start: "top 80%",
+          end: "bottom 20%",
+          toggleActions: "restart none restart none",
+        },
+      }
+    );
+  
+    return () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
+  }, []);
+
   return (
     <>
       <Head>
@@ -17,25 +116,29 @@ export default function Home() {
       </Head>
       <Navbar />
       <main>
-        <section className="py-12 md:py-20 bg-surface">
+        {/* Hero Section */}
+        <section
+          ref={heroRef}
+          className="py-12 md:py-20 bg-surface overflow-hidden"
+        >
           <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="text-xs font-bold tracking-widest text-primary uppercase mb-4">
+              <p className="hero-title text-xs font-bold tracking-widest text-primary uppercase mb-4">
                 Learn African Dialects
               </p>
-              <h1 className="display-lg mb-6">
+              <h1 className="hero-title display-lg mb-6">
                 Unlock the <br />
                 <span className="text-secondary">voices</span> of Africa.<br />
               </h1>
-              <p className="body-md text-gray-500 text-base md:text-lg leading-relaxed max-w-md mb-8">
+              <p className="hero-text body-md text-gray-500 text-base md:text-lg leading-relaxed max-w-md mb-8">
                 Master indigenous languages like Yoruba, Hausa, and Igbo.
                 Connect deeply with a vibrant community of learners from across
                 the globe. Professional courses for real-world fluency.
               </p>
-              <div className="flex flex-wrap gap-4 mb-10">
+              <div className="hero-buttons flex flex-wrap gap-4 mb-10">
                 <Button
                   size="lg"
-                  className="bg-primary text-on-primary hover:bg-primary/90 px-8 py-8 rounded-xl font-bold  hover:-translate-y-1 transition-all"
+                  className="bg-primary text-on-primary hover:bg-primary/90 px-8 py-8 rounded-xl font-bold hover:-translate-y-1 transition-all"
                   asChild
                 >
                   <Link href="/register">Start Learning Now</Link>
@@ -49,18 +152,21 @@ export default function Home() {
                   <Link href="/courses">View Courses</Link>
                 </Button>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="hero-stats flex items-center gap-3">
                 <div className="flex -space-x-3">
                   <div className="h-10 w-10 rounded-full border-2 border-white bg-orange-200" />
                   <div className="h-10 w-10 rounded-full border-2 border-white bg-orange-300" />
                   <div className="h-10 w-10 rounded-full border-2 border-white bg-orange-400" />
                 </div>
                 <p className="text-sm text-gray-500 font-medium">
-                  <span className="font-bold text-gray-800">2,500+</span> learners joined this week
+                  <span className="font-black text-primary">2,500+</span> learners joined this week
                 </p>
               </div>
             </div>
-            <div className="relative">
+            <div
+              ref={heroImageRef}
+              className="relative transform-gpu will-change-transform"
+            >
               <div className="rounded-3xl overflow-hidden shadow-2xl rotate-1 md:rotate-2">
                 <img
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgP5zrsI7H-rEeHpkb8qFc4CMnV20VjjkJu_8zlSYGKSE-8QJ43yIoLyyk0tezcd2MVHYMYReJ9RGpW4jb4uKW7JA84-IETrYn_cjNYaPZ4Gie1iT0kjE3fzZSWNBxbfUaltTwW1j2e6DN6rv9FNEatS4gBpUzBy9d5ysGdmuQMegjY-zDyiJxwCCYphE82CTmx6sgLnOWn805qlr8Lf9napYRcRK_2_6yLR86_3Px7ymII02a3ULnpZCZr0N_wsA_BlSlA6sKeHeQ"
@@ -73,7 +179,11 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-24 bg-surface-container-low">
+        {/* Features Section */}
+        <section
+          ref={featuresRef}
+          className="py-24 bg-surface-container-low"
+        >
           <div className="container mx-auto px-6 max-w-6xl">
             <div className="text-center max-w-2xl mx-auto mb-16">
               <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-[#4A331A]">
@@ -86,7 +196,7 @@ export default function Home() {
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <div className="feature-card p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                 <div className="mb-6 h-14 w-14 rounded-2xl bg-[#FAFAFA] border border-gray-100 flex items-center justify-center">
                   <Users className="h-6 w-6 text-[#4A331A]" />
                 </div>
@@ -96,7 +206,7 @@ export default function Home() {
                   Dakar, and across the continent for authentic pronunciation.
                 </p>
               </div>
-              <div className="p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <div className="feature-card p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                 <div className="mb-6 h-14 w-14 rounded-2xl bg-[#FAFAFA] border border-gray-100 flex items-center justify-center">
                   <BookOpen className="h-6 w-6 text-[#4A331A]" />
                 </div>
@@ -106,7 +216,7 @@ export default function Home() {
                   feedback to keep you engaged and motivated.
                 </p>
               </div>
-              <div className="p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <div className="feature-card p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                 <div className="mb-6 h-14 w-14 rounded-2xl bg-[#FAFAFA] border border-gray-100 flex items-center justify-center">
                   <Globe className="h-6 w-6 text-[#4A331A]" />
                 </div>
@@ -120,8 +230,12 @@ export default function Home() {
           </div>
         </section>
 
+        {/* CTA Section */}
         <section className="container mx-auto px-6 py-20 max-w-6xl">
-          <div className="bg-[#4A331A] rounded-[40px] p-16 md:p-24 text-center relative overflow-hidden shadow-2xl">
+          <div
+            ref={ctaRef}
+            className="bg-[#4A331A] rounded-[40px] p-16 md:p-24 text-center relative overflow-hidden shadow-2xl"
+          >
             <div className="relative z-10 flex flex-col items-center">
               <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-white tracking-tight">
                 Ready to speak your heritage?
