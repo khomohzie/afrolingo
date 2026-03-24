@@ -17,7 +17,6 @@ export default function Home() {
       </Head>
       <Navbar />
       <main>
-        {/* Hero Section */}
         <section className="py-12 md:py-20 bg-surface-container-low">
           <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
@@ -27,7 +26,6 @@ export default function Home() {
               <h1 className="display-lg mb-6">
                 Unlock the <br />
                 <span className="text-secondary">voices</span> of Africa.<br />
-                
               </h1>
               <p className="body-md text-on-surface-variant max-w-md mb-8">
                 Master indigenous languages like Yoruba, Hausa, and Igbo.
@@ -51,7 +49,6 @@ export default function Home() {
                   <Link href="/courses">View Courses</Link>
                 </Button>
               </div>
-              {/* Social Proof */}
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-3">
                   <div className="h-10 w-10 rounded-full border-2 border-white bg-orange-200" />
@@ -63,7 +60,6 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            {/* Hero Image */}
             <div className="relative">
               <div className="rounded-3xl overflow-hidden shadow-2xl rotate-1 md:rotate-2">
                 <img
@@ -77,49 +73,45 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Why Choose Us Section */}
-        <section className="py-24 bg-surface-container">
-          <div className="container mx-auto px-6">
+        <section className="py-24 bg-[#FAFAFA]">
+          <div className="container mx-auto px-6 max-w-6xl">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <h2 className="headline-sm mb-4 text-primary">
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-[#4A331A]">
                 Why Learn with Afrolingo?
               </h2>
-              <p className="body-md text-on-surface-variant">
+              <p className="text-gray-500 text-base md:text-lg leading-relaxed">
                 We combine linguistic expertise with cultural immersion to
                 provide the most effective learning experience for African
                 languages.
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Feature 1 */}
-              <div className="card-editorial p-8 bg-surface-container-lowest hover:shadow-ambient transition-shadow">
-                <div className="mb-6 h-12 w-12 rounded-lg bg-surface-container-high flex items-center justify-center">
-                  <Users className="h-6 w-6 text-on-surface-variant" />
+              <div className="p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="mb-6 h-14 w-14 rounded-2xl bg-[#FAFAFA] border border-gray-100 flex items-center justify-center">
+                  <Users className="h-6 w-6 text-[#4A331A]" />
                 </div>
-                <h3 className="title-sm mb-3 text-on-surface">Native Speakers</h3>
-                <p className="body-sm text-on-surface-variant leading-relaxed">
+                <h3 className="text-xl font-bold mb-3 text-gray-900">Native Speakers</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
                   Learn from certified instructors living in Lagos, Nairobi,
                   Dakar, and across the continent for authentic pronunciation.
                 </p>
               </div>
-              {/* Feature 2 */}
-              <div className="card-editorial p-8 bg-surface-container-lowest hover:shadow-ambient transition-shadow">
-                <div className="mb-6 h-12 w-12 rounded-lg bg-surface-container-high flex items-center justify-center">
-                  <BookOpen className="h-6 w-6 text-on-surface-variant" />
+              <div className="p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="mb-6 h-14 w-14 rounded-2xl bg-[#FAFAFA] border border-gray-100 flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-[#4A331A]" />
                 </div>
-                <h3 className="title-sm mb-3 text-on-surface">Interactive Courses</h3>
-                <p className="body-sm text-on-surface-variant leading-relaxed">
+                <h3 className="text-xl font-bold mb-3 text-gray-900">Interactive Courses</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
                   Gamified lessons, speech recognition tools, and real-time
                   feedback to keep you engaged and motivated.
                 </p>
               </div>
-              {/* Feature 3 */}
-              <div className="card-editorial p-8 bg-surface-container-lowest hover:shadow-ambient transition-shadow">
-                <div className="mb-6 h-12 w-12 rounded-lg bg-surface-container-high flex items-center justify-center">
-                  <Globe className="h-6 w-6 text-on-surface-variant" />
+              <div className="p-8 bg-white rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="mb-6 h-14 w-14 rounded-2xl bg-[#FAFAFA] border border-gray-100 flex items-center justify-center">
+                  <Globe className="h-6 w-6 text-[#4A331A]" />
                 </div>
-                <h3 className="title-sm mb-3 text-on-surface">Cultural Context</h3>
-                <p className="body-sm text-on-surface-variant leading-relaxed">
+                <h3 className="text-xl font-bold mb-3 text-gray-900">Cultural Context</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
                   Go beyond vocabulary. Understand idioms, traditions, and the
                   cultural heartbeat behind every language.
                 </p>
@@ -128,26 +120,25 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="container mx-auto px-6 py-20">
-          <div className="bg-primary rounded-[40px] p-12 md:p-24 text-center text-on-primary relative overflow-hidden">
-            <div className="relative z-10">
-              <h2 className="headline-md mb-6 text-on-primary">
+        <section className="container mx-auto px-6 py-20 max-w-6xl">
+          <div className="bg-[#4A331A] rounded-[40px] p-16 md:p-24 text-center relative overflow-hidden shadow-2xl">
+            <div className="relative z-10 flex flex-col items-center">
+              <h2 className="text-4xl md:text-5xl font-extrabold mb-6 text-white tracking-tight">
                 Ready to speak your heritage?
               </h2>
-              <p className="body-md opacity-90 mb-12 max-w-2xl mx-auto">
+              <p className="text-white/80 text-lg mb-10 max-w-2xl mx-auto font-medium">
                 Join thousands of students on the most comprehensive African
                 language platform in the world.
               </p>
               <Button
                 size="lg"
-                className="bg-surface text-primary hover:bg-surface-container-lowest rounded-2xl font-black shadow-xl"
+                className="bg-white text-[#4A331A] hover:bg-gray-100 rounded-2xl px-10 py-7 text-base font-bold shadow-xl transition-transform hover:scale-105"
                 asChild
               >
                 <Link href="/register">Get Started Today</Link>
               </Button>
             </div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-white/5 blur-[100px] pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-[#6a4a28] blur-[100px] pointer-events-none opacity-50"></div>
           </div>
         </section>
       </main>
