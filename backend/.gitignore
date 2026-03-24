@@ -1,0 +1,13 @@
+/node_modules
+.env
+.env.local
+dist
+coverage
+uploads
+.DS_STORE
+# __tests__
+coverage
+yarn-error.log
+logs
+**.log
+*.yaml
