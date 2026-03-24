@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useTheme } from "next-themes";
@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Sun, Moon } from "lucide-react";
 import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const navLinks = [
   { href: "/courses", label: "Courses" },
@@ -18,8 +24,9 @@ export function Navbar() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+  const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
-  // Temporary placeholder (remove when AuthContext is ready)
   const user = null;
   const signOut = async () => {
     console.log("Sign out placeholder");
@@ -27,6 +34,53 @@ export function Navbar() {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!headerRef.current) return;
+
+    gsap.fromTo(
+      headerRef.current,
+      { y: -20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }
+    );
+
+    ScrollTrigger.create({
+      trigger: document.body,
+      start: "top top",
+      end: "+=100",
+      scrub: true,
+      onUpdate: (self) => {
+        const progress = self.progress;
+        const blurIntensity = 8 + progress * 12; 
+        const shadowOpacity = progress * 0.1;
+        if (headerRef.current) {
+          headerRef.current.style.backdropFilter = `blur(${blurIntensity}px)`;
+          headerRef.current.style.boxShadow = `0 4px 20px rgba(0,0,0,${shadowOpacity})`;
+        }
+      },
+    });
+
+    linkRefs.current.forEach((link) => {
+      if (!link) return;
+      const hoverTimeline = gsap.timeline({ paused: true });
+      hoverTimeline.to(link, {
+        scale: 1.05,
+        color: "var(--primary)", 
+        ease: "power2.out",
+      });
+      link.addEventListener("mouseenter", () => hoverTimeline.play());
+      link.addEventListener("mouseleave", () => hoverTimeline.reverse());
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      linkRefs.current.forEach((link) => {
+        if (!link) return;
+        link.removeEventListener("mouseenter", () => {});
+        link.removeEventListener("mouseleave", () => {});
+      });
+    };
   }, []);
 
   const isActive = (path: string) => router.pathname === path;
@@ -43,7 +97,11 @@ export function Navbar() {
   const currentTheme = resolvedTheme || theme;
 
   return (
-    <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-50 bg-surface/80 backdrop-blur-md transition-shadow"
+      style={{ backdropFilter: "blur(8px)" }} 
+    >
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
@@ -59,12 +117,16 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-on-surface-variant">
-          {navLinks.map(({ href, label }) => (
+          {navLinks.map(({ href, label }, idx) => (
             <Link
               key={href}
               href={href}
-              className={`transition-colors hover:text-primary ${isActive(href) ? "text-primary" : ""
-                }`}
+              ref={(el) => {
+                if (el) linkRefs.current[idx] = el;
+              }}
+              className={`transition-colors hover:text-primary ${
+                isActive(href) ? "text-primary" : ""
+              }`}
             >
               {label}
             </Link>
@@ -73,7 +135,6 @@ export function Navbar() {
 
         {/* Right side actions */}
         <div className="flex items-center gap-4">
-          {/* Theme Toggle - only render after mount to avoid hydration mismatch */}
           <Button
             variant="ghost"
             size="icon"
@@ -93,7 +154,6 @@ export function Navbar() {
           </Button>
 
           {user ? (
-            // Logged in state (temporarily disabled)
             <>
               <div className="hidden md:flex items-center gap-2">
                 <div className="h-10 w-10 rounded-full bg-surface-container-high flex items-center justify-center">
@@ -110,7 +170,6 @@ export function Navbar() {
               </div>
             </>
           ) : (
-            // Logged out state
             <>
               <Button
                 variant="outline"
@@ -143,13 +202,13 @@ export function Navbar() {
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`text-lg font-medium transition-colors hover:text-primary ${isActive(href) ? "text-primary" : ""
-                      }`}
+                    className={`text-lg font-medium transition-colors hover:text-primary ${
+                      isActive(href) ? "text-primary" : ""
+                    }`}
                   >
                     {label}
                   </Link>
                 ))}
-                {/* Theme Toggle in mobile - also only after mount */}
                 {mounted && (
                   <button
                     onClick={() => {
