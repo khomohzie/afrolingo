@@ -56,7 +56,7 @@ export default function Home() {
                   <div className="h-10 w-10 rounded-full border-2 border-white bg-orange-400" />
                 </div>
                 <p className="text-sm text-gray-500 font-medium">
-                  <span className="font-bold text-gray-800">2,500+</span> learners joined this week
+                  <span className="font-black text-primary">2,500+</span> learners joined this week
                 </p>
               </div>
             </div>
