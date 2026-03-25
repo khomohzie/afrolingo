@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import { Compass, BadgeCheck } from "lucide-react";
 import gsap from "gsap";

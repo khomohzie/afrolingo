@@ -391,6 +391,7 @@
   .spacing-24 {
     gap: 6rem;
   }
+
 }
 
 @layer utilities {
@@ -418,4 +419,5 @@
   .surface-layered {
     background: var(--surface-container-high);
   }
+  
 }
