@@ -4,7 +4,7 @@ import { FaGithub, FaTwitter } from "react-icons/fa";
 
 export function Footer() {
   return (
-    <footer className="bg-surface-container-low/40 pt-20 pb-10">
+    <footer className="bg-surface-container-low/40 z-50 pt-20 pb-10">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
           <Link href="/" className="flex items-center gap-2">
