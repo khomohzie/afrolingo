@@ -118,7 +118,7 @@ export function Navbar() {
       style={{ backdropFilter: "blur(8px)" }}
     >
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-2">
+       <Link href="/" className="flex items-center gap-2">
           <Image
             src="/logo.png"
             alt="Afrolingo Logo"
@@ -127,8 +127,9 @@ export function Navbar() {
             sizes="32px"
             className="h-8 w-auto"
           />
-          <span className="text-xl font-heading font-bold text-primary tracking-tight">
-            AfroLingo
+          <span className="text-xl font-heading font-bold tracking-tight">
+            <span className="text-on-surface">Afro</span>
+            <span className="text-[#964B00]">Lingo</span>
           </span>
         </Link>
 

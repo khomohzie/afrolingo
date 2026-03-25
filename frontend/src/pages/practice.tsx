@@ -2,18 +2,18 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import {
-  FaMicrophone,
-  FaVolumeUp,
-  FaPlay,
-  FaStop,
-  FaCheckCircle,
-  FaHistory,
-  FaRobot,
-  FaSpinner,
+    FaMicrophone,
+    FaVolumeUp,
+    FaPlay,
+    FaStop,
+    FaCheckCircle,
+    FaHistory,
+    FaRobot,
+    FaSpinner,
+    FaCog,
 } from "react-icons/fa";
 import { BsSoundwave, BsPieChartFill } from "react-icons/bs";
 
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 // --- Types ---
@@ -45,8 +45,11 @@ function Navbar() {
         <header className="flex items-center justify-between px-6 py-4 bg-surface border-b border-outline">
             <Link href="/" className="flex items-center gap-3">
                 <img src="/logo.png" alt="AfroLingo Logo" className="w-8 h-8 rounded-md" />
-                <span className="font-heading font-bold text-xl text-primary tracking-tight">
-                    AfroLingo
+                <span className="font-heading font-bold text-xl tracking-tight">
+                    {/* Using text-on-surface ensures "Afro" adapts to Light/Dark mode */}
+                    <span className="text-on-surface">Afro</span>
+                    {/* Applying the specific brown shade from the logo */}
+                    <span className="text-[#8B4513]">Lingo</span>
                 </span>
             </Link>
             <nav className="hidden md:flex items-center gap-8 font-medium text-sm text-on-surface-variant">
@@ -216,7 +219,7 @@ export default function PracticePage() {
                         AI Voice Lab
                     </h1>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-[2rem] overflow-hidden float-shadow mb-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-4xl overflow-hidden float-shadow mb-8">
                         {/* Left Panel */}
                         <div className="bg-surface-container-lowest p-10 md:p-14 flex flex-col justify-center">
                             <div className="mb-8">
@@ -249,7 +252,7 @@ export default function PracticePage() {
                         </div>
 
                         {/* Right Panel */}
-                        <div className="bg-surface-container-low p-10 md:p-14 flex flex-col items-center justify-center relative min-h-[500px]">
+                        <div className="bg-surface-container-low p-10 md:p-14 flex flex-col items-center justify-center relative min-h-125">
 
                             {/* FIXED: Waveform colors and speed */}
                             {/* Right Panel Waveform */}
@@ -258,10 +261,10 @@ export default function PracticePage() {
                                     <div
                                         key={i}
                                         className={`w-2 rounded-full transition-all duration-75 ${isRecording
-                                                ? "bg-primary animate-pulse"
-                                                : analysisStatus === "aiSpeaking"
-                                                    ? "bg-primary"
-                                                    : "bg-primary/30"
+                                            ? "bg-primary animate-pulse"
+                                            : analysisStatus === "aiSpeaking"
+                                                ? "bg-primary"
+                                                : "bg-primary/30"
                                             }`}
                                         style={{ height: `${height}%` }}
                                     />
@@ -272,10 +275,10 @@ export default function PracticePage() {
                                 onClick={handleToggleRecord}
                                 disabled={analysisStatus === "analyzing" || analysisStatus === "aiSpeaking"}
                                 className={`w-24 h-24 rounded-full flex items-center justify-center text-3xl text-on-primary shadow-xl transition-all duration-300 ${isRecording
-                                        ? "bg-error animate-pulse hover:scale-105 cursor-pointer"
-                                        : analysisStatus !== "idle"
-                                            ? "bg-primary/50 cursor-not-allowed scale-95"
-                                            : "bg-primary hover:scale-105 cursor-pointer"
+                                    ? "bg-error animate-pulse hover:scale-105 cursor-pointer"
+                                    : analysisStatus !== "idle"
+                                        ? "bg-primary/50 cursor-not-allowed scale-95"
+                                        : "bg-primary hover:scale-105 cursor-pointer"
                                     }`}
                             >
                                 {isRecording ? <FaStop /> : <FaMicrophone />}
@@ -294,7 +297,7 @@ export default function PracticePage() {
 
                                 {/* Real-time Subtitles display here! */}
                                 {(analysisStatus === "aiSpeaking" || (analysisStatus === "idle" && aiSubtitle)) && (
-                                    <div className="min-h-[60px] flex items-center justify-center animate-in fade-in duration-500">
+                                    <div className="min-h-15 flex items-center justify-center animate-in fade-in duration-500">
                                         <p className="text-lg font-medium text-primary leading-relaxed text-center">
                                             "{aiSubtitle}"
                                         </p>

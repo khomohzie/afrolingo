@@ -55,7 +55,7 @@ export default function PremiumCheckout() {
 
         <main
           ref={mainRef}
-          className="flex-1 flex flex-col justify-center py-8 md:py-16 px-4 max-w-[1000px] mx-auto w-full"
+          className="flex-1 flex flex-col justify-center py-8 md:py-16 px-4 max-w-250 mx-auto w-full"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Column: Value Proposition */}
@@ -218,13 +218,13 @@ export default function PremiumCheckout() {
           {/* Featured Section / Illustration */}
           <div className="featured-image-animate mt-16 w-full">
             <div
-              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden rounded-2xl min-h-[300px] border border-border relative float-shadow"
+              className="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden rounded-2xl min-h-75 border border-border relative float-shadow"
               style={{
                 backgroundImage:
                   'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAIKrY1Wqw12Xo9KGp__tEE29iogVgzQBqubMkOVKXln0QtVjdnoSh8k5C5RNTLiCo76sR4eviiIZZQd2AwKkhjVKIRbO42IlYt05xtY1LacrJrzmihJD7Q2RrG23Z1P5QjR23n1gzvfxhQvShzQxIu1sDTBMNGK17-pbZOtSq-t5g0-z2MRYeTGkTJaEbpHQWeMQ-4GhlmQ8NTpVZoQim-iUq-auHHGiNHLGtJsbn8E7HBbk3cKlwnFkTGjNsLm2f-ncMHlTyoe-xB")',
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent"></div>
               <div className="relative p-8 md:p-10 max-w-2xl">
                 <h4 className="text-white text-3xl font-heading font-bold mb-3">
                   Learn Beyond Words

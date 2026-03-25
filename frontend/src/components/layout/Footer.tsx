@@ -15,7 +15,10 @@ export function Footer() {
               height={32}
               className="h-8 w-auto"
             />
-            <span className="text-lg font-bold text-primary">AfroLingo</span>
+          <span className="text-xl font-heading font-bold tracking-tight">
+            <span className="text-on-surface">Afro</span>
+            <span className="text-[#964B00]">Lingo</span>
+          </span>
           </Link>
           <nav className="flex flex-wrap gap-6 text-sm text-on-surface-variant font-medium">
             <Link href="/privacy" className="hover:text-primary">
