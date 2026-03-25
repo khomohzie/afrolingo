@@ -44,6 +44,7 @@ export default function LearnPath() {
                   src="/logo.png"
                   alt="AfroLingo Logo"
                   fill
+                  sizes="32px"
                   className="object-contain"
                 />
               </div>
@@ -376,6 +377,6 @@ export default function LearnPath() {
           </div>
         </aside>
       </div>
-      </>
-    );
+    </>
+  );
 }

@@ -1,16 +1,19 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import {
-    FaMicrophone,
-    FaVolumeUp,
-    FaPlay,
-    FaStop,
-    FaCheckCircle,
-    FaHistory,
-    FaCog,
+  FaMicrophone,
+  FaVolumeUp,
+  FaPlay,
+  FaStop,
+  FaCheckCircle,
+  FaHistory,
+  FaRobot,
+  FaSpinner,
 } from "react-icons/fa";
 import { BsSoundwave, BsPieChartFill } from "react-icons/bs";
+
+import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 // --- Types ---
@@ -28,7 +31,6 @@ interface FeatureCardProps {
     icon: React.ReactNode;
 }
 
-// --- Mock Data ---
 const CURRENT_PHRASE: PhraseData = {
     id: "phrase-1",
     targetPhrase: "Ẹ̀gbọ́n mi",

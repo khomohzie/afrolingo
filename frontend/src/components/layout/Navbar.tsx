@@ -13,10 +13,16 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const navLinks = [
+const defaultLinks = [
   { href: "/courses", label: "Courses" },
   { href: "/community", label: "Community" },
   { href: "/about", label: "About" },
+];
+
+const practiceLinks = [
+  { href: "/learn", label: "Lessons" },
+  { href: "/practice", label: "Practice" },
+  { href: "/community", label: "Community" },
 ];
 
 export function Navbar() {
@@ -28,9 +34,18 @@ export function Navbar() {
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([]);
 
   const user = null;
+
   const signOut = async () => {
     console.log("Sign out placeholder");
   };
+
+  const isPracticePage =
+    router.pathname.startsWith("/practice") ||
+    router.pathname.startsWith("/learn");
+
+  const currentNavLinks = isPracticePage ? practiceLinks : defaultLinks;
+
+  linkRefs.current = [];
 
   useEffect(() => {
     setMounted(true);
@@ -52,7 +67,7 @@ export function Navbar() {
       scrub: true,
       onUpdate: (self) => {
         const progress = self.progress;
-        const blurIntensity = 8 + progress * 12; 
+        const blurIntensity = 8 + progress * 12;
         const shadowOpacity = progress * 0.1;
         if (headerRef.current) {
           headerRef.current.style.backdropFilter = `blur(${blurIntensity}px)`;
@@ -66,7 +81,7 @@ export function Navbar() {
       const hoverTimeline = gsap.timeline({ paused: true });
       hoverTimeline.to(link, {
         scale: 1.05,
-        color: "var(--primary)", 
+        color: "var(--primary)",
         ease: "power2.out",
       });
       link.addEventListener("mouseenter", () => hoverTimeline.play());
@@ -81,7 +96,7 @@ export function Navbar() {
         link.removeEventListener("mouseleave", () => {});
       });
     };
-  }, []);
+  }, [isPracticePage]); // FIX 2: Changed from currentNavLinks to the boolean isPracticePage
 
   const isActive = (path: string) => router.pathname === path;
 
@@ -99,25 +114,26 @@ export function Navbar() {
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-50 bg-surface/80 backdrop-blur-sm"
-      style={{ backdropFilter: "blur(8px)" }} 
+      className="sticky top-0 z-50 bg-surface/80 backdrop-blur-sm border-b border-outline"
+      style={{ backdropFilter: "blur(8px)" }}
     >
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/logo.png"
-            alt="AfroLingo Logo"
-            width={40}
-            height={40}
-            className="h-10 w-auto"
+            alt="Afrolingo Logo"
+            width={32}
+            height={32}
+            sizes="32px"
+            className="h-8 w-auto"
           />
-          <span className="text-xl font-bold text-primary">AfroLingo</span>
+          <span className="text-xl font-heading font-bold text-primary tracking-tight">
+            AfroLingo
+          </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-on-surface-variant">
-          {navLinks.map(({ href, label }, idx) => (
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-on-surface-variant">
+          {currentNavLinks.map(({ href, label }, idx) => (
             <Link
               key={href}
               href={href}
@@ -125,7 +141,9 @@ export function Navbar() {
                 if (el) linkRefs.current[idx] = el;
               }}
               className={`transition-colors hover:text-primary ${
-                isActive(href) ? "text-primary" : ""
+                isActive(href)
+                  ? "text-primary font-bold border-b-2 border-primary pb-1"
+                  : ""
               }`}
             >
               {label}
@@ -133,14 +151,13 @@ export function Navbar() {
           ))}
         </nav>
 
-        {/* Right side actions */}
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            className="text-on-surface-variant hover:text-primary"
+            className="text-on-surface-variant hover:text-primary rounded-full bg-surface-container"
           >
             {mounted ? (
               currentTheme === "dark" ? (
@@ -154,23 +171,20 @@ export function Navbar() {
           </Button>
 
           {user ? (
-            <>
-              <div className="hidden md:flex items-center gap-2">
-                <div className="h-10 w-10 rounded-full bg-surface-container-high flex items-center justify-center">
-                  <span className="text-xs font-bold text-on-surface-variant">
-                    U
-                  </span>
-                </div>
-                <button
-                  onClick={handleSignOut}
-                  className="text-sm text-on-surface-variant hover:text-primary"
-                >
-                  Logout
-                </button>
-              </div>
-            </>
+            <div className="hidden md:flex items-center gap-4">
+              <Button className="bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none hover:opacity-90">
+                Go Premium
+              </Button>
+              <button
+                onClick={handleSignOut}
+                className="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center overflow-hidden transition-transform hover:scale-105"
+                aria-label="Profile"
+              >
+                <span className="text-sm font-bold text-primary">U</span>
+              </button>
+            </div>
           ) : (
-            <>
+            <div className="hidden md:flex items-center gap-2">
               <Button
                 variant="outline"
                 className="border-2 border-outline-variant text-on-surface-variant hover:bg-surface-container px-6 py-6 hover:text-primary"
@@ -185,10 +199,9 @@ export function Navbar() {
               >
                 <Link href="/register">Sign Up</Link>
               </Button>
-            </>
+            </div>
           )}
 
-          {/* Mobile Menu */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
@@ -197,18 +210,19 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="bg-surface p-6">
               <div className="flex flex-col gap-6 mt-8">
-                {navLinks.map(({ href, label }) => (
+                {currentNavLinks.map(({ href, label }) => (
                   <Link
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
                     className={`text-lg font-medium transition-colors hover:text-primary ${
-                      isActive(href) ? "text-primary" : ""
+                      isActive(href) ? "text-primary font-bold" : ""
                     }`}
                   >
                     {label}
                   </Link>
                 ))}
+
                 {mounted && (
                   <button
                     onClick={() => {
@@ -228,25 +242,38 @@ export function Navbar() {
                     )}
                   </button>
                 )}
+
+                <div className="w-full h-px bg-outline-variant my-2" />
+
                 {user ? (
-                  <>
+                  <div className="flex flex-col gap-4">
+                    <Button className="w-full bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none">
+                      Go Premium
+                    </Button>
                     <div className="flex items-center justify-between">
-                      <span className="text-on-surface-variant">
-                        user@example.com
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                          <span className="text-xs font-bold text-primary">
+                            U
+                          </span>
+                        </div>
+                        <span className="text-on-surface-variant font-medium">
+                          Profile
+                        </span>
+                      </div>
                       <button
                         onClick={handleSignOut}
-                        className="text-sm text-on-surface-variant hover:text-primary"
+                        className="text-sm font-bold text-error hover:opacity-80 transition-opacity"
                       >
                         Logout
                       </button>
                     </div>
-                  </>
+                  </div>
                 ) : (
                   <>
                     <Button
                       variant="ghost"
-                      className="text-on-surface-variant w-full justify-start"
+                      className="text-on-surface-variant w-full justify-start text-lg"
                       asChild
                     >
                       <Link href="/login" onClick={() => setOpen(false)}>
@@ -254,8 +281,7 @@ export function Navbar() {
                       </Link>
                     </Button>
                     <Button
-                      variant="default"
-                      className="bg-primary text-on-primary rounded-lg font-bold w-full"
+                      className="bg-primary text-on-primary rounded-lg font-bold w-full text-lg py-6"
                       asChild
                     >
                       <Link href="/register" onClick={() => setOpen(false)}>
