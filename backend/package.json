@@ -9,7 +9,7 @@
   "scripts": {
     "test": "jest --detectOpenHandles",
     "start": "node dist/server.js",
-    "dev": "nodemon ./src/server.ts",
+    "dev": "tsx watch ./src/server.ts",
     "dev-prod": "set NODE_ENV=production && nodemon ./src/server.ts",
     "build": "tsc -p .",
     "start:prod": "pm2 start --env production",
@@ -61,6 +61,7 @@
     "@types/toobusy-js": "^0.5.4",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }
 }
