@@ -28,7 +28,7 @@ export default function LearnPath() {
             <aside className="w-[240px] fixed left-0 top-0 bottom-0 flex flex-col border-r border-border bg-background z-20">
                 <div className="p-8">
                     <div className="flex items-center gap-2 font-black text-2xl text-primary">
-                        <span className="text-2xl">🌍</span> Afrolingo
+                        <img src="/logo.png" alt="Afrolingo Logo" className="w-6 h-6" /> Afrolingo
                     </div>
                     <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase mt-1">Yoruba Path</p>
                 </div>

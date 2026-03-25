@@ -44,21 +44,21 @@ export default function ChooseLanguage() {
       name: "Yoruba",
       speakers: "45M Speakers",
       description: "Talking drum and Aso Oke fabric",
-      image: "/images/yoruba-man.png", // Updated to your local public path
+      image: "/images/yoruba-man.png", 
     },
     {
       id: "hausa",
       name: "Hausa",
       speakers: "80M Speakers",
       description: "Sahelian architecture and embroidery",
-      image: "/images/hausa-man.png", // Updated to your local public path
+      image: "/images/hausa-man.png", 
     },
     {
       id: "igbo",
       name: "Igbo",
       speakers: "30M Speakers",
       description: "Isiagu pattern and cultural staff",
-      image: "/images/igbo-man.png", // Updated to your local public path
+      image: "/images/igbo-man.png",
     },
   ];
 
@@ -77,12 +77,10 @@ export default function ChooseLanguage() {
       >
         <Navbar />
 
-        {/* Main Content */}
         <main
           ref={mainRef}
           className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-12 md:py-20"
         >
-          {/* Hero Banner */}
           <div className="hero-animate flex flex-col gap-4 mb-12 text-center max-w-3xl mx-auto">
             <h1 className="text-primary text-4xl md:text-5xl font-black leading-tight tracking-tight">
               Choose your language
@@ -93,7 +91,6 @@ export default function ChooseLanguage() {
             </p>
           </div>
 
-          {/* Language Grid */}
           <div className="mb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
             {languages.map((lang) => {
@@ -103,7 +100,6 @@ export default function ChooseLanguage() {
                 <button
                   key={lang.id}
                   onClick={() => setSelectedLang(lang.id)}
-                  // Added h-full to ensure the button stretches to the grid track height
                   className={`lang-card h-full group flex flex-col rounded-2xl shadow-sm border transition-all duration-300 cursor-pointer overflow-hidden text-left outline-none [-webkit-tap-highlight-color:transparent] ${isSelected
                       ? "border-primary scale-[1.02] shadow-xl ring-2 ring-primary/20"
                       : "border-transparent bg-background hover:border-primary/40"
@@ -117,7 +113,7 @@ export default function ChooseLanguage() {
                     />
                   </div>
 
-                  {/* Dynamic Text Section - Added flex-1 to stretch down and fill empty space */}
+
                   <div className={`p-5 border-t transition-colors duration-300 w-full flex-1 flex flex-col ${isSelected ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border text-foreground"
                     }`}>
                     <div className="flex justify-between items-baseline mb-1">
@@ -136,7 +132,6 @@ export default function ChooseLanguage() {
               );
             })}
 
-            {/* Coming Soon Card - Added h-full to match */}
             <div className="lang-card h-full flex flex-col rounded-2xl border-2 border-dashed border-primary/30 p-6 items-center justify-center text-center group hover:bg-white/50 transition-colors cursor-default bg-white/60 backdrop-blur-sm shadow-xl shadow-primary/5">
               <div className="h-16 w-16 rounded-full bg-primary/5 flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
                 <Compass className="text-primary/40 h-8 w-8" />
@@ -153,7 +148,6 @@ export default function ChooseLanguage() {
             </div>
           </div>
 
-          {/* Action Section */}
           <div className="action-animate flex flex-col items-center gap-6">
             <Button
               disabled={!selectedLang}

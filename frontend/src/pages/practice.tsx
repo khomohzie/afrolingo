@@ -43,10 +43,7 @@ function Navbar() {
         <header className="flex items-center justify-between px-6 py-4 bg-surface border-b border-outline">
             {/* Logo Area */}
             <Link href="/" className="flex items-center gap-3">
-                {/* Placeholder for your actual logo image */}
-                <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center text-on-primary font-bold text-xs">
-                    A
-                </div>
+                <img src="/logo.png" alt="Afrolingo Logo" className="w-8 h-8 rounded-md" />
                 <span className="font-heading font-bold text-xl text-primary tracking-tight">
                     Afrolingo
                 </span>
