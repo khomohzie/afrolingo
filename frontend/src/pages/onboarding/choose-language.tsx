@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import { Compass, BadgeCheck } from "lucide-react";
 import gsap from "gsap";
+import Image from "next/image";
 
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -43,21 +44,21 @@ export default function ChooseLanguage() {
       name: "Yoruba",
       speakers: "45M Speakers",
       description: "Talking drum and Aso Oke fabric",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBQdicePZwvVQAL2kXjTV_6kBWyArd55SQOZSXDM3Az9IZxyPNJUy6ssyud7kN6L-bXO8ztr32ldpRfUE9PVKegbCJ_4ClkFszTmXGc6ZP3YsWC9mdbUsnF_cJ_hxFMyBIz95tmfJJzOhp8NM2edhJWZ6WYd9wFkAa4jEhhcA0cXnCNHYp-9UaZ3_msFlb_ZHinyANfmK0MNJ2YArJ6F5ekj-A9XAHlOoEjkKkDxP5QXwysBVpF_1hOj1CkTbPzMtei9Vu9zRIbeW-1",
+      image: "/images/yoruba-man.png", // Updated to your local public path
     },
     {
       id: "hausa",
       name: "Hausa",
       speakers: "80M Speakers",
       description: "Sahelian architecture and embroidery",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBE34UCLeDECRQ92GE91aKZLSVfiAR4TNbMLp5CnpdCTjhwNjeVJc-R-YtNei-3LJGNvC83bwkvNqkyz5M7zD35UMItY1KjK3BIbHfyk44cFNN6ad6G6ABlYWvrH7hgfd5rjI8dOK9DNyGMEe3o7Tj7Rkwk1oDBfIAX6U17VJtXiF4A7V7RENBj2joJVwZten7xzPFlZVBZzaL2V7qqBjmKI-m3S8lwn6ICgzz07ATMtlAbTiFfZCvoUK9srVN5QFMtDGX0kJ5QfJb6",
+      image: "/images/hausa-man.png", // Updated to your local public path
     },
     {
       id: "igbo",
       name: "Igbo",
       speakers: "30M Speakers",
       description: "Isiagu pattern and cultural staff",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAS-z6hNCQlBf6zmLB-Amo0YSGG7n2LrYJqjy0xrYf3ESJo0VROh8pfp2NczhEodMja231HkO6Z_8ytHOV0V8WSMu0W-_U_N1HHvLiRlAF4AAfeYKgzFwnTDPWC6bCX-Q7_pkzMLmnHokmzY00Fqv0elwcB_DilUMadyleU-fEVMdPTq3jClAOR4EMPyU2Zqf8AlvePtaObGxR7buqJuXl8DExBbAmC1LBkzUCt7XEb9I5wwFlY8a3A6mIKgTDC9VwSk5wwrZXood64",
+      image: "/images/igbo-man.png", // Updated to your local public path
     },
   ];
 
@@ -103,25 +104,22 @@ export default function ChooseLanguage() {
                   key={lang.id}
                   onClick={() => setSelectedLang(lang.id)}
                   // Added h-full to ensure the button stretches to the grid track height
-                  className={`lang-card h-full group flex flex-col rounded-2xl shadow-sm border transition-all duration-300 cursor-pointer overflow-hidden text-left outline-none [-webkit-tap-highlight-color:transparent] ${
-                    isSelected
+                  className={`lang-card h-full group flex flex-col rounded-2xl shadow-sm border transition-all duration-300 cursor-pointer overflow-hidden text-left outline-none [-webkit-tap-highlight-color:transparent] ${isSelected
                       ? "border-primary scale-[1.02] shadow-xl ring-2 ring-primary/20"
                       : "border-transparent bg-background hover:border-primary/40"
-                  }`}
+                    }`}
                 >
                   <div className="w-full aspect-[4/5] overflow-hidden relative bg-primary/5">
                     <div
-                      className={`absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-700 ${
-                        isSelected ? "scale-110" : "group-hover:scale-105"
-                      }`}
+                      className={`absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-700 ${isSelected ? "scale-110" : "group-hover:scale-105"
+                        }`}
                       style={{ backgroundImage: `url(${lang.image})` }}
                     />
                   </div>
 
                   {/* Dynamic Text Section - Added flex-1 to stretch down and fill empty space */}
-                  <div className={`p-5 border-t transition-colors duration-300 w-full flex-1 flex flex-col ${
-                    isSelected ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border text-foreground"
-                  }`}>
+                  <div className={`p-5 border-t transition-colors duration-300 w-full flex-1 flex flex-col ${isSelected ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border text-foreground"
+                    }`}>
                     <div className="flex justify-between items-baseline mb-1">
                       <p className={`text-lg font-bold leading-none ${isSelected ? "text-primary-foreground" : "text-primary"}`}>
                         {lang.name}
@@ -159,11 +157,10 @@ export default function ChooseLanguage() {
           <div className="action-animate flex flex-col items-center gap-6">
             <Button
               disabled={!selectedLang}
-              className={`min-w-[280px] h-14 px-8 rounded-xl text-lg font-bold leading-normal tracking-wide transition-all duration-300 ${
-                selectedLang
+              className={`min-w-[280px] h-14 px-8 rounded-xl text-lg font-bold leading-normal tracking-wide transition-all duration-300 ${selectedLang
                   ? "bg-primary text-primary-foreground  shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   : "bg-surface-variant text-muted-foreground opacity-50 cursor-not-allowed"
-              }`}
+                }`}
             >
               <span className="truncate">
                 {selectedLang ? "Continue Your Journey" : "Select a Language"}
