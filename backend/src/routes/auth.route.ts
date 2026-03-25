@@ -3,11 +3,10 @@ import express, { Router } from "express";
 const router: Router = express.Router();
 
 //Import Controller
-import {
-  signup,
-} from "../controllers/auth";
+import { login, signup } from "../controllers/auth";
 
 router.post("/signup", signup);
+router.post("/login", login);
 
 //Import middleware
 import { logger } from "../middlewares/logger.middleware";
