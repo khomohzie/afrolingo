@@ -13,6 +13,7 @@ import {
     Flame,
     Zap,
     Trophy,
+    Volume2,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -105,6 +106,16 @@ export default function LearnPath() {
                                 className="group-hover:-translate-y-1 transition-transform"
                             />{" "}
                             Shop
+                        </Link>
+                        <Link
+                            href="/afrotts"
+                            className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
+                        >
+                            <Volume2
+                                size={20}
+                                className="group-hover:-translate-y-1 transition-transform"
+                            />{" "}
+                            AfroTTS
                         </Link>
 
                         <div className="pt-4">

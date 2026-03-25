@@ -173,7 +173,7 @@ export function Navbar() {
 
           {user ? (
             <div className="hidden md:flex items-center gap-4">
-              <Button className="bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none hover:opacity-90">
+              <Button className="bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none hover:opacity-90">
                 Go Premium
               </Button>
               <button
@@ -248,7 +248,7 @@ export function Navbar() {
 
                 {user ? (
                   <div className="flex flex-col gap-4">
-                    <Button className="w-full bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none">
+                    <Button className="w-full bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none">
                       Go Premium
                     </Button>
                     <div className="flex items-center justify-between">
