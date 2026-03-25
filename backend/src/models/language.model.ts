@@ -1,4 +1,4 @@
-import { ILanguage } from "interfaces/language.interfaces";
+import { ILanguage } from "../interfaces/language.interfaces";
 import mongoose, { Schema } from "mongoose";
 
 const languageModel = new Schema<ILanguage>(
@@ -34,7 +34,7 @@ const languageModel = new Schema<ILanguage>(
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export default mongoose.model<ILanguage>("Language", languageModel);

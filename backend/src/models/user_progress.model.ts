@@ -1,4 +1,4 @@
-import { IUserProgress } from "interfaces/user.interfaces";
+import { IUserProgress } from "../interfaces/user.interfaces";
 import mongoose, { Schema } from "mongoose";
 
 const userProgressModel = new Schema<IUserProgress>(
@@ -42,7 +42,7 @@ const userProgressModel = new Schema<IUserProgress>(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // One progress record per user per phrase

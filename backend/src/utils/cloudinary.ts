@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import * as fs from "fs";
-import { ErrnoException } from "interfaces/exception.interfaces";
+import { ErrnoException } from "../interfaces/exception.interfaces";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -11,7 +11,7 @@ cloudinary.config({
 
 const cloudinaryUpload = (
   file: string,
-  cloudinaryFolder: string
+  cloudinaryFolder: string,
 ): Promise<string> => {
   return new Promise(async (resolve, reject) => {
     const BYTES_PER_MB = 1024 ** 2;
@@ -48,7 +48,7 @@ export const cloudinaryDelete = (file: string): Promise<any> => {
 
     if (
       /\.(jpg|jpeg|png|webp|avif|svg|gif|bmp|JPG|JPEG|PNG|WEBP|AVIF|SVG|GIF|BMP)$/.test(
-        file
+        file,
       ) == true
     ) {
       resourceType = "image";

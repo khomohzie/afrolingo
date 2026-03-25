@@ -1,12 +1,12 @@
 import {
   accessTokenCookieOptions,
   refreshTokenCookieOptions,
-} from "@config/jwt.config";
-import { generate } from "@utils/auth.util";
-import CustomException from "@utils/handlers/error.handler";
-import CustomResponse from "@utils/handlers/response.handler";
+} from "../../../config/jwt.config";
+import { generate } from "../../../utils/auth.util";
+import CustomException from "../../../utils/handlers/error.handler";
+import CustomResponse from "../../../utils/handlers/response.handler";
 import { NextFunction, Request, Response } from "express";
-import userModel from "models/user.model";
+import userModel from "../../../models/user.model";
 
 /**
  * @route POST /api/auth/login
@@ -23,7 +23,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
         new CustomException(400, "Please provide email and password", {
           success: false,
           path: "/auth/login",
-        })
+        }),
       );
     }
 
@@ -34,7 +34,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
         new CustomException(401, "Invalid email or password", {
           success: false,
           path: "/auth/login",
-        })
+        }),
       );
     }
 
@@ -56,7 +56,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
       {
         type: "success",
         action: "Login",
-      }
+      },
     );
   } catch (error) {
     console.error(error);

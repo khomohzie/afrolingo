@@ -1,9 +1,9 @@
-import { connect } from "@config/db";
-import languageModel from "@models/language.model";
-import phraseModel from "@models/phrase.model";
+import { connect } from "../config/db";
+import languageModel from "../models/language.model";
+import phraseModel from "../models/phrase.model";
 import dotenv from "dotenv";
 import { NextFunction, Request, Response } from "express";
-import CustomResponse from "utils/handlers/response.handler";
+import CustomResponse from "../utils/handlers/response.handler";
 
 dotenv.config();
 

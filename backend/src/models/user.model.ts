@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { IUser } from "interfaces/user.interfaces";
+import { IUser } from "../interfaces/user.interfaces";
 import mongoose, { Schema } from "mongoose";
 
 const userModel = new Schema<IUser>(
@@ -47,7 +47,7 @@ const userModel = new Schema<IUser>(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userModel.pre("save", async function () {
@@ -60,7 +60,7 @@ userModel.pre("save", async function () {
 });
 
 userModel.methods.comparePassword = async function (
-  candidatePassword: string
+  candidatePassword: string,
 ): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };

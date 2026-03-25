@@ -1,7 +1,10 @@
-import CustomException from "@utils/handlers/error.handler";
-import CustomResponse from "@utils/handlers/response.handler";
+import CustomException from "../../../utils/handlers/error.handler";
+import CustomResponse from "../../../utils/handlers/response.handler";
 import { NextFunction, Request, Response } from "express";
-import { batchCacheAudio, cacheAudioForPhrase } from "services/yarngpt.service";
+import {
+  batchCacheAudio,
+  cacheAudioForPhrase,
+} from "../../../services/yarngpt.service";
 
 /**
  * @route POST /api/ai/cacheAudioAll

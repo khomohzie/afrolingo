@@ -1,4 +1,4 @@
-import { IPhrase } from "interfaces/language.interfaces";
+import { IPhrase } from "../interfaces/language.interfaces";
 import mongoose, { Schema } from "mongoose";
 
 const phraseModel = new Schema<IPhrase>(

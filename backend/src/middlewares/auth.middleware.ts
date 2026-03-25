@@ -1,12 +1,12 @@
-import { decode } from "@utils/auth.util";
-import CustomException from "@utils/handlers/error.handler";
+import { decode } from "../utils/auth.util";
+import CustomException from "../utils/handlers/error.handler";
 import { NextFunction, Request, Response } from "express";
-import userModel from "models/user.model";
+import userModel from "../models/user.model";
 
 export const requireSignin = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   if (
     req.headers.authorization &&
@@ -27,7 +27,10 @@ export const requireSignin = async (
         new Date(data?.expiredAt).getTime() < new Date().getTime()
       ) {
         return next(
-          new CustomException(401, "Access expired. Please log in to continue.")
+          new CustomException(
+            401,
+            "Access expired. Please log in to continue.",
+          ),
         );
       }
 
@@ -50,7 +53,7 @@ export const requireSignin = async (
             reason: "account not found",
             alias: "acc_not_found",
             code: "ACC_ERR_01",
-          })
+          }),
         );
       }
     } catch (error: any) {
@@ -61,8 +64,8 @@ export const requireSignin = async (
           {
             path: "requireSignin",
             reason: "token sent but possibly wrong",
-          }
-        )
+          },
+        ),
       );
     }
   } else {
@@ -73,8 +76,8 @@ export const requireSignin = async (
         {
           reason: "No authorization header or invalid token.",
           alias: "token_not_found",
-        }
-      )
+        },
+      ),
     );
   }
 };

@@ -1,8 +1,8 @@
 import axios from "axios";
 import fs from "fs";
-import phraseModel from "models/phrase.model";
+import phraseModel from "../models/phrase.model";
 import path from "path";
-import cloudinaryUpload from "utils/cloudinary";
+import cloudinaryUpload from "../utils/cloudinary";
 
 // Map our language codes to YarnGPT speaker names
 const YARNGPT_SPEAKERS: Record<string, string> = {

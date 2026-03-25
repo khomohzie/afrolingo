@@ -27,7 +27,7 @@ import { ICustomException } from "./interfaces/exception.interfaces";
 import CustomResponse from "./utils/handlers/response.handler";
 import CustomException from "./utils/handlers/error.handler";
 import { default as routes } from "./routes";
-import seed from "config/seed";
+import seed from "./config/seed";
 
 // TOOBUSY
 app.use((req: Request, res: Response, next: NextFunction) => {
