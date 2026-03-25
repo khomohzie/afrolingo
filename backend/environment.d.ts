@@ -13,6 +13,12 @@ declare global {
       REFRESH_TOKEN_EXPIRES_IN_DAY: number;
       ACCESS_TOKEN_EXPIRES_IN: number;
       REFRESH_TOKEN_EXPIRES_IN: number;
+      YARNGPT_BASE_URL: string;
+      YARNGPT_API_KEY: string;
+      CLOUDINARY_API_KEY: string;
+      CLOUDINARY_API_SECRET: string;
+      CLOUDINARY_API_VARIABLE: string;
+      CLOUDINARY_CLOUD_NAME: string;
     }
   }
 
