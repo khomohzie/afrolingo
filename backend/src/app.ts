@@ -26,6 +26,7 @@ app.disable("x-powered-by");
 import { ICustomException } from "./interfaces/exception.interfaces";
 import CustomResponse from "./utils/handlers/response.handler";
 import CustomException from "./utils/handlers/error.handler";
+import { default as routes } from "./routes";
 
 // TOOBUSY
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -38,6 +39,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   }
   next();
 });
+
+app.use("/api", routes);
 
 // default route
 app.get("/", (req: Request, res: Response) => {
