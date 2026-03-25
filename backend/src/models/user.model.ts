@@ -42,6 +42,10 @@ const userModel = new Schema<IUser>(
       type: Date,
       default: null,
     },
+    deleted_at: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

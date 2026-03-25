@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { IUser } from "../interfaces/user.interfaces";
-import { signJwt } from "./jwt.utils";
-
+import { signJwt, verifyJwt } from "./jwt.utils";
 
 type TAUser = IUser & mongoose.Document;
 
@@ -11,7 +10,7 @@ type TGenerate = {
 };
 
 type TVerify = {
-  _id: string;
+  id: string;
   email?: string;
   expiresIn?: any;
   name?: string;
@@ -22,14 +21,14 @@ type TVerify = {
 //  Generate tokens
 export const generate = async (user: TAUser): Promise<TGenerate> => {
   const accessToken = signJwt(
-    { _id: user._id },
+    { id: user._id },
     {
       expiresIn: `${process.env.ACCESS_TOKEN_EXPIRES_IN_DAY}d`,
     }
   );
 
   const refreshToken = signJwt(
-    { _id: user._id },
+    { id: user._id },
     {
       expiresIn: `${process.env.REFRESH_TOKEN_EXPIRES_IN_DAY}d`,
     }
@@ -39,10 +38,30 @@ export const generate = async (user: TAUser): Promise<TGenerate> => {
   return { accessToken, refreshToken };
 };
 
+//  Read tokens
+export const decode = {
+  accessToken: async (token: string) => {
+    try {
+      return verifyJwt<TVerify>(token);
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  },
 
+  refreshToken: async (token: string): Promise<string | null> => {
+    try {
+      const decoded = verifyJwt<TVerify>(token);
+
+      return decoded!.id;
+    } catch (err: any) {
+      throw new Error(err);
+    }
+  },
+};
 
 const authUtil = {
   generate,
+  decode,
 };
 
 export default authUtil;

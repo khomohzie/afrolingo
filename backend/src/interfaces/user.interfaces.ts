@@ -9,6 +9,7 @@ export interface IUser extends Document {
   xp: number;
   streak: number;
   lastPracticeDate: Date | null;
+  deleted_at: Date | null;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
