@@ -27,9 +27,9 @@ const geistSans = Geist({
 });
 
 export default function LearnPath() {
-    return (
-      <>
-        <Head>
+  return (
+    <>
+      <Head>
         <title>Yoruba Path | Afrolingo</title>
       </Head>
       <div
@@ -44,6 +44,7 @@ export default function LearnPath() {
                   src="/logo.png"
                   alt="Afrolingo Logo"
                   fill
+                  sizes="32px"
                   className="object-contain"
                 />
               </div>
@@ -376,6 +377,6 @@ export default function LearnPath() {
           </div>
         </aside>
       </div>
-      </>
-    );
+    </>
+  );
 }
