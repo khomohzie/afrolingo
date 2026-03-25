@@ -19,7 +19,6 @@ export default function Home() {
   const ctaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // --- Hero Section Animation ---
     const heroTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: heroRef.current,
