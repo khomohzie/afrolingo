@@ -3,9 +3,9 @@ import { CookieOptions } from "express";
 const accessTokenCookieOptions: CookieOptions = {
   expires: new Date(
     Date.now() +
-    process.env.ACCESS_TOKEN_EXPIRES_IN_DAY * 60 * 24 * 7 * 4 * 3 * 1000
+      process.env.ACCESS_TOKEN_EXPIRES_IN * 60 * 24 * 7 * 4 * 3 * 1000
   ),
-  maxAge: process.env.ACCESS_TOKEN_EXPIRES_IN_DAY * 60 * 24 * 7 * 4 * 3 * 1000,
+  maxAge: process.env.ACCESS_TOKEN_EXPIRES_IN * 60 * 24 * 7 * 4 * 3 * 1000,
   httpOnly: true,
   sameSite: "lax",
 };
@@ -13,9 +13,9 @@ const accessTokenCookieOptions: CookieOptions = {
 const refreshTokenCookieOptions: CookieOptions = {
   expires: new Date(
     Date.now() +
-    process.env.REFRESH_TOKEN_EXPIRES_IN_DAY * 60 * 24 * 7 * 4 * 6 * 1000
+      process.env.REFRESH_TOKEN_EXPIRES_IN * 60 * 24 * 7 * 4 * 6 * 1000
   ),
-  maxAge: process.env.REFRESH_TOKEN_EXPIRES_IN_DAY * 60 * 24 * 7 * 4 * 6 * 1000,
+  maxAge: process.env.REFRESH_TOKEN_EXPIRES_IN * 60 * 24 * 7 * 4 * 6 * 1000,
   httpOnly: true,
   sameSite: "lax",
 };
