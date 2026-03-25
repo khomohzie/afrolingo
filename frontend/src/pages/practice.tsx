@@ -8,10 +8,10 @@ import {
   FaStop,
   FaCheckCircle,
   FaHistory,
+  FaCog,
 } from "react-icons/fa";
 import { BsSoundwave, BsPieChartFill } from "react-icons/bs";
 
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 // --- Types ---
