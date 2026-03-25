@@ -27,13 +27,14 @@ import { ICustomException } from "./interfaces/exception.interfaces";
 import CustomResponse from "./utils/handlers/response.handler";
 import CustomException from "./utils/handlers/error.handler";
 import { default as routes } from "./routes";
+import seed from "config/seed";
 
 // TOOBUSY
 app.use((req: Request, res: Response, next: NextFunction) => {
   if (toobusy_js()) {
     const e: ICustomException = new CustomException(
       429,
-      "Server is too busy. Please try again later."
+      "Server is too busy. Please try again later.",
     );
     return new CustomResponse(res, e).error(e.message, e.status, {});
   }
@@ -47,9 +48,12 @@ app.get("/", (req: Request, res: Response) => {
   return new CustomResponse(res).success(
     `Welcome to the ${process.env.APP_NAME} API. All API routes begin with /api.`,
     {},
-    200
+    200,
   );
 });
+
+// seed route
+app.post("/seed", seed);
 
 //  404
 app.get("/{*any}", (req: Request, res: Response) => {
@@ -61,7 +65,7 @@ app.get("/{*any}", (req: Request, res: Response) => {
     {
       path: req.originalUrl,
       method: req.method,
-    }
+    },
   );
 });
 
@@ -79,9 +83,9 @@ app.use(
       err.name === "CustomException" ? err.message : "Something went wrong!",
       err.name === "CustomException" ? err.status : 500,
       {},
-      err.name === "CustomException" ? err.meta : {}
+      err.name === "CustomException" ? err.meta : {},
     );
-  }
+  },
 );
 
 export default app;
