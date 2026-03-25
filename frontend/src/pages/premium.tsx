@@ -46,7 +46,7 @@ export default function PremiumCheckout() {
   return (
     <>
       <Head>
-        <title>Afrolingo Premium | Unlock the Full Experience</title>
+        <title>AfroLingo Premium | Unlock the Full Experience</title>
       </Head>
 
       <div className="min-h-screen flex flex-col bg-surface font-sans text-foreground">
@@ -190,7 +190,7 @@ export default function PremiumCheckout() {
                 <p className="text-center text-[10.5px] text-on-surface-muted uppercase tracking-widest leading-relaxed">
                   Your payment is processed through Interswitch's secure
                   gateway. <br />
-                  Afrolingo does not store your card details.
+                  AfroLingo does not store your card details.
                 </p>
               </div>
 

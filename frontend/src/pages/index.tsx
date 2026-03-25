@@ -107,7 +107,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Afrolingo – Unlock the Voices of Africa</title>
+        <title>AfroLingo – Unlock the Voices of Africa</title>
         <meta
           name="description"
           content="Learn African languages like Yoruba, Hausa, and Igbo with AI voice comparison and cultural immersion."
@@ -186,7 +186,7 @@ export default function Home() {
           <div className="container mx-auto px-6 max-w-6xl">
             <div className="text-center max-w-2xl mx-auto mb-16">
               <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-[#4A331A]">
-                Why Learn with Afrolingo?
+                Why Learn with AfroLingo?
               </h2>
               <p className="text-gray-500 text-base md:text-lg leading-relaxed">
                 We combine linguistic expertise with cultural immersion to

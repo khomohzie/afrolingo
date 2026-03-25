@@ -30,7 +30,7 @@ export default function LearnPath() {
     return (
       <>
         <Head>
-        <title>Yoruba Path | Afrolingo</title>
+        <title>Yoruba Path | AfroLingo</title>
       </Head>
       <div
         className={`${geistSans.className} min-h-screen flex bg-background text-foreground`}
@@ -42,12 +42,12 @@ export default function LearnPath() {
               <div className="w-8 h-8 relative group-hover:rotate-12 transition-transform duration-300">
                 <Image
                   src="/logo.png"
-                  alt="Afrolingo Logo"
+                  alt="AfroLingo Logo"
                   fill
                   className="object-contain"
                 />
               </div>
-              Afrolingo
+              AfroLingo
             </div>
             <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase mt-1 group-hover:text-primary transition-colors">
               Yoruba Path

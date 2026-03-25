@@ -107,12 +107,12 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/logo.png"
-            alt="Afrolingo Logo"
+            alt="AfroLingo Logo"
             width={40}
             height={40}
             className="h-10 w-auto"
           />
-          <span className="text-xl font-bold text-primary">Afrolingo</span>
+          <span className="text-xl font-bold text-primary">AfroLingo</span>
         </Link>
 
         {/* Desktop Navigation */}

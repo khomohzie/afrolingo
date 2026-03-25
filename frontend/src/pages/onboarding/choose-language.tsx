@@ -65,7 +65,7 @@ export default function ChooseLanguage() {
   return (
     <>
       <Head>
-        <title>Afrolingo - Choose Your Language</title>
+        <title>AfroLingo - Choose Your Language</title>
       </Head>
 
       <div

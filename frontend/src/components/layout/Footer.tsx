@@ -10,12 +10,12 @@ export function Footer() {
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/logo.png"
-              alt="Afrolingo Logo"
+              alt="AfroLingo Logo"
               width={32}
               height={32}
               className="h-8 w-auto"
             />
-            <span className="text-lg font-bold text-primary">Afrolingo</span>
+            <span className="text-lg font-bold text-primary">AfroLingo</span>
           </Link>
           <nav className="flex flex-wrap gap-6 text-sm text-on-surface-variant font-medium">
             <Link href="/privacy" className="hover:text-primary">
@@ -53,7 +53,7 @@ export function Footer() {
           </div>
         </div>
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-outline-variant text-xs text-on-surface-muted">
-          <p>© 2026 Afrolingo. Empowering voices across Africa.</p>
+          <p>© 2026 AfroLingo. Empowering voices across Africa.</p>
           <p>Designed for the future of language learning.</p>
         </div>
       </div>
