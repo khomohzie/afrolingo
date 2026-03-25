@@ -1,0 +1,421 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Earth-Toned Palette - Light Mode */
+  --surface: oklch(0.99 0.005 65); /* #fcf9f7 - warm off-white */
+  --surface-container-low: oklch(0.97 0.008 65); /* Slightly warmer base */
+  --surface-container: oklch(0.94 0.01 65); /* Mid-tone earth */
+  --surface-container-high: oklch(0.91 0.012 65); /* Deeper earth tone */
+  --surface-container-lowest: oklch(1 0 0); /* Almost white with warmth */
+  --surface-bright: oklch(0.96 0.006 65); /* For hover states */
+  --surface-variant: oklch(0.88 0.015 65); /* For disabled/locked states */
+  
+  /* Primary - Deep Earth Brown */
+  --primary: oklch(0.35 0.035 55); /* #4e3b2a - primary_container */
+  --primary-container: oklch(0.45 0.04 55); /* Slightly lighter variant */
+  --on-primary: oklch(0.98 0.008 65); /* Warm white text on primary */
+  --primary-fixed: oklch(0.55 0.045 55); /* For accent lines */
+  --primary-fixed-dim: oklch(0.48 0.042 55);
+  
+  /* Secondary - Warm Brown */
+  --secondary: oklch(0.48 0.038 55); /* #715a3e */
+  --secondary-container: oklch(0.58 0.042 55);
+  --on-secondary: oklch(0.98 0.008 65);
+  
+  /* Tertiary - Forest Green */
+  --tertiary: oklch(0.22 0.045 145); /* #003107 */
+  --tertiary-container: oklch(0.32 0.048 145);
+  --on-tertiary: oklch(0.98 0.008 65);
+  --tertiary-fixed: oklch(0.68 0.058 145); /* Light green for success states */
+  --tertiary-fixed-dim: oklch(0.58 0.052 145);
+  
+  /* Text Colors */
+  --on-surface: oklch(0.21 0.02 55); /* Deep brown-grey for primary text */
+  --on-surface-variant: oklch(0.45 0.025 55); /* Secondary text */
+  --on-surface-muted: oklch(0.62 0.02 55); /* Tertiary/muted text */
+  
+  /* Utility Colors */
+  --outline: oklch(0.75 0.018 55); /* For borders when absolutely necessary */
+  --outline-variant: oklch(0.82 0.02 55 / 0.15); /* Ghost borders at 15% opacity */
+  
+  /* Feedback Colors - Earth-Toned Variations */
+  --error: oklch(0.52 0.12 35); /* Rust-tinged red */
+  --success: oklch(0.55 0.085 145); /* Muted green */
+  --warning: oklch(0.68 0.095 75); /* Warm amber */
+  --info: oklch(0.58 0.065 235); /* Dusty blue */
+  
+  /* Component Tokens - Mapping to shadcn/ui */
+  --background: var(--surface);
+  --foreground: var(--on-surface);
+  --card: var(--surface-container-low);
+  --card-foreground: var(--on-surface);
+  --popover: var(--surface-container);
+  --popover-foreground: var(--on-surface);
+  --primary: var(--primary);
+  --primary-foreground: var(--on-primary);
+  --secondary: var(--secondary);
+  --secondary-foreground: var(--on-secondary);
+  --muted: var(--surface-container-high);
+  --muted-foreground: var(--on-surface-variant);
+  --accent: var(--tertiary);
+  --accent-foreground: var(--on-tertiary);
+  --destructive: var(--error);
+  --border: var(--outline-variant);
+  --input: var(--surface-container);
+  --ring: var(--primary);
+  
+  /* Radius - Rounded but sophisticated */
+  --radius: 0.75rem; /* rounded-md */
+  
+  /* Spacing Extensions (via Tailwind, but defined here for reference) */
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  
+  /* Shadow - Ambient with low opacity */
+  --shadow-ambient: 0 8px 24px -6px oklch(0.21 0.02 55 / 0.06);
+  
+  /* Glass Effect */
+  --glass-background: oklch(0.94 0.01 65 / 0.8);
+  --glass-blur: 12px;
+}
+
+@theme inline {
+  /* Color Variables */
+  --color-surface: var(--surface);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-variant: var(--surface-variant);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-on-surface-muted: var(--on-surface-muted);
+  
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary: var(--on-primary);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary: var(--on-secondary);
+  
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-fixed: var(--tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
+  
+  --color-outline-variant: var(--outline-variant);
+  
+  --color-error: var(--error);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  
+  /* Map to shadcn/ui tokens */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  /* Typography - Editorial Font Stack */
+  --font-sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', var(--font-sans);
+  
+  /* Radius Extensions */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.333);
+  --radius-xl: calc(var(--radius) * 1.777);
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-ambient: var(--shadow-ambient);
+  
+  /* Glass Effect Utilities */
+  --glass-background: var(--glass-background);
+  --glass-blur: var(--glass-blur);
+}
+
+.dark {
+  --background: var(--surface);
+  --foreground: var(--on-surface);
+  --card: var(--surface-container-low);
+  --card-foreground: var(--on-surface);
+  --popover: var(--surface-container);
+  --popover-foreground: var(--on-surface);
+  --primary: var(--primary);
+  --primary-foreground: var(--on-primary);
+  --secondary: var(--secondary);
+  --secondary-foreground: var(--on-secondary);
+  --muted: var(--surface-container-high);
+  --muted-foreground: var(--on-surface-variant);
+  --accent: var(--tertiary);
+  --accent-foreground: var(--on-tertiary);
+  --destructive: var(--error);
+  --border: var(--outline-variant);
+  --input: var(--surface-container);
+  --ring: var(--primary);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+  
+  /* Headings use Plus Jakarta Sans */
+  h1, h2, h3, h4, h5, h6,
+  .heading {
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+  
+  /* Prevent pure black/white in light mode */
+  html:not(.dark) {
+    color-scheme: light;
+  }
+  
+  /* Glass effect utility */
+  .glass {
+    background: var(--glass-background);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+  }
+  
+  /* No 1px borders for sections - use background shifts */
+  .section-boundary {
+    border: none;
+  }
+  
+  /* Ambient shadow for floating elements */
+  .float-shadow {
+    box-shadow: var(--shadow-ambient);
+  }
+  
+  /* Ghost border for locked units/containers */
+  .ghost-border {
+    border: 1px solid var(--outline-variant);
+  }
+
+}
+
+@layer components {
+  /* Typography Scale - Editorial */
+  .display-lg {
+    font-family: var(--font-heading);
+    font-size: 3.5rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--primary);
+  }
+  
+  .headline-sm {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    line-height: 1.3;
+    font-weight: 600;
+    color: var(--primary);
+  }
+  
+  .headline-md {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    line-height: 1.3;
+    font-weight: 600;
+    color: var(--primary);
+  }
+  
+  .title-sm {
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+  
+  .body-sm {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  
+  .body-md {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  .label-md {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--on-surface-variant);
+  }
+  
+  /* Card Styles */
+  .card-editorial {
+    background: var(--surface-container-lowest);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+  }
+  
+  .card-editorial:hover {
+    background: var(--surface-bright);
+  }
+  
+  /* Button Styles */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
+    color: var(--on-primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+  
+  .btn-secondary {
+    background: transparent;
+    color: var(--primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    border: 1px solid color-mix(in oklch, var(--primary) 20%, transparent);
+    transition: all 0.2s ease;
+  }
+  
+  .btn-secondary:hover {
+    border-color: var(--primary);
+    background: color-mix(in oklch, var(--primary) 5%, transparent);
+  }
+  
+  /* Learning Path Components */
+  .path-tether {
+    width: 4px;
+    background: var(--primary-fixed);
+    border-radius: var(--radius-full);
+  }
+  
+  .unit-active {
+    background: var(--surface-container-lowest);
+    border-left: 4px solid var(--primary-container);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+  }
+  
+  .unit-locked {
+    background: var(--surface-variant);
+    opacity: 0.4;
+  }
+  
+  .unit-locked * {
+    color: var(--on-surface-variant);
+  }
+  
+  /* Stats Card - No dividers */
+  .stats-card {
+    background: var(--surface-container-low);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: flex;
+    gap: var(--spacing-8);
+  }
+  
+  .stats-item {
+    flex: 1;
+  }
+  
+  /* Leaderboard Highlight */
+  .leaderboard-current-user {
+    background: var(--primary-container);
+    color: var(--on-primary);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Avatar & Chips */
+  .avatar-rounded {
+    border-radius: var(--radius-full);
+  }
+  
+  .chip-rounded {
+    border-radius: var(--radius-full);
+    padding: 0.25rem 1rem;
+    background: var(--surface-container);
+  }
+  
+  /* Spacing Utilities */
+  .spacing-8 {
+    gap: 2rem;
+  }
+  
+  .spacing-12 {
+    gap: 3rem;
+  }
+  
+  .spacing-20 {
+    gap: 5rem;
+  }
+  
+  .spacing-24 {
+    gap: 6rem;
+  }
+}
+
+@layer utilities {
+  /* Custom utilities for your design system */
+  .bg-surface-container-lowest {
+    background: var(--surface-container-lowest);
+  }
+  
+  .text-on-surface-variant {
+    color: var(--on-surface-variant);
+  }
+  
+  .text-primary {
+    color: var(--primary);
+  }
+  
+  .bg-primary-container {
+    background: var(--primary-container);
+  }
+  
+  .no-border-sections {
+    border: none;
+  }
+  
+  .surface-layered {
+    background: var(--surface-container-high);
+  }
+}

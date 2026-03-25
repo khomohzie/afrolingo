@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "jest --detectOpenHandles",
-    "start": "node dist/server.js",
+    "start": "node -r ./tsconfig-paths-bootstrap.js dist/server.js",
     "dev": "nodemon ./src/server.ts",
     "dev-prod": "set NODE_ENV=production && nodemon ./src/server.ts",
     "build": "tsc -p .",
@@ -35,12 +35,14 @@
   "homepage": "https://github.com/khomohzie/afrolingo#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "chalk": "^5.6.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.2",
     "morgan": "^1.10.1",
     "toobusy-js": "^0.5.1"
@@ -57,6 +59,7 @@
     "@types/toobusy-js": "^0.5.4",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.2"
   }
 }

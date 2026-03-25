@@ -1,4 +1,8 @@
 {
+  "ts-node": {
+    "files": true,
+    "require": ["tsconfig-paths/register"]
+  },
   "compilerOptions": {
     "target": "es2020",
     "module": "commonjs",
@@ -9,21 +13,11 @@
     "strict": true,
     "skipLibCheck": true,
     "paths": {
-      "*": [
-        "./src/*"
-      ],
-      "@config/*": [
-        "./src/config/*"
-      ],
-      "@utils/*": [
-        "./src/utils/*"
-      ],
-      "@schema/*": [
-        "./src/schema/*"
-      ],
-      "@models/*": [
-        "./src/models/*"
-      ]
+      "*": ["./src/*"],
+      "@config/*": ["./src/config/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@schema/*": ["./src/schema/*"],
+      "@models/*": ["./src/models/*"]
     }
   }
 }
