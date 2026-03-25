@@ -150,25 +150,27 @@ export default function LearnPath() {
               </div>
 
               {/* UNIT 2: ACTIVE */}
-              <div className="relative z-10 flex flex-col items-center gap-4 mb-12 group cursor-pointer active:scale-95 transition-all">
-                <div className="absolute top-0 w-20 h-20 bg-primary/20 rounded-full blur-xl group-hover:opacity-100 opacity-0 transition-opacity duration-500"></div>
+              <Link href="/practice">
+                <div className="relative z-10 flex flex-col items-center gap-4 mb-12 group cursor-pointer active:scale-95 transition-all">
+                  <div className="absolute top-0 w-20 h-20 bg-primary/20 rounded-full blur-xl group-hover:opacity-100 opacity-0 transition-opacity duration-500"></div>
 
-                <div className="w-20 h-20 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-xl border-4 border-background group-hover:scale-110 group-hover:-translate-y-2 transition-all duration-300">
-                  <Play
-                    size={32}
-                    fill="currentColor"
-                    className="ml-1 group-hover:scale-110 transition-transform"
-                  />
+                  <div className="w-20 h-20 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-xl border-4 border-background group-hover:scale-110 group-hover:-translate-y-2 transition-all duration-300">
+                    <Play
+                      size={32}
+                      fill="currentColor"
+                      className="ml-1 group-hover:scale-110 transition-transform"
+                    />
+                  </div>
+                  <div className="bg-primary text-on-primary px-8 py-5 rounded-2xl shadow-lg text-center min-w-[280px] group-hover:-translate-y-1 transition-transform">
+                    <h3 className="font-bold text-lg">
+                      Unit 2: Family & Kinship
+                    </h3>
+                    <p className="text-xs font-bold text-on-primary/70 tracking-widest uppercase mt-1">
+                      In Progress
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-primary text-on-primary px-8 py-5 rounded-2xl shadow-lg text-center min-w-[280px] group-hover:-translate-y-1 transition-transform">
-                  <h3 className="font-bold text-lg">
-                    Unit 2: Family & Kinship
-                  </h3>
-                  <p className="text-xs font-bold text-on-primary/70 tracking-widest uppercase mt-1">
-                    In Progress
-                  </p>
-                </div>
-              </div>
+              </Link>
 
               {/* UNIT 3: NEXT UP */}
               <div className="relative z-10 flex flex-col items-center gap-4 mb-12 group cursor-pointer active:scale-95 transition-all">

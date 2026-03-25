@@ -32,10 +32,10 @@ interface FeatureCardProps {
 // --- Mock Data ---
 const CURRENT_PHRASE: PhraseData = {
   id: "phrase-1",
-  targetPhrase: "Ẹ káàárọ̀",
-  translation: '"Good morning" (Yoruba)',
+  targetPhrase: "Ẹ̀gbọ́n mi",
+  translation: '"My older sibling" (Yoruba)',
   language: "Yoruba",
-  toneFocus: "rising tone on 'ká'",
+  toneFocus: "low tone on 'Ẹ̀' and the high tone on 'gbọ́n'",
 };
 
 // --- Navbar Component ---
