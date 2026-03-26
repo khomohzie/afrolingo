@@ -19,13 +19,12 @@ export default function Home() {
   const ctaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // --- Hero Section Animation ---
     const heroTimeline = gsap.timeline({
       scrollTrigger: {
         trigger: heroRef.current,
         start: "top 80%",
         end: "bottom 20%",
-        toggleActions: "restart none restart none", 
+        toggleActions: "restart none restart none",
       },
     });
     heroTimeline
@@ -52,7 +51,7 @@ export default function Home() {
         { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
         "-=0.2"
       );
-  
+
     gsap.to(heroImageRef.current, {
       y: 50,
       ease: "none",
@@ -63,7 +62,7 @@ export default function Home() {
         scrub: true,
       },
     });
-  
+
     const cards = gsap.utils.toArray<HTMLElement>(".feature-card");
     cards.forEach((card, i) => {
       gsap.fromTo(
@@ -75,15 +74,15 @@ export default function Home() {
           duration: 0.8,
           delay: i * 0.15,
           scrollTrigger: {
-            trigger: card,              
+            trigger: card,
             start: "top 80%",
             end: "bottom 20%",
-            toggleActions: "restart none restart none", 
+            toggleActions: "restart none restart none",
           },
         }
       );
     });
-  
+
     gsap.fromTo(
       ctaRef.current,
       { opacity: 0, scale: 0.95 },
@@ -99,7 +98,7 @@ export default function Home() {
         },
       }
     );
-  
+
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
@@ -108,7 +107,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Afrolingo – Unlock the Voices of Africa</title>
+        <title>AfroLingo – Unlock the Voices of Africa</title>
         <meta
           name="description"
           content="Learn African languages like Yoruba, Hausa, and Igbo with AI voice comparison and cultural immersion."
@@ -187,7 +186,7 @@ export default function Home() {
           <div className="container mx-auto px-6 max-w-6xl">
             <div className="text-center max-w-2xl mx-auto mb-16">
               <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-[#4A331A]">
-                Why Learn with Afrolingo?
+                Why Learn with <span className="text-on-surface">Afro</span><span className="text-[#964B00]">Lingo</span>?
               </h2>
               <p className="text-gray-500 text-base md:text-lg leading-relaxed">
                 We combine linguistic expertise with cultural immersion to

@@ -5,7 +5,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 flex items-center justify-between py-4 bg-[#FAFAFA]/80 backdrop-blur-md border-b border-gray-100/50 -mx-6 px-6 md:-mx-12 md:px-12 transition-all">
       
       <div className="flex items-center gap-2 font-bold text-xl text-[#4A331A]">
-        <span className="text-2xl">🌍</span> Afrolingo
+        <img src="/logo.png" alt="AfroLingo logo" className="w-6 h-6" /> AfroLingo
       </div>
 
       <div className="hidden md:flex gap-8 text-sm font-semibold text-gray-600">

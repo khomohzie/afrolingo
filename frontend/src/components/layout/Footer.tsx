@@ -4,18 +4,21 @@ import { FaGithub, FaTwitter } from "react-icons/fa";
 
 export function Footer() {
   return (
-    <footer className="bg-surface-container-low/40 pt-20 pb-10">
+    <footer className="bg-surface-container-low/40 z-50 pt-20 pb-10">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/logo.png"
-              alt="Afrolingo Logo"
+              alt="AfroLingo Logo"
               width={32}
               height={32}
               className="h-8 w-auto"
             />
-            <span className="text-lg font-bold text-primary">Afrolingo</span>
+          <span className="text-xl font-heading font-bold tracking-tight">
+            <span className="text-on-surface">Afro</span>
+            <span className="text-[#964B00]">Lingo</span>
+          </span>
           </Link>
           <nav className="flex flex-wrap gap-6 text-sm text-on-surface-variant font-medium">
             <Link href="/privacy" className="hover:text-primary">
@@ -53,7 +56,7 @@ export function Footer() {
           </div>
         </div>
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-outline-variant text-xs text-on-surface-muted">
-          <p>© 2026 Afrolingo. Empowering voices across Africa.</p>
+          <p>© 2026 AfroLingo. Empowering voices across Africa.</p>
           <p>Designed for the future of language learning.</p>
         </div>
       </div>
