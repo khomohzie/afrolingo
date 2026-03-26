@@ -92,11 +92,11 @@ export function Navbar() {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
       linkRefs.current.forEach((link) => {
         if (!link) return;
-        link.removeEventListener("mouseenter", () => {});
-        link.removeEventListener("mouseleave", () => {});
+        link.removeEventListener("mouseenter", () => { });
+        link.removeEventListener("mouseleave", () => { });
       });
     };
-  }, [isPracticePage]); // FIX 2: Changed from currentNavLinks to the boolean isPracticePage
+  }, [isPracticePage]);
 
   const isActive = (path: string) => router.pathname === path;
 
@@ -118,7 +118,7 @@ export function Navbar() {
       style={{ backdropFilter: "blur(8px)" }}
     >
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-       <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <Image
             src="/logo.png"
             alt="Afrolingo Logo"
@@ -141,11 +141,10 @@ export function Navbar() {
               ref={(el) => {
                 if (el) linkRefs.current[idx] = el;
               }}
-              className={`transition-colors hover:text-primary ${
-                isActive(href)
+              className={`transition-colors hover:text-primary ${isActive(href)
                   ? "text-primary font-bold border-b-2 border-primary pb-1"
                   : ""
-              }`}
+                }`}
             >
               {label}
             </Link>
@@ -216,9 +215,8 @@ export function Navbar() {
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`text-lg font-medium transition-colors hover:text-primary ${
-                      isActive(href) ? "text-primary font-bold" : ""
-                    }`}
+                    className={`text-lg font-medium transition-colors hover:text-primary ${isActive(href) ? "text-primary font-bold" : ""
+                      }`}
                   >
                     {label}
                   </Link>

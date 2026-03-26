@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { FaGithub, FaTwitter } from "react-icons/fa";
+import { FaGithub, FaXTwitter } from "react-icons/fa6";
 
 export function Footer() {
   return (
@@ -15,22 +15,22 @@ export function Footer() {
               height={32}
               className="h-8 w-auto"
             />
-          <span className="text-xl font-heading font-bold tracking-tight">
-            <span className="text-on-surface">Afro</span>
-            <span className="text-[#964B00]">Lingo</span>
-          </span>
+            <span className="text-xl font-heading font-bold tracking-tight">
+              <span className="text-on-surface">Afro</span>
+              <span className="text-[#964B00]">Lingo</span>
+            </span>
           </Link>
           <nav className="flex flex-wrap gap-6 text-sm text-on-surface-variant font-medium">
-            <Link href="/privacy" className="hover:text-primary">
+            <Link href="/privacy" onClick={(e) => e.preventDefault()} className="hover:text-primary">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-primary">
+            <Link href="/terms" onClick={(e) => e.preventDefault()} className="hover:text-primary">
               Terms of Service
             </Link>
-            <Link href="/careers" className="hover:text-primary">
+            <Link href="/careers" onClick={(e) => e.preventDefault()} className="hover:text-primary">
               Careers
             </Link>
-            <Link href="/contact" className="hover:text-primary">
+            <Link href="/contact" onClick={(e) => e.preventDefault()} className="hover:text-primary">
               Contact Us
             </Link>
           </nav>
@@ -39,6 +39,7 @@ export function Footer() {
               href="https://github.com/afrolingo"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => e.preventDefault()}
               className="h-10 w-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors text-on-surface-variant"
               aria-label="GitHub"
             >
@@ -48,10 +49,11 @@ export function Footer() {
               href="https://twitter.com/afrolingo"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => e.preventDefault()}
               className="h-10 w-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container transition-colors text-on-surface-variant"
               aria-label="Twitter"
             >
-              <FaTwitter size={20} color="currentColor" aria-hidden="true" />
+              <FaXTwitter size={20} color="currentColor" aria-hidden="true" />
             </a>
           </div>
         </div>

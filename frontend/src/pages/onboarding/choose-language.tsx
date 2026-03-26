@@ -11,8 +11,11 @@ import { Button } from "@/components/ui/button";
 export default function ChooseLanguage() {
   const [selectedLang, setSelectedLang] = useState<string | null>(null);
   const mainRef = useRef<HTMLElement>(null);
+  
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
@@ -179,17 +182,18 @@ export default function ChooseLanguage() {
             </div>
           </div>
 
-          <div className="action-animate flex flex-col items-center gap-6">
+          <div className="action-animate flex flex-col items-center gap-6" suppressHydrationWarning>
             <Button
-              disabled={selectedLang === null}
+              suppressHydrationWarning
+              disabled={!mounted || selectedLang === null}
               className={`min-w-[280px] h-14 px-8 rounded-xl text-lg font-bold leading-normal tracking-wide transition-all duration-300 ${
-                selectedLang
+                mounted && selectedLang
                   ? "bg-primary text-primary-foreground shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   : "bg-surface-variant text-muted-foreground opacity-50 cursor-not-allowed"
               }`}
             >
-              <span className="truncate">
-                {selectedLang ? "Continue Your Journey" : "Select a Language"}
+              <span className="truncate" suppressHydrationWarning>
+                {mounted && selectedLang ? "Continue Your Journey" : "Select a Language"}
               </span>
             </Button>
             <p className="text-primary/40 text-xs font-semibold uppercase tracking-widest flex items-center gap-2">
