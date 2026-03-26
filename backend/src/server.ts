@@ -1,5 +1,5 @@
 // Load environment variables from .env file
-require("dotenv").config();
+import "dotenv/config";
 
 import http from "http";
 
