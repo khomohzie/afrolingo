@@ -3,13 +3,16 @@ import express, { Router } from "express";
 const router: Router = express.Router();
 
 //Import Controller
-import { login, selectLanguage, signup } from "../controllers/auth";
+import {
+  getLeaderboard,
+  getProgressByLanguage,
+  getUserStats,
+} from "../controllers/progress";
 import { requireSignin } from "../middlewares/auth.middleware";
 
-router.post("/signup", signup);
-router.post("/login", login);
-
-router.patch("/onboarding", requireSignin, selectLanguage);
+router.get("/stats", requireSignin, getUserStats);
+router.get("/leaderboard", requireSignin, getLeaderboard);
+router.get("/:language", requireSignin, getProgressByLanguage);
 
 //Import middleware
 import { logger } from "../middlewares/logger.middleware";

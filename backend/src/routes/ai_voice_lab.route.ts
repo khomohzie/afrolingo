@@ -3,13 +3,10 @@ import express, { Router } from "express";
 const router: Router = express.Router();
 
 //Import Controller
-import { login, selectLanguage, signup } from "../controllers/auth";
-import { requireSignin } from "../middlewares/auth.middleware";
+import { cacheAudio, cacheAudioAll } from "../controllers/ai_voice_lab";
 
-router.post("/signup", signup);
-router.post("/login", login);
-
-router.patch("/onboarding", requireSignin, selectLanguage);
+router.post("/cacheAudio", cacheAudio);
+router.post("/cacheAudioAll", cacheAudioAll);
 
 //Import middleware
 import { logger } from "../middlewares/logger.middleware";

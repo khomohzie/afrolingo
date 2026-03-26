@@ -3,13 +3,19 @@ import express, { Router } from "express";
 const router: Router = express.Router();
 
 //Import Controller
-import { login, selectLanguage, signup } from "../controllers/auth";
+import {
+  completePhrase,
+  getLanguages,
+  getLessonsByLanguage,
+  getPhrase,
+} from "../controllers/lesson";
 import { requireSignin } from "../middlewares/auth.middleware";
 
-router.post("/signup", signup);
-router.post("/login", login);
+router.get("/languages", getLanguages);
+router.get("/:language", requireSignin, getLessonsByLanguage);
 
-router.patch("/onboarding", requireSignin, selectLanguage);
+router.get("/phrase/:phraseId", requireSignin, getPhrase);
+router.post("/phrase/:phraseId/complete", requireSignin, completePhrase);
 
 //Import middleware
 import { logger } from "../middlewares/logger.middleware";
