@@ -13,6 +13,41 @@ This repository contains:
 - **Backend:** Node.js, Express, TypeScript, MongoDB (Mongoose), JWT auth
 - **Integrations:** Interswitch (payments), Cloudinary (media), YarnGPT API (AI features)
 
+## Team Contributions
+
+### Daniel Komolafe (Backend Engineer & Project Lead)
+
+- Architected and implemented the core backend system, including authentication (JWT-based signup/login), onboarding, and secure routing
+- Designed and developed key application features: language/lesson management, phrase logic, quiz system (generation, submission, evaluation), and user progress tracking (stats, leaderboard, breakdowns)
+- Built and optimized AI-powered services, including audio generation pipeline using YarnGPT with caching, and AI Voice Lab backend routes
+- Integrated third-party services such as Cloudinary (media upload/management) and Interswitch (subscription payment initiation & verification)
+- Established backend architecture: API structure (routes, controllers, models), environment configuration, error handling, and response utilities
+- Improved system reliability and performance via enhanced error handling, Axios interceptors, and database seeding strategies
+- Contributed across fullstack boundaries, ensuring smooth frontend–backend integration and alignment on infrastructure decisions
+- Maintained developer experience and project health through tooling improvements, dependency management, build optimization, and codebase refactoring
+- Led repository management, including pull request reviews, version control workflows, staging coordination, and documentation
+
+### Oluwatobiloba Oni (Frontend Engineer & UI/UX Designer)
+
+- Led design and development of core frontend pages: Learn, Practice, Premium, and AfroTTS (text-to-speech)
+- Implemented recording and speech analysis features in the Practice module
+- Designed and integrated reusable UI components (Navbar, Footer, LearnPath, etc.)
+- Improved UI/UX across the app with responsive layouts and consistent branding
+- Integrated navigation flows and enhanced user interaction patterns
+- Updated AfroLingo branding across the platform (logo, typography, visual consistency)
+- Built language selection UI and optimized learning pathways
+- Refactored component structure for maintainability and cleaner code
+
+### Boluwatife Oni (Frontend Engineer)
+
+- Designed and implemented the landing page, onboarding flow, and overall design system
+- Established visual identity (earth-toned palette, typography, component styling)
+- Added animations using GSAP to enhance user experience
+- Built and refined key UI pages including Premium and language selection screens
+- Improved responsiveness and usability across multiple pages
+- Integrated global UI features such as theme provider and toast notifications
+- Continuously refined layout, spacing, and visual hierarchy across the app
+
 ## Project Structure
 
 ```text
