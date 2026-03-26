@@ -12,7 +12,7 @@ export default function App({ Component, pageProps }: AppProps) {
       storageKey="afrolingo-theme"
     >
       <Component {...pageProps} />
-      <Toaster richColors closeButton />
+      <Toaster position="top-center" richColors closeButton />
     </ThemeProvider>
   );
 }

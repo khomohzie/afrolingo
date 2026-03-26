@@ -2,20 +2,139 @@ import { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import { Compass, BadgeCheck } from "lucide-react";
 import gsap from "gsap";
-import Image from "next/image";
+import { useRouter } from "next/router";
+import { toast } from "sonner";
 
+import type { Language } from "@/types";
+import { getLanguages } from "@/lib/lessons";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 
+type LanguageCard = Language & {
+  image: string;
+  speakersLabel: string;
+  culturalDescription: string;
+};
+
+const languageVisuals: Record<
+  string,
+  { image: string; speakersLabel: string; culturalDescription: string }
+> = {
+  yoruba: {
+    image: "/images/yoruba-man.png",
+    speakersLabel: "45M Speakers",
+    culturalDescription: "Talking drum and Aso Oke fabric",
+  },
+  hausa: {
+    image: "/images/hausa-man.png",
+    speakersLabel: "80M Speakers",
+    culturalDescription: "Sahelian architecture and embroidery",
+  },
+  igbo: {
+    image: "/images/igbo-man.png",
+    speakersLabel: "30M Speakers",
+    culturalDescription: "Isiagu pattern and cultural staff",
+  },
+};
+
+const fallbackLanguages: LanguageCard[] = [
+  {
+    _id: "yoruba",
+    code: "yoruba",
+    name: "Yoruba",
+    nativeName: "Èdè Yorùbá",
+    description:
+      "Spoken by over 45 million people across Nigeria, Benin, and Togo.",
+    flagEmoji: "🇳🇬",
+    isActive: true,
+    totalPhrases: 10,
+    image: "/images/yoruba-man.png",
+    speakersLabel: "45M Speakers",
+    culturalDescription: "Talking drum and Aso Oke fabric",
+  },
+  {
+    _id: "hausa",
+    code: "hausa",
+    name: "Hausa",
+    nativeName: "Harshen Hausa",
+    description:
+      "One of Africa's most widely spoken languages with over 70 million speakers.",
+    flagEmoji: "🇳🇬",
+    isActive: true,
+    totalPhrases: 7,
+    image: "/images/hausa-man.png",
+    speakersLabel: "80M Speakers",
+    culturalDescription: "Sahelian architecture and embroidery",
+  },
+  {
+    _id: "igbo",
+    code: "igbo",
+    name: "Igbo",
+    nativeName: "Asụsụ Igbo",
+    description:
+      "Spoken by over 45 million people mainly in southeastern Nigeria.",
+    flagEmoji: "🇳🇬",
+    isActive: true,
+    totalPhrases: 7,
+    image: "/images/igbo-man.png",
+    speakersLabel: "30M Speakers",
+    culturalDescription: "Isiagu pattern and cultural staff",
+  },
+];
+
+function mapLanguagesToCards(apiLanguages: Language[]): LanguageCard[] {
+  return apiLanguages.map((language) => {
+    const visuals = languageVisuals[language.code] ?? {
+      image: "/images/language-placeholder.png",
+      speakersLabel: `${language.totalPhrases} Phrases`,
+      culturalDescription: language.description,
+    };
+
+    return {
+      ...language,
+      image: visuals.image,
+      speakersLabel: visuals.speakersLabel,
+      culturalDescription: visuals.culturalDescription,
+    };
+  });
+}
+
 export default function ChooseLanguage() {
   const [selectedLang, setSelectedLang] = useState<string | null>(null);
-  const mainRef = useRef<HTMLElement>(null);
-  
+  const [languages, setLanguages] = useState<LanguageCard[]>(fallbackLanguages);
   const [mounted, setMounted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const mainRef = useRef<HTMLElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const loadLanguages = async () => {
+      try {
+        const result = await getLanguages();
+
+        if (result?.data?.length) {
+          setLanguages(mapLanguagesToCards(result.data));
+        }
+      } catch (error) {
+        console.error("Failed to load languages:", error);
+        toast.error(
+          "Could not load languages from server. Using fallback list."
+        );
+      }
+    };
+
+    void loadLanguages();
+  }, []);
+
+  useEffect(() => {
+    if (!mainRef.current) return;
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
@@ -39,31 +158,40 @@ export default function ChooseLanguage() {
     }, mainRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [languages]);
 
-  const languages = [
-    {
-      id: "yoruba",
-      name: "Yoruba",
-      speakers: "45M Speakers",
-      description: "Talking drum and Aso Oke fabric",
-      image: "/images/yoruba-man.png",
-    },
-    {
-      id: "hausa",
-      name: "Hausa",
-      speakers: "80M Speakers",
-      description: "Sahelian architecture and embroidery",
-      image: "/images/hausa-man.png",
-    },
-    {
-      id: "igbo",
-      name: "Igbo",
-      speakers: "30M Speakers",
-      description: "Isiagu pattern and cultural staff",
-      image: "/images/igbo-man.png",
-    },
-  ];
+  const handleContinue = async () => {
+    if (!selectedLang || isSubmitting) return;
+
+    try {
+      setIsSubmitting(true);
+
+      const rawUser = localStorage.getItem("authUser");
+
+      if (!rawUser) {
+        toast.error("Your session is missing. Please log in again.");
+        void router.replace("/login");
+        return;
+      }
+
+      const user = JSON.parse(rawUser);
+      const updatedUser = {
+        ...user,
+        selectedLanguage: selectedLang,
+      };
+
+      localStorage.setItem("authUser", JSON.stringify(updatedUser));
+      window.dispatchEvent(new Event("auth-changed"));
+
+      toast.success("Language selected successfully");
+      void router.replace("/learn");
+    } catch (error) {
+      console.error("Failed to continue:", error);
+      toast.error("Could not continue right now");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -90,7 +218,7 @@ export default function ChooseLanguage() {
               Choose your language
             </h1>
             <p className="text-primary/70 text-lg font-medium leading-relaxed">
-              Connect with the soul of the continent through its diverse voices.{" "}
+              Connect with the soul of the continent through its diverse voices.
               <br className="hidden md:block" />
               Begin your journey into the heart of Africa.
             </p>
@@ -98,12 +226,13 @@ export default function ChooseLanguage() {
 
           <div className="mb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {languages.map((lang) => {
-              const isSelected = selectedLang === lang.id;
+              const isSelected = selectedLang === lang.code;
 
               return (
                 <button
-                  key={lang.id}
-                  onClick={() => setSelectedLang(lang.id)}
+                  key={lang._id}
+                  type="button"
+                  onClick={() => setSelectedLang(lang.code)}
                   className={`lang-card h-full group flex flex-col rounded-2xl shadow-sm border transition-all duration-300 cursor-pointer overflow-hidden text-left outline-none [-webkit-tap-highlight-color:transparent] ${
                     isSelected
                       ? "border-primary scale-[1.02] shadow-xl ring-2 ring-primary/20"
@@ -126,26 +255,39 @@ export default function ChooseLanguage() {
                         : "bg-card border-border text-foreground"
                     }`}
                   >
-                    <div className="flex justify-between items-baseline mb-1">
+                    <div className="flex justify-between items-baseline mb-1 gap-3">
+                      <div>
+                        <p
+                          className={`text-lg font-bold leading-none ${
+                            isSelected
+                              ? "text-primary-foreground"
+                              : "text-primary"
+                          }`}
+                        >
+                          {lang.name}
+                        </p>
+                        <p
+                          className={`text-xs mt-1 ${
+                            isSelected
+                              ? "text-primary-foreground/70"
+                              : "text-primary/50"
+                          }`}
+                        >
+                          {lang.nativeName}
+                        </p>
+                      </div>
+
                       <p
-                        className={`text-lg font-bold leading-none ${
-                          isSelected
-                            ? "text-primary-foreground"
-                            : "text-primary"
-                        }`}
-                      >
-                        {lang.name}
-                      </p>
-                      <p
-                        className={`text-[10px] font-bold uppercase tracking-wider ${
+                        className={`text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${
                           isSelected
                             ? "text-primary-foreground/70"
                             : "text-primary/50"
                         }`}
                       >
-                        {lang.speakers}
+                        {lang.speakersLabel}
                       </p>
                     </div>
+
                     <p
                       className={`text-sm ${
                         isSelected
@@ -153,7 +295,17 @@ export default function ChooseLanguage() {
                           : "text-primary/60"
                       }`}
                     >
-                      {lang.description}
+                      {lang.culturalDescription}
+                    </p>
+
+                    <p
+                      className={`text-xs mt-3 ${
+                        isSelected
+                          ? "text-primary-foreground/70"
+                          : "text-primary/45"
+                      }`}
+                    >
+                      {lang.totalPhrases} phrases available
                     </p>
                   </div>
                 </button>
@@ -182,20 +334,29 @@ export default function ChooseLanguage() {
             </div>
           </div>
 
-          <div className="action-animate flex flex-col items-center gap-6" suppressHydrationWarning>
+          <div
+            className="action-animate flex flex-col items-center gap-6"
+            suppressHydrationWarning
+          >
             <Button
               suppressHydrationWarning
-              disabled={!mounted || selectedLang === null}
+              disabled={!mounted || selectedLang === null || isSubmitting}
+              onClick={handleContinue}
               className={`min-w-[280px] h-14 px-8 rounded-xl text-lg font-bold leading-normal tracking-wide transition-all duration-300 ${
-                mounted && selectedLang
+                mounted && selectedLang && !isSubmitting
                   ? "bg-primary text-primary-foreground shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   : "bg-surface-variant text-muted-foreground opacity-50 cursor-not-allowed"
               }`}
             >
               <span className="truncate" suppressHydrationWarning>
-                {mounted && selectedLang ? "Continue Your Journey" : "Select a Language"}
+                {isSubmitting
+                  ? "Continuing..."
+                  : mounted && selectedLang
+                  ? "Continue Your Journey"
+                  : "Select a Language"}
               </span>
             </Button>
+
             <p className="text-primary/40 text-xs font-semibold uppercase tracking-widest flex items-center gap-2">
               <BadgeCheck className="w-4 h-4 text-green-500" />
               Trusted by 500k+ learners
@@ -203,6 +364,7 @@ export default function ChooseLanguage() {
           </div>
         </main>
       </div>
+
       <Footer />
     </>
   );
