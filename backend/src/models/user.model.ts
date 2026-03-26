@@ -42,12 +42,15 @@ const userModel = new Schema<IUser>(
       type: Date,
       default: null,
     },
-    deleted_at: {
+    premiumExpiresAt: {
+      type: Date,
+    },
+    deletedAt: {
       type: Date,
       default: null,
     },
   },
-  { timestamps: true },
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 userModel.pre("save", async function () {
@@ -60,7 +63,7 @@ userModel.pre("save", async function () {
 });
 
 userModel.methods.comparePassword = async function (
-  candidatePassword: string,
+  candidatePassword: string
 ): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
@@ -70,6 +73,11 @@ userModel.set("toJSON", {
     const { password, ...rest } = ret;
     return rest;
   },
+});
+
+userModel.virtual("isPremium").get(function () {
+  if (!this.premiumExpiresAt) return false;
+  return this.premiumExpiresAt?.getTime() > Date.now();
 });
 
 export default mongoose.model<IUser>("User", userModel);

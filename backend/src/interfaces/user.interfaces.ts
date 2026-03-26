@@ -9,7 +9,9 @@ export interface IUser extends Document {
   xp: number;
   streak: number;
   lastPracticeDate: Date | null;
-  deleted_at: Date | null;
+  isPremium?: boolean;
+  premiumExpiresAt?: Date;
+  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -37,4 +39,13 @@ export interface IXPResult {
   streakUpdated: boolean;
   levelUp: boolean;
   newLevel: number;
+}
+
+export interface IPayment extends Document {
+  user: mongoose.Types.ObjectId;
+  txnRef: string;
+  amount: number;
+  status: "pending" | "success" | "failed";
+  currency: number;
+  paidAt?: Date;
 }

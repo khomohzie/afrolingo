@@ -8,6 +8,7 @@ declare global {
       MONGO_URI: string;
       MONGO_URI_CLOUD: string;
       APP_NAME: string;
+      FRONTEND_URL: string;
       JWT_SECRET: string;
       ACCESS_TOKEN_EXPIRES_IN_DAY: number;
       REFRESH_TOKEN_EXPIRES_IN_DAY: number;
@@ -19,6 +20,12 @@ declare global {
       CLOUDINARY_API_SECRET: string;
       CLOUDINARY_CLOUD_NAME: string;
       CLOUDINARY_URL: string;
+      INTERSWITCH_MERCHANT_CODE: string;
+      INTERSWITCH_PAY_ITEM_ID: string;
+      INTERSWITCH_CLIENT_ID: string;
+      INTERSWITCH_CLIENT_SECRET: string;
+      INTERSWITCH_BASE_URL: string;
+      SUBSCRIPTION_AMOUNT: number;
     }
   }
 

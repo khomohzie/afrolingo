@@ -6,7 +6,7 @@ import userModel from "../models/user.model";
 export const requireSignin = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   if (
     req.headers.authorization &&
@@ -27,10 +27,7 @@ export const requireSignin = async (
         new Date(data?.expiredAt).getTime() < new Date().getTime()
       ) {
         return next(
-          new CustomException(
-            401,
-            "Access expired. Please log in to continue.",
-          ),
+          new CustomException(401, "Access expired. Please log in to continue.")
         );
       }
 
@@ -38,8 +35,8 @@ export const requireSignin = async (
         .findOne({
           _id: data?.id,
           $or: [
-            { deleted_at: null }, // Check if deleted_at is null
-            { deleted_at: "" }, // Check if deleted_at is an empty string
+            { deletedAt: null }, // Check if deletedAt is null
+            { deletedAt: "" }, // Check if deletedAt is an empty string
           ],
         })
         .exec();
@@ -53,7 +50,7 @@ export const requireSignin = async (
             reason: "account not found",
             alias: "acc_not_found",
             code: "ACC_ERR_01",
-          }),
+          })
         );
       }
     } catch (error: any) {
@@ -64,8 +61,8 @@ export const requireSignin = async (
           {
             path: "requireSignin",
             reason: "token sent but possibly wrong",
-          },
-        ),
+          }
+        )
       );
     }
   } else {
@@ -76,8 +73,8 @@ export const requireSignin = async (
         {
           reason: "No authorization header or invalid token.",
           alias: "token_not_found",
-        },
-      ),
+        }
+      )
     );
   }
 };
