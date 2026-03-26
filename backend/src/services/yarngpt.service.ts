@@ -17,7 +17,7 @@ const YARNGPT_SPEAKERS: Record<string, string> = {
  */
 export const generateAudio = async (
   text: string,
-  language: "yoruba" | "igbo" | "hausa",
+  language: "yoruba" | "igbo" | "hausa"
 ): Promise<string> => {
   const speaker = YARNGPT_SPEAKERS[language];
 
@@ -30,8 +30,8 @@ export const generateAudio = async (
         "Content-Type": "application/json",
       },
       responseType: "arraybuffer",
-      timeout: 15000,
-    },
+      timeout: 25000,
+    }
   );
 
   const uploadDir = path.join(__dirname, "../uploads");
@@ -52,7 +52,7 @@ export const generateAudio = async (
  * Skips if audioUrl already exists.
  */
 export const cacheAudioForPhrase = async (
-  phraseId: string,
+  phraseId: string
 ): Promise<string | null> => {
   const phrase = await phraseModel.findById(phraseId);
   if (!phrase) throw new Error("Phrase not found");
@@ -91,7 +91,7 @@ export const cacheAudioForPhrase = async (
  * Adds a 300ms delay between calls to avoid rate limiting.
  */
 export const batchCacheAudio = async (
-  language: "yoruba" | "igbo" | "hausa",
+  language: "yoruba" | "igbo" | "hausa"
 ): Promise<{ success: number; failed: number }> => {
   const phrases = await phraseModel.find({
     language,
@@ -120,7 +120,7 @@ export const batchCacheAudio = async (
         try {
           const downloadURL = await cloudinaryUpload(
             filePath,
-            cloudinaryFolder,
+            cloudinaryFolder
           );
 
           phrase.audioUrl = downloadURL;
