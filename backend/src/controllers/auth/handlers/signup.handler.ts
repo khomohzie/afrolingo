@@ -27,7 +27,7 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
         new CustomException(400, "Please provide name, email and password", {
           success: false,
           path: "/auth/signup",
-        }),
+        })
       );
     }
 
@@ -38,7 +38,7 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
         new CustomException(400, "Email already registered", {
           success: false,
           path: "/auth/signup",
-        }),
+        })
       );
     }
 
@@ -62,7 +62,7 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
         refreshToken,
         user,
       },
-      200,
+      200
     );
   } catch (error) {
     console.error(error);
@@ -82,7 +82,7 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
 const selectLanguage = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { language } = req.body;
@@ -97,8 +97,8 @@ const selectLanguage = async (
           {
             success: false,
             path: "/auth/onboarding",
-          },
-        ),
+          }
+        )
       );
     }
 
@@ -113,14 +113,14 @@ const selectLanguage = async (
         new CustomException(404, "Language not available yet", {
           success: false,
           path: "/auth/onboarding",
-        }),
+        })
       );
     }
 
     const user = await userModel.findByIdAndUpdate(
-      (req as any).user.id,
+      req.user.id,
       { selectedLanguage: language },
-      { new: true },
+      { new: true }
     );
 
     return new CustomResponse(res).success(
@@ -128,7 +128,7 @@ const selectLanguage = async (
       {
         user,
       },
-      200,
+      200
     );
   } catch (error) {
     console.error(error);

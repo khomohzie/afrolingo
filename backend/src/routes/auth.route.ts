@@ -4,11 +4,12 @@ const router: Router = express.Router();
 
 //Import Controller
 import { login, selectLanguage, signup } from "../controllers/auth";
+import { requireSignin } from "../middlewares/auth.middleware";
 
 router.post("/signup", signup);
 router.post("/login", login);
 
-router.patch("/onboarding", selectLanguage);
+router.patch("/onboarding", requireSignin, selectLanguage);
 
 //Import middleware
 import { logger } from "../middlewares/logger.middleware";
