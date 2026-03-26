@@ -9,6 +9,8 @@ export default function Document() {
       <body className="antialiased">
         <Main />
         <NextScript />
+
+        <script src="https://newwebpay.qa.interswitchng.com/inline-checkout.js"></script>
       </body>
     </Html>
   );

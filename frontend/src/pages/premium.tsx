@@ -1,18 +1,24 @@
-import React, { useEffect, useRef } from "react";
-import Head from "next/head";
-import {
-  BookOpen,
-  DownloadCloud,
-  Ban,
-  ShieldCheck,
-  Lock,
-  CreditCard,
-} from "lucide-react";
 import gsap from "gsap";
+import {
+  Ban,
+  BookOpen,
+  CreditCard,
+  DownloadCloud,
+  Lock,
+  ShieldCheck,
+} from "lucide-react";
+import Head from "next/head";
+import { useEffect, useRef } from "react";
 
-import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
+import {
+  IInitiatePaymentResponse,
+  IInterswitchPaymentResponse,
+} from "@/interfaces/payment.interface";
+import api from "@/lib/axios";
+import { toast } from "sonner";
 
 export default function PremiumCheckout() {
   const mainRef = useRef<HTMLElement>(null);
@@ -30,7 +36,7 @@ export default function PremiumCheckout() {
           ".checkout-card-animate",
           { x: 40, opacity: 0 },
           { x: 0, opacity: 1, duration: 0.8 },
-          "-=0.6" 
+          "-=0.6"
         )
         .fromTo(
           ".featured-image-animate",
@@ -42,6 +48,38 @@ export default function PremiumCheckout() {
 
     return () => ctx.revert();
   }, []);
+
+  const handlePayment = async () => {
+    try {
+      // Call backend to initialize payment
+      const res = await api.post("/payment/initiate");
+
+      toast.success(res.data.message);
+
+      const data: IInitiatePaymentResponse = res.data.data;
+
+      // Trigger Interswitch Checkout
+      window.webpayCheckout({
+        ...data,
+        merchant_code: process.env.NEXT_PUBLIC_MERCHANT_CODE,
+        pay_item_id: process.env.NEXT_PUBLIC_PAY_ITEM_ID,
+        onComplete: async (response: IInterswitchPaymentResponse) => {
+          console.log("Payment response:", response);
+
+          // Verify payment on backend
+          const res = await api.post("/payment/verify", {
+            txnRef: data.txn_ref,
+          });
+
+          toast.success(res.data.message);
+        },
+        mode: process.env.NEXT_PUBLIC_INTERSWITCH_MODE,
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Payment failed! Try again.");
+    }
+  };
 
   return (
     <>
@@ -182,7 +220,10 @@ export default function PremiumCheckout() {
                   </div>
                 </div>
 
-                <Button className="btn-primary w-full h-14 flex items-center justify-center gap-3 text-lg mt-4 cursor-pointer shadow-primary/20">
+                <Button
+                  onClick={handlePayment}
+                  className="btn-primary w-full h-14 flex items-center justify-center gap-3 text-lg mt-4 cursor-pointer shadow-primary/20"
+                >
                   <CreditCard className="w-5 h-5" />
                   Pay Securely with Interswitch
                 </Button>
