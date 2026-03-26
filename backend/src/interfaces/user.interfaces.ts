@@ -30,3 +30,11 @@ export interface IUserProgress extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IXPResult {
+  totalXP: number;
+  streak: number;
+  streakUpdated: boolean;
+  levelUp: boolean;
+  newLevel: number;
+}
