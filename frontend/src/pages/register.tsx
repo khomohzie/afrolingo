@@ -67,15 +67,17 @@ export default function Register() {
         password: form.password,
       });
 
-      const authData = result.data;
+      if (result) {
+        const authData = result.data;
 
-      saveAuth(authData);
+        saveAuth(authData);
 
-      toast.success("Sign Up successful");
+        toast.success("Sign Up successful");
 
-      await wait(1200);
+        await wait(1200);
 
-      await router.replace(getPostAuthRoute(authData.user));
+        await router.replace(getPostAuthRoute(authData.user));
+      }
     } catch (error: any) {
       const message =
         error?.response?.data?.message || "Unable to create account";

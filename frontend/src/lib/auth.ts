@@ -12,13 +12,23 @@ const REFRESH_TOKEN_KEY = "refreshToken";
 const USER_KEY = "authUser";
 
 export async function loginUser(payload: LoginPayload) {
-  const { data } = await api.post<ApiResponse<AuthData>>("/auth/login", payload);
+  const { data } = await api.post<ApiResponse<AuthData>>(
+    "/auth/login",
+    payload
+  );
   return data;
 }
 
 export async function signupUser(payload: SignupPayload) {
-  const { data } = await api.post<ApiResponse<AuthData>>("/auth/signup", payload);
-  return data;
+  try {
+    const { data } = await api.post<ApiResponse<AuthData>>(
+      "/auth/signup",
+      payload
+    );
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 export function saveAuth(auth?: AuthData | null) {

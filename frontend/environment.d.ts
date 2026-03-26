@@ -21,6 +21,9 @@ declare global {
       NEXT_PUBLIC_MERCHANT_CODE: string;
       NEXT_PUBLIC_PAY_ITEM_ID: string;
       NEXT_PUBLIC_INTERSWITCH_MODE: string;
+      GROQ_API_KEY: string;
+      GEMINI_API_KEY: string;
+      SPITCH_API_KEY: string;
     }
   }
 }
