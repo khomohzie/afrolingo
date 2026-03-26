@@ -40,12 +40,3 @@ export interface IXPResult {
   levelUp: boolean;
   newLevel: number;
 }
-
-export interface IPayment extends Document {
-  user: mongoose.Types.ObjectId;
-  txnRef: string;
-  amount: number;
-  status: "pending" | "success" | "failed";
-  currency: number;
-  paidAt?: Date;
-}

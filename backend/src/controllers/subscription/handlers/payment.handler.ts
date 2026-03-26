@@ -5,6 +5,7 @@ import paymentModel from "../../../models/payment.model";
 import userModel from "../../../models/user.model";
 import CustomException from "../../../utils/handlers/error.handler";
 import CustomResponse from "../../../utils/handlers/response.handler";
+import { IInterswitchPaymentVerificationResponse } from "../../../interfaces/payment.interfaces";
 
 /**
  * @route POST /api/payment/initiate
@@ -75,7 +76,9 @@ export const verifyPayment = async (
 
     const url = `${process.env.INTERSWITCH_BASE_URL}?merchantcode=${process.env.INTERSWITCH_MERCHANT_CODE}&transactionreference=${txnRef}&amount=${payment.amount}`;
 
-    const response = await axios.get(url);
+    const response = await axios.get<IInterswitchPaymentVerificationResponse>(
+      url
+    );
 
     const data = response.data;
 
