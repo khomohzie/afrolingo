@@ -64,14 +64,27 @@ export default function PremiumCheckout() {
         merchant_code: process.env.NEXT_PUBLIC_MERCHANT_CODE,
         pay_item_id: process.env.NEXT_PUBLIC_PAY_ITEM_ID,
         onComplete: async (response: IInterswitchPaymentResponse) => {
-          console.log("Payment response:", response);
+          try {
+            console.log("Payment response:", response);
 
-          // Verify payment on backend
-          const res = await api.post("/payment/verify", {
-            txnRef: data.txn_ref,
-          });
+            // Verify payment on backend
+            const res = await api.post("/payment/verify", {
+              txnRef: data.txn_ref,
+            });
 
-          toast.success(res.data.message);
+            toast.success(res.data.message);
+          } catch (err: any) {
+            console.error(err);
+
+            if (err.response?.status === 404) {
+              toast.error(
+                err.response.data?.message ||
+                  "Payment not found. Please contact support."
+              );
+            } else {
+              toast.error("Verification failed. Try again.");
+            }
+          }
         },
         mode: process.env.NEXT_PUBLIC_INTERSWITCH_MODE,
       });

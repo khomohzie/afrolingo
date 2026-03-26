@@ -14,4 +14,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const message = error.response.data?.message || "Something went wrong";
+
+      toast.error(message);
+    } else {
+      toast.error("Network error. Check your connection.");
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export default api;
