@@ -3,6 +3,7 @@ import phraseModel from "../../../models/phrase.model";
 import userProgressModel from "../../../models/user-progress.model";
 import CustomException from "../../../utils/handlers/error.handler";
 import CustomResponse from "../../../utils/handlers/response.handler";
+import { cacheAudioForPhrase } from "../../../services/yarngpt.service";
 
 /**
  * @route GET /api/lessons/phrase/:phraseId
@@ -105,6 +106,77 @@ export const completePhrase = async (
     );
 
     return new CustomResponse(res).success("Phrase completed", progress, 200);
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+};
+
+/**
+ * @route POST /api/lessons/phrase
+ * @desc Allows a user to submit a new phrase so they can get the audio speech
+ * @access Public
+ * @param req
+ * @param res
+ * @param next
+ */
+export const submitPhraseForAudio = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user.id;
+
+    const { text, language } = req.body;
+
+    if (!userId) {
+      return next(
+        new CustomException(401, "userId is required", {
+          success: false,
+          path: "/lessons/phrase",
+        })
+      );
+    }
+
+    if (!text) {
+      return next(
+        new CustomException(400, "text is required", {
+          success: false,
+          path: "/lessons/phrase",
+        })
+      );
+    }
+
+    const url = await cacheAudioForPhrase({
+      phraseText: text,
+      language: language,
+    });
+
+    if (!url) {
+      return next(
+        new CustomException(500, "Failed to retrieve audio url", {
+          success: false,
+          path: "/lessons/phrase",
+        })
+      );
+    }
+
+    const newPhrase = new phraseModel({
+      language: language,
+      text: text,
+      translation: "",
+      audioUrl: url,
+      category: "custom",
+    });
+
+    await newPhrase.save();
+
+    return new CustomResponse(res).success(
+      "Speech generation successful!",
+      url,
+      200
+    );
   } catch (error) {
     console.error(error);
     return next(error);

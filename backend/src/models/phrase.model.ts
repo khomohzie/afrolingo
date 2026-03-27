@@ -37,6 +37,7 @@ const phraseModel = new Schema<IPhrase>(
         "directions",
         "emotions",
         "everyday",
+        "custom",
       ],
       required: true,
       index: true,
@@ -60,7 +61,7 @@ const phraseModel = new Schema<IPhrase>(
       default: true,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 // Compound index for efficient lesson queries

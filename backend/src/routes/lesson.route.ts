@@ -8,6 +8,7 @@ import {
   getLanguages,
   getLessonsByLanguage,
   getPhrase,
+  submitPhraseForAudio,
 } from "../controllers/lesson";
 import { requireSignin } from "../middlewares/auth.middleware";
 
@@ -16,6 +17,7 @@ router.get("/:language", requireSignin, getLessonsByLanguage);
 
 router.get("/phrase/:phraseId", requireSignin, getPhrase);
 router.post("/phrase/:phraseId/complete", requireSignin, completePhrase);
+router.post("/phrase", requireSignin, submitPhraseForAudio);
 
 //Import middleware
 import { logger } from "../middlewares/logger.middleware";
