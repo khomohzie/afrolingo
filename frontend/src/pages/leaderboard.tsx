@@ -1,28 +1,4 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import Head from "next/head";
-import {
-  Home,
-  BookOpen,
-  BarChart2,
-  Target,
-  ShoppingCart,
-  Award,
-  Flame,
-  Zap,
-  Trophy,
-  Volume2,
-  LogOut,
-} from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
-import { Geist } from "next/font/google";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { useAuth } from "@/hooks/useAuth";
-import { ILeaderboardData } from "@/interfaces/learn.interfaces";
-import api from "@/lib/axios";
+import LeftSidebar from "@/components/layout/LeftSidebar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +9,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/hooks/useAuth";
+import { ILeaderboardData } from "@/interfaces/learn.interfaces";
+import api from "@/lib/axios";
+import { Flame, Target, Trophy, Zap } from "lucide-react";
+import { Geist } from "next/font/google";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +31,9 @@ export default function Leaderboard() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("weekly");
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
-  const [leaderboardData, setLeaderboardData] = useState<ILeaderboardData[]>([]);
+  const [leaderboardData, setLeaderboardData] = useState<ILeaderboardData[]>(
+    []
+  );
 
   const getLeaderboardData = async () => {
     setLoadingLeaderboard(true);
@@ -88,10 +76,14 @@ export default function Leaderboard() {
     router.push("/");
   };
 
-  const sortedLeaderboard = [...leaderboardData].sort((a, b) => a.rank - b.rank);
+  const sortedLeaderboard = [...leaderboardData].sort(
+    (a, b) => a.rank - b.rank
+  );
   const topThree = sortedLeaderboard.slice(0, 3);
   const remainingUsers = sortedLeaderboard.slice(3);
-  const currentUserEntry = sortedLeaderboard.find((item) => item.id === user._id);
+  const currentUserEntry = sortedLeaderboard.find(
+    (item) => item.id === user._id
+  );
   const userAhead = currentUserEntry
     ? sortedLeaderboard.find((item) => item.rank === currentUserEntry.rank - 1)
     : null;
@@ -111,98 +103,7 @@ export default function Leaderboard() {
         className={`${geistSans.className} min-h-screen flex bg-background text-foreground`}
       >
         {/* LEFT SIDEBAR */}
-        <aside className="w-60 fixed left-0 top-0 bottom-0 flex flex-col border-r border-border bg-background z-20">
-          <div className="p-8 group cursor-pointer">
-            <div className="flex items-center gap-3 font-black text-2xl group-hover:scale-105 transition-transform origin-left">
-              <div className="w-8 h-8 relative group-hover:rotate-12 transition-transform duration-300">
-                <Image
-                  src="/logo.png"
-                  alt="AfroLingo Logo"
-                  fill
-                  sizes="32px"
-                  className="object-contain"
-                />
-              </div>
-              <span className="tracking-tight">
-                <span className="text-on-surface">Afro</span>
-                <span className="text-[#8B4513]">Lingo</span>
-              </span>
-            </div>
-            <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase mt-1 group-hover:text-primary transition-colors">
-              Leaderboard
-            </p>
-          </div>
-
-          <nav className="flex-1 px-4 space-y-2">
-            <Link
-              href="/"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <Home size={20} className="group-hover:-translate-y-1 transition-transform" />{" "}
-              Home
-            </Link>
-            <Link
-              href="/learn"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <BookOpen
-                size={20}
-                className="group-hover:-translate-y-1 transition-transform"
-              />{" "}
-              Learn
-            </Link>
-            <div className="group flex items-center gap-4 px-4 py-3 bg-primary text-on-primary rounded-xl font-semibold shadow-md cursor-pointer transition-all active:scale-95">
-              <BarChart2 size={20} className="group-hover:scale-110 transition-transform" />{" "}
-              Leaderboard
-            </div>
-            <Link
-              href="/quests"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <Target
-                size={20}
-                className="group-hover:-translate-y-1 transition-transform"
-              />{" "}
-              Quests
-            </Link>
-            <Link
-              href="/shop"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <ShoppingCart
-                size={20}
-                className="group-hover:-translate-y-1 transition-transform"
-              />{" "}
-              Shop
-            </Link>
-            <Link
-              href="/afrotts"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <Volume2
-                size={20}
-                className="group-hover:-translate-y-1 transition-transform"
-              />{" "}
-              AfroTTS
-            </Link>
-
-            <div className="pt-4">
-              <Button className="group w-full flex items-center justify-center gap-2 bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black h-auto py-4 rounded-xl font-bold border-none transition-all hover:opacity-90 active:scale-95">
-                <Award size={20} className="group-hover:rotate-12 transition-transform" />{" "}
-                Go Premium
-              </Button>
-            </div>
-            <div className="pt-2">
-              <button
-                onClick={handleLogoutClick}
-                className="group cursor-pointer w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-150 hover:bg-red-500!"
-              >
-                <LogOut className="h-4 w-4 text-red-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
-                <span className="text-red-500 group-hover:text-white">Logout</span>
-              </button>
-            </div>
-          </nav>
-        </aside>
+        <LeftSidebar title="Leaderboard" />
 
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 ml-60 mr-97.5 min-h-screen py-16 relative overflow-y-auto">
@@ -215,13 +116,21 @@ export default function Leaderboard() {
               <div className="flex items-center justify-center gap-2 bg-surface-container-low p-1.5 rounded-2xl w-max mx-auto border border-border">
                 <button
                   onClick={() => setActiveTab("weekly")}
-                  className={`px-8 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${activeTab === "weekly" ? "bg-background text-primary shadow-sm scale-100" : "text-muted-foreground hover:text-foreground scale-95"}`}
+                  className={`px-8 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    activeTab === "weekly"
+                      ? "bg-background text-primary shadow-sm scale-100"
+                      : "text-muted-foreground hover:text-foreground scale-95"
+                  }`}
                 >
                   Weekly Rank
                 </button>
                 <button
                   onClick={() => setActiveTab("all-time")}
-                  className={`px-8 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${activeTab === "all-time" ? "bg-background text-primary shadow-sm scale-100" : "text-muted-foreground hover:text-foreground scale-95"}`}
+                  className={`px-8 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${
+                    activeTab === "all-time"
+                      ? "bg-background text-primary shadow-sm scale-100"
+                      : "text-muted-foreground hover:text-foreground scale-95"
+                  }`}
                 >
                   All Time
                 </button>
@@ -260,7 +169,9 @@ export default function Leaderboard() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="w-full h-32 bg-linear-to-t from-background to-[#C0C0C0]/20 rounded-t-2xl border-t-4 border-[#C0C0C0] flex flex-col items-center justify-start pt-4 group-hover:brightness-110 transition-all">
-                        <span className="text-3xl font-black text-[#C0C0C0]">2</span>
+                        <span className="text-3xl font-black text-[#C0C0C0]">
+                          2
+                        </span>
                         <span className="font-bold text-sm text-foreground mt-2 truncate max-w-[90%]">
                           {topThree[1].name.split(" ")[0]}
                         </span>
@@ -282,7 +193,9 @@ export default function Leaderboard() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="w-full h-40 bg-linear-to-t from-background to-[#d4af37]/20 rounded-t-2xl border-t-4 border-[#d4af37] flex flex-col items-center justify-start pt-4 group-hover:brightness-110 transition-all shadow-[0_-10px_30px_-15px_rgba(212,175,55,0.5)]">
-                        <span className="text-4xl font-black text-[#d4af37]">1</span>
+                        <span className="text-4xl font-black text-[#d4af37]">
+                          1
+                        </span>
                         <span className="font-bold text-base text-foreground mt-2 truncate max-w-[90%]">
                           {topThree[0].name.split(" ")[0]}
                         </span>
@@ -301,7 +214,9 @@ export default function Leaderboard() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="w-full h-24 bg-linear-to-t from-background to-[#CD7F32]/20 rounded-t-2xl border-t-4 border-[#CD7F32] flex flex-col items-center justify-start pt-4 group-hover:brightness-110 transition-all">
-                        <span className="text-3xl font-black text-[#CD7F32]">3</span>
+                        <span className="text-3xl font-black text-[#CD7F32]">
+                          3
+                        </span>
                         <span className="font-bold text-sm text-foreground mt-2 truncate max-w-[90%]">
                           {topThree[2].name.split(" ")[0]}
                         </span>
@@ -319,18 +234,30 @@ export default function Leaderboard() {
                       <div
                         key={item.id}
                         className={`group flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 active:scale-[0.98] cursor-pointer
-                          ${isCurrentUser ? "bg-primary-container border-primary text-on-primary shadow-md hover:shadow-lg hover:-translate-y-1" : "bg-surface-container-lowest border-border hover:border-primary/30 hover:shadow-sm"}
+                          ${
+                            isCurrentUser
+                              ? "bg-primary-container border-primary text-on-primary shadow-md hover:shadow-lg hover:-translate-y-1"
+                              : "bg-surface-container-lowest border-border hover:border-primary/30 hover:shadow-sm"
+                          }
                         `}
                       >
                         <span
-                          className={`font-black w-8 text-center text-lg ${isCurrentUser ? "text-on-primary" : "text-muted-foreground group-hover:text-primary transition-colors"}`}
+                          className={`font-black w-8 text-center text-lg ${
+                            isCurrentUser
+                              ? "text-on-primary"
+                              : "text-muted-foreground group-hover:text-primary transition-colors"
+                          }`}
                         >
                           {item.rank}
                         </span>
 
                         <Avatar className="w-12 h-12 border-2 border-background group-hover:scale-110 transition-transform">
                           <AvatarFallback
-                            className={`${isCurrentUser ? "bg-background text-primary" : "bg-surface-variant text-foreground"} font-bold`}
+                            className={`${
+                              isCurrentUser
+                                ? "bg-background text-primary"
+                                : "bg-surface-variant text-foreground"
+                            } font-bold`}
                           >
                             {getInitials(item.name)}
                           </AvatarFallback>
@@ -338,7 +265,11 @@ export default function Leaderboard() {
 
                         <div className="flex-1 flex flex-col justify-center">
                           <span
-                            className={`font-bold text-base ${isCurrentUser ? "" : "group-hover:text-primary transition-colors"}`}
+                            className={`font-bold text-base ${
+                              isCurrentUser
+                                ? ""
+                                : "group-hover:text-primary transition-colors"
+                            }`}
                           >
                             {isCurrentUser ? `You (${item.name})` : item.name}
                           </span>
@@ -346,10 +277,16 @@ export default function Leaderboard() {
 
                         <div className="flex items-center gap-6">
                           <span
-                            className={`font-extrabold tracking-wide ${isCurrentUser ? "text-on-primary" : "text-foreground"}`}
+                            className={`font-extrabold tracking-wide ${
+                              isCurrentUser
+                                ? "text-on-primary"
+                                : "text-foreground"
+                            }`}
                           >
                             {item.xp.toLocaleString()}{" "}
-                            <span className="text-xs font-bold opacity-70">XP</span>
+                            <span className="text-xs font-bold opacity-70">
+                              XP
+                            </span>
                           </span>
                         </div>
                       </div>
@@ -404,7 +341,9 @@ export default function Leaderboard() {
                 </h4>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                   {userAhead
-                    ? `Earn ${(userAhead.xp - user.xp).toLocaleString()} more XP to pass ${userAhead.name}.`
+                    ? `Earn ${(
+                        userAhead.xp - user.xp
+                      ).toLocaleString()} more XP to pass ${userAhead.name}.`
                     : "You are at the top. Keep learning to stay ahead."}
                 </p>
               </div>
@@ -431,8 +370,8 @@ export default function Leaderboard() {
               Confirm Logout
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm">
-              Are you sure you want to log out? You&apos;ll need to sign in again
-              to access your progress.
+              Are you sure you want to log out? You&apos;ll need to sign in
+              again to access your progress.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
