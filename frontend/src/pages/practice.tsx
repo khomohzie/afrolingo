@@ -22,7 +22,6 @@ interface PhraseData {
   targetPhrase: string;
   translation: string;
   language: string;
-  toneFocus: string;
 }
 
 interface FeatureCardProps {
@@ -36,7 +35,6 @@ const CURRENT_PHRASE: PhraseData = {
   targetPhrase: "Ẹ̀gbọ́n mi",
   translation: '"My older sibling" (Yoruba)',
   language: "Yoruba",
-  toneFocus: "low tone on 'Ẹ̀' and the high tone on 'gbọ́n'",
 };
 
 const DEFAULT_WAVE_HEIGHTS = [
@@ -364,7 +362,6 @@ export default function PracticePage() {
                 audioBase64: base64Audio,
                 language: CURRENT_PHRASE.language,
                 targetPhrase: CURRENT_PHRASE.targetPhrase,
-                toneFocus: CURRENT_PHRASE.toneFocus,
               }),
             });
 
@@ -497,7 +494,7 @@ export default function PracticePage() {
 
               <div className="flex items-center gap-3 text-sm font-medium text-green-500 bg-green-50 w-fit px-4 py-2 rounded-lg">
                 <FaCheckCircle className="text-lg" />
-                AI analysis active. Focus on the {CURRENT_PHRASE.toneFocus}.
+                AI analysis active.
               </div>
             </div>
 

@@ -1,98 +1,107 @@
 import Head from "next/head";
 import Link from "next/link";
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { getPostAuthRoute, loginUser, saveAuth } from "@/lib/auth";
+import { getErrorMessage, wait } from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { Geist } from "next/font/google";
 import gsap from "gsap";
 
 const geist = Geist({ subsets: ["latin"] });
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LENGTH = 6;
+const DEFAULT_RETRY_AFTER_SECONDS = 30;
+const SUCCESS_REDIRECT_DELAY_MS = 900;
+
+function getRetryAfterSeconds(error: unknown): number {
+  const response = (error as any)?.response;
+  const header = response?.headers?.["retry-after"] ?? response?.headers?.["Retry-After"];
+  const parsed = Number(header);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_RETRY_AFTER_SECONDS;
+}
+
 export default function Login() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+
+  const normalizedEmail = useMemo(() => form.email.trim().toLowerCase(), [form.email]);
+  const isEmailValid = useMemo(() => EMAIL_REGEX.test(normalizedEmail), [normalizedEmail]);
+  const isPasswordValid = useMemo(() => form.password.trim().length >= MIN_PASSWORD_LENGTH, [form.password]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
-
-      tl.from(".gsap-header", { y: -30, opacity: 0, duration: 1.2 })
-        .from(
-          ".gsap-bg-asset",
-          { scale: 0.8, opacity: 0, duration: 1.5, ease: "power3.out" },
-          "-=1"
-        )
-        .from(
-          ".gsap-card",
-          { y: 50, opacity: 0, duration: 1.2, clearProps: "all" },
-          "-=1.2"
-        )
-        .from(
-          ".gsap-item",
-          { y: 20, opacity: 0, duration: 0.8, stagger: 0.1 },
-          "-=0.8"
-        )
+      gsap.timeline({ defaults: { ease: "expo.out" } })
+        .from(".gsap-header", { y: -30, opacity: 0, duration: 1.2 })
+        .from(".gsap-bg-asset", { scale: 0.8, opacity: 0, duration: 1.5, ease: "power3.out" }, "-=1")
+        .from(".gsap-card", { y: 50, opacity: 0, duration: 1.2, clearProps: "all" }, "-=1.2")
+        .from(".gsap-item", { y: 20, opacity: 0, duration: 0.8, stagger: 0.1 }, "-=0.8")
         .from(".gsap-footer", { y: 30, opacity: 0, duration: 1.2 }, "-=0.8");
     }, containerRef);
-
     return () => ctx.revert();
   }, []);
 
-  const handleChange =
-    (field: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
-    };
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const timer = window.setInterval(() => {
+      setCooldownSeconds((prev) => {
+        if (prev <= 1) { window.clearInterval(timer); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [cooldownSeconds]);
+
+  const handleChange = (field: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setForm((prev) => ({ ...prev, [field]: field === "email" ? value.replace(/\s+/g, "") : value }));
+  };
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting || cooldownSeconds > 0) return;
 
+    if (!normalizedEmail || !form.password) return toast.error("Please enter your email and password.");
+    if (!isEmailValid) return toast.error("Please enter a valid email address.");
+    if (!isPasswordValid) return toast.error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
+      const result = await loginUser({ email: normalizedEmail, password: form.password });
+      const authData = result?.data;
 
-      const result = await loginUser({
-        email: form.email.trim(),
-        password: form.password,
-      });
-
-      const authData = result.data;
-
-      if (!authData?.accessToken || !authData?.user) {
-        toast.error("Login succeeded, but auth data was incomplete.");
-        return;
-      }
+      if (!result?.success) return toast.error(result?.message || "Login failed.");
+      if (!authData?.accessToken || !authData?.user) return toast.error("Login succeeded, but the session data was incomplete.");
 
       saveAuth(authData);
-
       toast.success(result.message || "Welcome back!");
-      void router.replace(getPostAuthRoute(authData.user));
-    } catch (error: any) {
-      const message =
-        error?.response?.data?.message || "Unable to login right now";
-      toast.error(message);
-      console.error("Login failed:", error);
+      await wait(SUCCESS_REDIRECT_DELAY_MS);
+      await router.replace(getPostAuthRoute(authData.user));
+    } catch (error: unknown) {
+      if ((error as any)?.response?.status === 429) {
+        const seconds = getRetryAfterSeconds(error);
+        setCooldownSeconds(seconds);
+        toast.error(`Too many login attempts. Try again in ${seconds}s.`);
+        return;
+      }
+      toast.error(getErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const submitLabel = isSubmitting ? "Logging in..." : cooldownSeconds > 0 ? `Try again in ${cooldownSeconds}s` : "Login";
+  const isDisabled = isSubmitting || cooldownSeconds > 0;
 
   return (
     <>
@@ -110,14 +119,7 @@ export default function Login() {
       >
         <header className="gsap-header w-full px-8 py-6 flex justify-center md:justify-start">
           <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/logo.png"
-              alt="Afrolingo Logo"
-              width={32}
-              height={32}
-              sizes="32px"
-              className="h-8 w-auto"
-            />
+            <Image src="/logo.png" alt="Afrolingo Logo" width={32} height={32} sizes="32px" className="h-8 w-auto" />
             <span className="text-xl font-headline font-bold tracking-tight">
               <span className="text-on-surface">Afro</span>
               <span className="text-secondary">Lingo</span>
@@ -127,86 +129,61 @@ export default function Login() {
 
         <main className="flex-grow flex items-center justify-center px-6 py-12 relative overflow-hidden">
           <div className="gsap-bg-asset absolute -bottom-6 -right-12 opacity-5 pointer-events-none">
-            <img
-              src="/logo.png"
-              alt=""
-              className="w-[400px] h-[400px] object-contain"
-            />
+            <img src="/logo.png" alt="" className="w-[400px] h-[400px] object-contain" />
           </div>
 
           <div className="gsap-card w-full max-w-md bg-surface-container-lowest rounded-[2rem] p-10 md:p-12 z-10 shadow-[0px_20px_40px_rgba(26,28,28,0.05)] border border-outline-variant/20">
             <div className="gsap-item mb-10 text-center md:text-left">
-              <h1 className="font-headline font-bold text-3xl text-primary tracking-tight mb-2">
-                Welcome Back
-              </h1>
-              <p className="font-label text-on-surface-variant text-sm">
-                Continue your journey into African heritage.
-              </p>
+              <h1 className="font-headline font-bold text-3xl text-primary tracking-tight mb-2">Welcome Back</h1>
+              <p className="font-label text-on-surface-variant text-sm">Continue your journey into African heritage.</p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
+            <form onSubmit={handleLogin} className="space-y-6" noValidate>
               <div className="gsap-item space-y-2">
-                <label
-                  className="font-label font-semibold text-sm text-primary"
-                  htmlFor="email"
-                >
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Input
-                    className="w-full bg-surface-container border-none focus-visible:ring-2 mt-1 focus-visible:ring-secondary/20 rounded-xl px-4 py-6 text-on-surface placeholder:text-outline/60 transition-all outline-none"
-                    id="email"
-                    placeholder="name@example.com"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange("email")}
-                    disabled={isSubmitting}
-                    required
-                  />
-                </div>
+                <label className="font-label font-semibold text-sm text-primary" htmlFor="email">Email Address</label>
+                <Input
+                  className="w-full bg-surface-container border-none focus-visible:ring-2 mt-1 focus-visible:ring-secondary/20 rounded-xl px-4 py-6 text-on-surface placeholder:text-outline/60 transition-all outline-none"
+                  id="email"
+                  placeholder="name@example.com"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={form.email}
+                  onChange={handleChange("email")}
+                  disabled={isDisabled}
+                  required
+                  aria-invalid={form.email.length > 0 && !isEmailValid}
+                />
               </div>
 
               <div className="gsap-item space-y-2">
                 <div className="flex justify-between items-center">
-                  <label
-                    className="font-label font-semibold text-sm text-primary"
-                    htmlFor="password"
-                  >
-                    Password
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="font-label text-xs text-red-500 font-bold hover:underline"
-                  >
+                  <label className="font-label font-semibold text-sm text-primary" htmlFor="password">Password</label>
+                  <Link href="/forgot-password" className="font-label text-xs text-red-500 font-bold hover:underline">
                     Forgot Password?
                   </Link>
                 </div>
-
                 <div className="relative">
                   <Input
                     className="w-full bg-surface-container border-none focus-visible:ring-2 mt-1 focus-visible:ring-secondary/20 rounded-xl px-4 py-6 pr-12 text-on-surface placeholder:text-outline/60 transition-all outline-none"
                     id="password"
                     placeholder="••••••••"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
                     value={form.password}
                     onChange={handleChange("password")}
-                    disabled={isSubmitting}
+                    disabled={isDisabled}
                     required
+                    aria-invalid={form.password.length > 0 && !isPasswordValid}
                   />
-
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center justify-center cursor-pointer text-outline/70 hover:text-primary transition-colors"
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center justify-center cursor-pointer text-outline/70 hover:text-primary transition-colors disabled:cursor-not-allowed"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    disabled={isDisabled}
                   >
-                    {showPassword ? (
-                      <EyeOffIcon className="h-5 w-5 mt-1" />
-                    ) : (
-                      <EyeIcon className="h-5 w-5 mt-1" />
-                    )}
+                    {showPassword ? <EyeOffIcon className="h-5 w-5 mt-1" /> : <EyeIcon className="h-5 w-5 mt-1" />}
                   </button>
                 </div>
               </div>
@@ -215,19 +192,16 @@ export default function Login() {
                 <Button
                   className="w-full h-auto bg-primary hover:bg-primary-container text-on-primary font-headline font-bold py-4 rounded-xl transition-all active:scale-[0.98]"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isDisabled}
                 >
-                  {isSubmitting ? "Logging in..." : "Login"}
+                  {submitLabel}
                 </Button>
               </div>
             </form>
 
             <p className="gsap-item mt-10 text-center font-label text-sm text-on-surface-variant">
-              Don&apos;t have an account?
-              <Link
-                href="/register"
-                className="text-secondary font-bold hover:underline ml-1"
-              >
+              Don&apos;t have an account?{" "}
+              <Link href="/register" className="text-secondary font-bold hover:underline ml-1">
                 Join the community
               </Link>
             </p>
@@ -238,42 +212,20 @@ export default function Login() {
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2">
-                <Image
-                  src="/logo.png"
-                  alt="Afrolingo Logo"
-                  width={32}
-                  height={32}
-                  sizes="32px"
-                  className="h-8 w-auto"
-                />
+                <Image src="/logo.png" alt="Afrolingo Logo" width={32} height={32} sizes="32px" className="h-8 w-auto" />
                 <span className="text-xl font-headline font-bold tracking-tight">
                   <span className="text-on-surface">Afro</span>
                   <span className="text-secondary">Lingo</span>
                 </span>
               </Link>
-
               <span className="text-outline-variant/50 hidden md:block">|</span>
-
               <p className="font-label text-sm text-on-surface-variant opacity-70">
                 © {new Date().getFullYear()} Afrolingo. All rights reserved.
               </p>
             </div>
-
             <nav className="flex gap-8">
-              <Link
-                href="/privacy"
-                className="font-label text-sm text-on-surface-variant hover:text-secondary transition-colors"
-                onClick={(e) => e.preventDefault()}
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="/terms"
-                className="font-label text-sm text-on-surface-variant hover:text-secondary transition-colors"
-                onClick={(e) => e.preventDefault()}
-              >
-                Terms of Service
-              </Link>
+              <Link href="/privacy" className="font-label text-sm text-on-surface-variant hover:text-secondary transition-colors" onClick={(e) => e.preventDefault()}>Privacy Policy</Link>
+              <Link href="/terms" className="font-label text-sm text-on-surface-variant hover:text-secondary transition-colors" onClick={(e) => e.preventDefault()}>Terms of Service</Link>
             </nav>
           </div>
         </footer>

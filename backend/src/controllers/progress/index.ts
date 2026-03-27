@@ -132,13 +132,15 @@ export const getLeaderboard = async (
   try {
     const users = await userModel
       .find({ xp: { $gt: 0 } })
-      .select("name xp streak selectedLanguage")
+      .select("_id name email xp streak selectedLanguage")
       .sort({ xp: -1 })
       .limit(10);
 
     const leaderboard = users.map((u, index) => ({
+      id: u._id,
       rank: index + 1,
       name: u.name,
+      email: u.email,
       xp: u.xp,
       level: calculateLevel(u.xp),
       streak: u.streak,
