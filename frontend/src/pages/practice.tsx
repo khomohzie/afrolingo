@@ -126,7 +126,6 @@ export default function PracticePage() {
   const [isLoadingPhrase, setIsLoadingPhrase] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
   useEffect(() => {
     if (!ready) return;
     if (!authenticated) router.replace("/login");
@@ -158,7 +157,7 @@ export default function PracticePage() {
     };
 
     fetchPhraseData();
-  }, [phraseId, phrase, translation, language, ready, authenticated]);
+  }, [phraseId, phrase, translation, language, ready, authenticated, router.query]);
 
   const mainRef = useRef<HTMLElement>(null);
   const [isMounted, setIsMounted] = useState<boolean>(false);
@@ -208,26 +207,35 @@ export default function PracticePage() {
     return () => ctx.revert();
   }, [isMounted, isLoadingPhrase]);
 
-  const loadPhraseHistory = useCallback(async (id: string) => {
+  // Load phrase history with retry for 429
+  const loadPhraseHistory = useCallback(async (id: string, retries = 2) => {
     if (!id || id === "temp") return;
 
     setIsLoadingHistory(true);
     try {
       const res = await api.get(`/ai/history/${id}`);
       const data = res.data?.data;
-
       setAttemptHistory(data?.history ?? []);
       setBestScore(data?.bestScore ?? null);
-    } catch (historyError) {
+    } catch (historyError: any) {
+      if (historyError.response?.status === 429 && retries > 0) {
+        // Wait 1 second then retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return loadPhraseHistory(id, retries - 1);
+      }
       console.error("Failed to load phrase history", historyError);
     } finally {
       setIsLoadingHistory(false);
     }
   }, []);
 
+  // Debounce history fetch to avoid immediate rate limit
   useEffect(() => {
     if (!phraseData?.id || phraseData.id === "temp") return;
-    loadPhraseHistory(phraseData.id);
+    const timeout = setTimeout(() => {
+      loadPhraseHistory(phraseData.id);
+    }, 500);
+    return () => clearTimeout(timeout);
   }, [phraseData?.id, loadPhraseHistory]);
 
   useEffect(() => {
@@ -344,6 +352,7 @@ export default function PracticePage() {
         setHasAttempted(true);
         setAnalysisStatus("analyzing");
 
+        // Use a named async function (not an IIFE) to avoid build errors
         const sendRecording = async () => {
           try {
             const formData = new FormData();
@@ -397,7 +406,6 @@ export default function PracticePage() {
     }
   }, [phraseData, router]);
 
-
   if (!ready || !authenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -416,7 +424,6 @@ export default function PracticePage() {
       </div>
     );
   }
-
 
   if (error || !phraseData) {
     return (
@@ -527,12 +534,13 @@ export default function PracticePage() {
                 {waveHeights.map((height, i) => (
                   <div
                     key={i}
-                    className={`w-2 rounded-full transition-all duration-100 ${isRecording
-                      ? "bg-primary"
-                      : analysisStatus === "analyzing"
+                    className={`w-2 rounded-full transition-all duration-100 ${
+                      isRecording
+                        ? "bg-primary"
+                        : analysisStatus === "analyzing"
                         ? "bg-primary"
                         : "bg-primary/40"
-                      }`}
+                    }`}
                     style={{ height: `${height}%` }}
                   />
                 ))}
@@ -541,12 +549,13 @@ export default function PracticePage() {
               <Button
                 onClick={handleToggleRecord}
                 disabled={analysisStatus === "analyzing"}
-                className={`w-24 h-24 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 [&_svg]:size-8 ${isRecording
-                  ? "bg-red-500 hover:bg-red-600 animate-pulse scale-105 text-white"
-                  : analysisStatus === "analyzing"
+                className={`w-24 h-24 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 [&_svg]:size-8 ${
+                  isRecording
+                    ? "bg-red-500 hover:bg-red-600 animate-pulse scale-105 text-white"
+                    : analysisStatus === "analyzing"
                     ? "bg-primary/50 cursor-not-allowed scale-95 text-primary-foreground"
                     : "bg-primary hover:bg-primary/90 hover:scale-105 text-primary-foreground"
-                  }`}
+                }`}
               >
                 {isRecording ? <FaStop /> : hasAttempted ? <FaRedo /> : <FaMicrophone />}
               </Button>
@@ -584,7 +593,9 @@ export default function PracticePage() {
                     </div>
                     {passedAttempt !== null && (
                       <p
-                        className={`text-sm font-semibold ${passedAttempt ? "text-green-600" : "text-amber-600"}`}
+                        className={`text-sm font-semibold ${
+                          passedAttempt ? "text-green-600" : "text-amber-600"
+                        }`}
                       >
                         {passedAttempt
                           ? `Passed! +${xpEarned} XP earned`
