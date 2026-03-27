@@ -105,3 +105,10 @@ const startOfDay = (date: Date): Date => {
   d.setHours(0, 0, 0, 0);
   return d;
 };
+
+export const calculateVoiceXP = (score: number): number => {
+  if (score >= 90) return 50; // near-perfect
+  if (score >= 80) return 35;
+  if (score >= 70) return 25;
+  return 15; // passing (60-69)
+};

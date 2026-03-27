@@ -7,4 +7,5 @@ export {
   getPhrase,
   completePhrase,
   submitPhraseForAudio,
+  getCustomPhraseHistory,
 } from "./handlers/phrase.handler";

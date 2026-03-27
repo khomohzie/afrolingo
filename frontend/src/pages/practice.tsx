@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa";
 import { BsSoundwave, BsPieChartFill } from "react-icons/bs";
 import { completePhrase } from "@/lib/lessons";
+import api from "@/lib/axios";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,20 @@ interface PhraseData {
   toneNotes?: string;
 }
 
+interface IScoreBreakdown {
+  overall: number;
+  tone: number;
+  rhythm: number;
+  clarity: number;
+  feedback: string[];
+  grade: "A" | "B" | "C" | "D" | "F";
+}
+
+interface IHistoryRecord {
+  score: number;
+  recordedAt: string;
+}
+ 
 interface FeatureCardProps {
   title: string;
   description: string;
@@ -104,9 +119,9 @@ function AccuracyRing({ score }: { score: number }) {
 
 export default function PracticePage() {
   const router = useRouter();
-  const { user, authenticated, ready } = useAuth();
-  const { phraseId, phrase, translation, language, category } = router.query;
-
+  const { authenticated, ready } = useAuth();
+  const { phraseId, phrase, translation, language } = router.query;
+ 
   const [phraseData, setPhraseData] = useState<PhraseData | null>(null);
   const [isLoadingPhrase, setIsLoadingPhrase] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -155,10 +170,16 @@ export default function PracticePage() {
   const audioChunksRef = useRef<BlobPart[]>([]);
 
   const [analysisStatus, setAnalysisStatus] = useState<
-    "idle" | "analyzing" | "aiSpeaking" | "complete"
+    "idle" | "analyzing" | "complete"
   >("idle");
-  const [aiSubtitle, setAiSubtitle] = useState<string>("");
   const [accuracyScore, setAccuracyScore] = useState<number | null>(null);
+  const [pronunciationBreakdown, setPronunciationBreakdown] =
+    useState<IScoreBreakdown | null>(null);
+  const [xpEarned, setXpEarned] = useState(0);
+  const [passedAttempt, setPassedAttempt] = useState<boolean | null>(null);
+  const [attemptHistory, setAttemptHistory] = useState<IHistoryRecord[]>([]);
+  const [bestScore, setBestScore] = useState<number | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
@@ -186,13 +207,32 @@ export default function PracticePage() {
     }, mainRef);
     return () => ctx.revert();
   }, [isMounted, isLoadingPhrase]);
+ 
+  const loadPhraseHistory = useCallback(async (id: string) => {
+    if (!id || id === "temp") return;
+
+    setIsLoadingHistory(true);
+    try {
+      const res = await api.get(`/ai/history/${id}`);
+      const data = res.data?.data;
+
+      setAttemptHistory(data?.history ?? []);
+      setBestScore(data?.bestScore ?? null);
+    } catch (historyError) {
+      console.error("Failed to load phrase history", historyError);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  }, []);
 
   useEffect(() => {
-  }, [phraseData, error]);
+    if (!phraseData?.id || phraseData.id === "temp") return;
+    loadPhraseHistory(phraseData.id);
+  }, [phraseData?.id, loadPhraseHistory]);
+
   useEffect(() => {
     const shouldAnimate =
       !isRecording &&
-      analysisStatus !== "aiSpeaking" &&
       analysisStatus !== "analyzing";
 
     if (shouldAnimate) {
@@ -230,59 +270,22 @@ export default function PracticePage() {
       toast.error("Could not play audio.");
     });
   }, [phraseData, isPlayingNative]);
-
-  const handleAiResponse = useCallback((feedbackText: string) => {
-    const utterance = new SpeechSynthesisUtterance(feedbackText);
-
-    utterance.onstart = () => {
-      setAnalysisStatus("aiSpeaking");
-      setAiSubtitle(feedbackText);
-
-      const audioCtx = new (window.AudioContext ||
-        (window as any).webkitAudioContext)();
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 32;
-      audioContextRef.current = audioCtx;
-      analyserRef.current = analyser;
-
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      const updateWave = () => {
-        if (analyserRef.current) {
-          analyserRef.current.getByteFrequencyData(dataArray);
-          setWaveHeights(
-            Array.from(dataArray)
-              .slice(0, 13)
-              .map((val) => Math.max(20, (val / 255) * 100))
-          );
-          animationFrameRef.current = requestAnimationFrame(updateWave);
-        }
-      };
-      updateWave();
-    };
-
-    utterance.onend = () => {
-      analyserRef.current = null;
-      if (audioContextRef.current) audioContextRef.current.close();
-      if (animationFrameRef.current)
-        cancelAnimationFrame(animationFrameRef.current);
-      setTimeout(() => {
-        setAnalysisStatus("idle");
-        setWaveHeights(DEFAULT_WAVE_HEIGHTS);
-      }, 500);
-    };
-
-    window.speechSynthesis.speak(utterance);
-  }, []);
-
+ 
   const handleToggleRecord = useCallback(async () => {
     if (!phraseData) return;
-
+    if (!phraseData.id || phraseData.id === "temp") {
+      toast.error("Phrase id is missing. Please open this from a lesson phrase.");
+      return;
+    }
+ 
     if (!isRecording) {
       setWaveHeights(DEFAULT_WAVE_HEIGHTS);
       setHasAttempted(false);
       setAccuracyScore(null);
-      setAiSubtitle("");
-
+      setPronunciationBreakdown(null);
+      setXpEarned(0);
+      setPassedAttempt(null);
+ 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const mediaRecorder = new MediaRecorder(stream);
@@ -341,36 +344,38 @@ export default function PracticePage() {
         setHasAttempted(true);
         setAnalysisStatus("analyzing");
 
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-        reader.onloadend = async () => {
+        (async () => {
           try {
-            const base64Audio = reader.result;
-            const response = await fetch("/api/analyze", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                audioBase64: base64Audio,
-                language: phraseData.language,
-                targetPhrase: phraseData.targetPhrase,
-              }),
+            const formData = new FormData();
+            formData.append("audio", audioBlob, "recording.webm");
+
+            const res = await api.post(`/ai/score/${phraseData.id}`, formData, {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
             });
 
-            const data = await response.json();
-            if (data.feedback) {
-              setAccuracyScore(data.score ?? null);
-              handleAiResponse(data.feedback);
+            const payload = res.data?.data;
+            setAccuracyScore(payload?.score?.overall ?? null);
+            setPronunciationBreakdown(payload?.score ?? null);
+            setXpEarned(payload?.xpEarned ?? 0);
+            setPassedAttempt(Boolean(payload?.passed));
+            setBestScore(payload?.bestScore ?? null);
+            setAnalysisStatus("complete");
+
+            if (phraseData.id && phraseData.id !== "temp") {
+              loadPhraseHistory(phraseData.id);
             }
-          } catch (error) {
-            console.error("Failed to fetch analysis", error);
+          } catch (scoreError) {
+            console.error("Failed to score recording", scoreError);
             setAnalysisStatus("idle");
-            toast.error("Sorry, the AI is taking a break. Try again!");
+            toast.error("Could not score recording. Please try again.");
           }
-        };
+        })();
       };
     }
-  }, [isRecording, handleAiResponse, phraseData]);
-
+  }, [isRecording, phraseData, loadPhraseHistory]);
+ 
   const handleComplete = useCallback(async () => {
     if (!phraseData?.id) return;
     setIsCompleting(true);
@@ -524,7 +529,7 @@ export default function PracticePage() {
                     key={i}
                     className={`w-2 rounded-full transition-all duration-100 ${isRecording
                       ? "bg-primary"
-                      : analysisStatus === "aiSpeaking"
+                      : analysisStatus === "analyzing"
                         ? "bg-primary"
                         : "bg-primary/40"
                       }`}
@@ -535,10 +540,10 @@ export default function PracticePage() {
 
               <Button
                 onClick={handleToggleRecord}
-                disabled={analysisStatus === "analyzing" || analysisStatus === "aiSpeaking"}
+                disabled={analysisStatus === "analyzing"}
                 className={`w-24 h-24 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 [&_svg]:size-8 ${isRecording
                   ? "bg-red-500 hover:bg-red-600 animate-pulse scale-105 text-white"
-                  : analysisStatus !== "idle"
+                  : analysisStatus === "analyzing"
                     ? "bg-primary/50 cursor-not-allowed scale-95 text-primary-foreground"
                     : "bg-primary hover:bg-primary/90 hover:scale-105 text-primary-foreground"
                   }`}
@@ -561,23 +566,98 @@ export default function PracticePage() {
                     </div>
                   </div>
                 )}
-
-                {(analysisStatus === "aiSpeaking" ||
-                  (analysisStatus === "idle" && aiSubtitle)) && (
-                    <div className="flex items-center justify-center animate-in fade-in duration-500">
-                      <p className="text-base font-medium text-on-surface-variant leading-relaxed text-center italic">
-                        "{aiSubtitle}"
-                      </p>
+ 
+                {pronunciationBreakdown && analysisStatus !== "analyzing" && (
+                  <div className="w-full bg-surface-container-lowest border border-border rounded-xl p-4 text-left space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-semibold text-on-surface-variant">
+                        Grade
+                      </span>
+                      <span className="font-bold text-primary">
+                        {pronunciationBreakdown.grade}
+                      </span>
                     </div>
-                  )}
-
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <p>Tone: {pronunciationBreakdown.tone}%</p>
+                      <p>Rhythm: {pronunciationBreakdown.rhythm}%</p>
+                      <p>Clarity: {pronunciationBreakdown.clarity}%</p>
+                    </div>
+                    {passedAttempt !== null && (
+                      <p
+                        className={`text-sm font-semibold ${passedAttempt ? "text-green-600" : "text-amber-600"}`}
+                      >
+                        {passedAttempt
+                          ? `Passed! +${xpEarned} XP earned`
+                          : "Below pass mark (60%). Try again!"}
+                      </p>
+                    )}
+                    <div className="space-y-1">
+                      {pronunciationBreakdown.feedback.map((tip, idx) => (
+                        <p
+                          key={`${tip}-${idx}`}
+                          className="text-xs text-on-surface-variant"
+                        >
+                          - {tip}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+ 
                 {analysisStatus === "idle" &&
-                  !aiSubtitle &&
+                  !pronunciationBreakdown &&
                   accuracyScore === null && (
                     <p className="text-on-surface-variant font-medium">Tap to speak</p>
                   )}
               </div>
             </div>
+          </div>
+ 
+          <div className="bg-surface-container-lowest rounded-2xl p-6 float-shadow mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-heading font-bold text-xl text-primary">
+                Phrase History
+              </h3>
+              {bestScore !== null && (
+                <span className="text-sm font-semibold text-on-surface-variant">
+                  Best Score: {bestScore}%
+                </span>
+              )}
+            </div>
+
+            {isLoadingHistory && (
+              <p className="text-sm text-on-surface-variant">
+                Loading history...
+              </p>
+            )}
+
+            {!isLoadingHistory && attemptHistory.length === 0 && (
+              <p className="text-sm text-on-surface-variant">
+                No attempts yet. Record your first attempt.
+              </p>
+            )}
+
+            {!isLoadingHistory && attemptHistory.length > 0 && (
+              <div className="space-y-2">
+                {attemptHistory
+                  .slice()
+                  .reverse()
+                  .slice(0, 6)
+                  .map((entry, index) => (
+                    <div
+                      key={`${entry.recordedAt}-${index}`}
+                      className="flex items-center justify-between border border-border rounded-lg px-4 py-3 text-sm"
+                    >
+                      <span className="text-on-surface-variant">
+                        {new Date(entry.recordedAt).toLocaleString()}
+                      </span>
+                      <span className="font-bold text-primary">
+                        {entry.score}%
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
