@@ -129,6 +129,39 @@ export default function LearnPath() {
     router.push("/");
   };
 
+  const getRankStyles = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return "bg-yellow-400/20 border-yellow-400/40";
+      case 2:
+        return "bg-gray-300/20 border-gray-400/40";
+      case 3:
+        return "bg-amber-600/20 border-amber-600/40";
+      default:
+        return "";
+    }
+  };
+
+  const getAvatarStyles = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return "bg-yellow-400/30 text-yellow-900";
+      case 2:
+        return "bg-gray-300/30 text-gray-800";
+      case 3:
+        return "bg-amber-600/30 text-amber-900";
+      default:
+        return "bg-warning/30 text-foreground";
+    }
+  };
+
+  const getRankIcon = (rank: number) => {
+    if (rank === 1) return "🥇";
+    if (rank === 2) return "🥈";
+    if (rank === 3) return "🥉";
+    return null;
+  };
+
   return (
     <>
       <Head>
@@ -422,29 +455,38 @@ export default function LearnPath() {
               {!loadingLeaderboard &&
                 leaderboardData.map((item) => {
                   const isCurrentUser = item.id === user._id;
+                  const isTop3 = item.rank <= 3;
+
                   const initials = item.name.slice(0, 2).toUpperCase();
 
                   return (
                     <div
                       key={item.id}
                       className={`group flex items-center gap-4 p-3 rounded-xl border shadow-sm cursor-pointer transition-all active:scale-95
-            ${
-              isCurrentUser
-                ? "leaderboard-current-user shadow-md mt-2 hover:brightness-105 hover:-translate-y-0.5"
-                : "bg-surface-container-lowest border-border hover:border-warning/50 hover:shadow-md"
-            }
-          `}
+          
+          ${
+            isCurrentUser
+              ? "leaderboard-current-user shadow-md mt-2 hover:brightness-105 hover:-translate-y-0.5"
+              : isTop3
+              ? getRankStyles(item.rank)
+              : "bg-surface-container-lowest border-border hover:border-warning/50 hover:shadow-md"
+          }
+        `}
                     >
+                      {/* Rank / Medal */}
                       <span
-                        className={`font-bold w-4 transition-colors ${
+                        className={`font-bold w-6 transition-colors ${
                           isCurrentUser
                             ? ""
+                            : isTop3
+                            ? "text-primary"
                             : "text-muted-foreground group-hover:text-primary"
                         }`}
                       >
-                        {item.rank}
+                        {getRankIcon(item.rank) || item.rank}
                       </span>
 
+                      {/* Avatar */}
                       <Avatar
                         className={`w-8 h-8 transition-transform ${
                           isCurrentUser
@@ -456,6 +498,8 @@ export default function LearnPath() {
                           className={`text-xs font-bold ${
                             isCurrentUser
                               ? "bg-on-primary/20 text-on-primary"
+                              : isTop3
+                              ? getAvatarStyles(item.rank)
                               : "bg-warning/30 text-foreground"
                           }`}
                         >
@@ -463,6 +507,7 @@ export default function LearnPath() {
                         </AvatarFallback>
                       </Avatar>
 
+                      {/* Name */}
                       <span
                         className={`font-bold flex-1 text-sm ${
                           isCurrentUser
@@ -473,6 +518,7 @@ export default function LearnPath() {
                         {isCurrentUser ? `You (${item.name})` : item.name}
                       </span>
 
+                      {/* XP */}
                       <span
                         className={`font-bold text-sm ${
                           isCurrentUser
