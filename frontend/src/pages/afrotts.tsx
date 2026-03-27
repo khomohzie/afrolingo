@@ -108,6 +108,7 @@ export default function AfroTTSPage() {
       setAudioReady(true);
       toast.success(res.data.message || "Speech generated successfully!");
       fetchHistory();
+      setText("");
     } catch (error) {
       console.error(error);
       setIsGenerating(false);
@@ -296,7 +297,9 @@ export default function AfroTTSPage() {
                         {audioUrl ? "Generated Speech Ready" : "No audio file"}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {audioUrl ? "Ready to play or download" : "Generate audio"}
+                        {audioUrl
+                          ? "Ready to play or download"
+                          : "Generate audio"}
                       </p>
                     </div>
                   </div>
@@ -340,7 +343,9 @@ export default function AfroTTSPage() {
                       className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4 border border-border rounded-2xl bg-surface"
                     >
                       <div>
-                        <p className="font-semibold text-foreground">{item.text}</p>
+                        <p className="font-semibold text-foreground">
+                          {item.text}
+                        </p>
                         <p className="text-sm text-muted-foreground mt-1">
                           {item.translation}
                         </p>
