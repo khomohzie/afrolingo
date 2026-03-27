@@ -85,3 +85,27 @@ export function getPostAuthRoute(user?: User | null) {
   if (!user) return "/login";
   return user.selectedLanguage ? "/learn" : "/onboarding/choose-language";
 }
+
+export async function getUpdatedUser(): Promise<User | null> {
+  try {
+    // Fetch the updated user information
+    const { data } = await api.get<ApiResponse<User>>("/user/me");
+
+    if (data.success) {
+      const updatedUser = data.data;
+
+      // Save the updated user data to localStorage
+      saveAuth({
+        ...getStoredUser(),
+        user: updatedUser, // Update user data
+      });
+
+      return updatedUser;
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error fetching updated user:", error);
+    return null;
+  }
+}

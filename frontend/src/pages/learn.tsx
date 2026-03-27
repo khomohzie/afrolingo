@@ -1,42 +1,15 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import Head from "next/head";
-import {
-  Home,
-  BookOpen,
-  BarChart2,
-  Target,
-  ShoppingCart,
-  Award,
-  Check,
-  Play,
-  Utensils,
-  Lock,
-  Flame,
-  Zap,
-  Trophy,
-  Volume2,
-  LogOut,
-} from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
-import { Geist } from "next/font/google";
-import { Button } from "@/components/ui/button";
+import LeftSidebar from "@/components/layout/LeftSidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import api from "@/lib/axios";
 import { ILeaderboardData } from "@/interfaces/learn.interfaces";
+import api from "@/lib/axios";
+import { Check, Flame, Lock, Play, Trophy, Utensils, Zap } from "lucide-react";
+import { Geist } from "next/font/google";
+import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -67,7 +40,6 @@ const languageMeta: Record<
 export default function LearnPath() {
   const { user, authenticated, ready, logout } = useAuth();
   const router = useRouter();
-  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState<ILeaderboardData[]>(
     []
@@ -119,16 +91,6 @@ export default function LearnPath() {
     description: "Continue your learning journey",
   };
 
-  const handleLogoutClick = () => {
-    setLogoutDialogOpen(true);
-  };
-
-  const confirmLogout = () => {
-    logout();
-    setLogoutDialogOpen(false);
-    router.push("/");
-  };
-
   const getRankStyles = (rank: number) => {
     switch (rank) {
       case 1:
@@ -171,109 +133,7 @@ export default function LearnPath() {
         className={`${geistSans.className} min-h-screen flex bg-background text-foreground`}
       >
         {/* LEFT SIDEBAR */}
-        <aside className="w-60 fixed left-0 top-0 bottom-0 flex flex-col border-r border-border bg-background z-20">
-          <div className="p-8 group cursor-pointer">
-            <div className="flex items-center gap-3 font-black text-2xl group-hover:scale-105 transition-transform origin-left">
-              <div className="w-8 h-8 relative group-hover:rotate-12 transition-transform duration-300">
-                <Image
-                  src="/logo.png"
-                  alt="AfroLingo Logo"
-                  fill
-                  sizes="32px"
-                  className="object-contain"
-                />
-              </div>
-              <span className="tracking-tight">
-                <span className="text-on-surface">Afro</span>
-                <span className="text-[#8B4513]">Lingo</span>
-              </span>
-            </div>
-            <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase mt-1 group-hover:text-primary transition-colors">
-              {meta.title}
-            </p>
-          </div>
-
-          <nav className="flex-1 px-4 space-y-2">
-            <Link
-              href="/"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <Home
-                size={20}
-                className="group-hover:-translate-y-1 transition-transform"
-              />{" "}
-              Home
-            </Link>
-            <div className="group flex items-center gap-4 px-4 py-3 bg-primary text-on-primary rounded-xl font-semibold shadow-md cursor-pointer transition-all active:scale-95">
-              <BookOpen
-                size={20}
-                className="group-hover:scale-110 transition-transform"
-              />{" "}
-              Learn
-            </div>
-            <Link
-              href="/leaderboard"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <BarChart2
-                size={20}
-                className="group-hover:-translate-y-1 transition-transform"
-              />{" "}
-              Leaderboard
-            </Link>
-            <Link
-              href="/quests"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <Target
-                size={20}
-                className="group-hover:-translate-y-1 transition-transform"
-              />{" "}
-              Quests
-            </Link>
-            <Link
-              href="/shop"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <ShoppingCart
-                size={20}
-                className="group-hover:-translate-y-1 transition-transform"
-              />{" "}
-              Shop
-            </Link>
-            <Link
-              href="/afrotts"
-              className="group flex items-center gap-4 px-4 py-3 text-muted-foreground hover:bg-surface-container rounded-xl font-semibold transition-all active:scale-95"
-            >
-              <Volume2
-                size={20}
-                className="group-hover:-translate-y-1 transition-transform"
-              />{" "}
-              AfroTTS
-            </Link>
-
-            <div className="pt-4">
-              <Button className="group w-full flex items-center justify-center gap-2 bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black h-auto py-4 rounded-xl font-bold border-none transition-all hover:opacity-90 active:scale-95">
-                <Award
-                  size={20}
-                  className="group-hover:rotate-12 transition-transform"
-                />{" "}
-                Go Premium
-              </Button>
-            </div>
-            <div className="pt-2">
-              <button
-                onClick={handleLogoutClick}
-                className="group cursor-pointer w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-150 hover:!bg-red-500"
-              >
-                <LogOut className="h-4 w-4 text-red-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
-                <span className="text-red-500 group-hover:text-white">
-                  Logout
-                </span>
-              </button>
-            </div>
-          </nav>
-        </aside>
+        <LeftSidebar title={meta.title} />
 
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 ml-60 mr-80 min-h-screen py-16 relative">
@@ -453,7 +313,7 @@ export default function LearnPath() {
 
               {/* Leaderboard */}
               {!loadingLeaderboard &&
-                leaderboardData.map((item) => {
+                leaderboardData.slice(0, 3).map((item) => {
                   const isCurrentUser = item.id === user._id;
                   const isTop3 = item.rank <= 3;
 
@@ -562,32 +422,6 @@ export default function LearnPath() {
           </div>
         </aside>
       </div>
-
-      {/* Logout confirmation dialog */}
-      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
-        <AlertDialogContent className="p-6">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-semibold">
-              Confirm Logout
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm">
-              Are you sure you want to log out? You'll need to sign in again to
-              access your progress.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className=" px-6 py-6 cursor-pointer">
-              No, go back
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmLogout}
-              className="cursor-pointer px-6 py-6 bg-red-500 hover:bg-red-600 focus:ring-red-500"
-            >
-              Yes, logout
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
