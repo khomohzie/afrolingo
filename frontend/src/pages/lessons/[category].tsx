@@ -6,57 +6,51 @@ import { Geist } from "next/font/google";
 import { ArrowLeft, CheckCircle2, Lock, Mic, Loader2, Volume2, Star, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { getPhrases, completePhrase, type Phrase } from "@/lib/lessons";
+import { getPhrases, type Phrase, type PhraseModule } from "@/lib/lessons";
 import { toast } from "sonner";
 import { Navbar } from "@/components/layout/Navbar";
 
 const geist = Geist({ subsets: ["latin"] });
 
-// Maps category slug → display info
-const CATEGORY_META: Record<string, { label: string; unit: number; description: string }> = {
+const CATEGORY_META: Record<string, { label: string; description: string }> = {
     greetings: {
         label: "Greetings",
-        unit: 1,
         description: "Master the foundations of daily social interaction.",
     },
     everyday: {
         label: "Everyday Phrases",
-        unit: 2,
         description: "Essential expressions for day-to-day conversations.",
     },
     food: {
         label: "Food & Market",
-        unit: 3,
         description: "Navigate markets and mealtimes with confidence.",
     },
 };
 
 export default function LessonPage() {
     const router = useRouter();
-    const { category } = router.query; // e.g. "greetings", "everyday", "food"
+    const { category } = router.query;
     const { user, authenticated, ready } = useAuth();
 
-    const [phrases, setPhrases] = useState<Phrase[]>([]);
+    const [allModules, setAllModules] = useState<PhraseModule[]>([]);
+    const [currentModule, setCurrentModule] = useState<PhraseModule | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
     const [showContent, setShowContent] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const activeLanguageRef = useRef<string | undefined>(undefined);
     const animatedRef = useRef(false);
 
     const activeLanguage = user?.selectedLanguage?.toLowerCase();
     const categorySlug = typeof category === "string" ? category.toLowerCase() : "";
-    const meta = CATEGORY_META[categorySlug];
 
-    // Auth guard
     useEffect(() => {
         if (!ready) return;
         if (!authenticated) router.replace("/login");
     }, [ready, authenticated, router]);
 
-    // Fetch phrases for this category
     useEffect(() => {
-        if (!activeLanguage || !categorySlug) {
+        if (!activeLanguage) {
             setIsLoading(false);
             return;
         }
@@ -73,33 +67,22 @@ export default function LessonPage() {
                 if (!isMounted) return;
                 if (activeLanguageRef.current !== activeLanguage) return;
 
-                const modules = result?.data?.modules || [];
-                const targetModule = modules.find((m) => m.category === categorySlug);
+                const modules: PhraseModule[] = result?.data?.modules || [];
+                // Keep only the categories we display
+                const filteredModules = modules.filter(m => m.category in CATEGORY_META);
+                setAllModules(filteredModules);
 
-                let sorted: Phrase[] = [];
-                let completed: Set<string> = new Set();
-
-                if (targetModule?.phrases?.length) {
-                    sorted = [...targetModule.phrases].sort((a, b) => {
-                        const orderA = a.orderIndex ?? a.order ?? 0;
-                        const orderB = b.orderIndex ?? b.order ?? 0;
-                        return orderA - orderB;
-                    });
-                    sorted.forEach((p) => {
-                        if (p.userProgress?.completed) completed.add(p._id);
-                    });
-                }
-
-                if (isMounted) {
-                    setPhrases(sorted);
-                    setCompletedIds(completed);
+                const found = filteredModules.find(m => m.category === categorySlug);
+                if (found) {
+                    setCurrentModule(found);
+                } else {
+                    setError(`Module "${categorySlug}" not found.`);
                 }
             } catch (error: any) {
                 if (error.name !== "AbortError" && isMounted) {
-                    console.error("Error loading phrases:", error);
-                    toast.error("Could not load lesson phrases. Please try again.");
-                    setPhrases([]);
-                    setCompletedIds(new Set());
+                    console.error("Error loading modules:", error);
+                    toast.error("Could not load lesson data. Please try again.");
+                    setError("Failed to load lesson.");
                 }
             } finally {
                 if (isMounted) setIsLoading(false);
@@ -114,22 +97,48 @@ export default function LessonPage() {
         };
     }, [activeLanguage, categorySlug]);
 
-    // Fade-in after load
     useEffect(() => {
-        if (!isLoading && phrases.length > 0 && !animatedRef.current) {
+        if (!isLoading && currentModule && !animatedRef.current) {
             animatedRef.current = true;
             const timer = setTimeout(() => setShowContent(true), 50);
             return () => clearTimeout(timer);
         }
-    }, [isLoading, phrases.length]);
+    }, [isLoading, currentModule]);
 
-    const isUnlocked = (index: number) => {
+    // Compute unlock status for each module (sequential based on filtered array)
+    const moduleStatuses = allModules.map((mod, idx) => {
+        const isCompleted = mod.completedPhrases === mod.totalPhrases;
+        const previousCompleted = idx === 0 ? true : allModules.slice(0, idx).every(prev => prev.completedPhrases === prev.totalPhrases);
+        const isUnlocked = previousCompleted && mod.isUnlocked;
+        return { ...mod, isUnlocked, isCompleted };
+    });
+
+    const currentModuleStatus = moduleStatuses.find(m => m.category === categorySlug);
+    const isCurrentLocked = currentModuleStatus && !currentModuleStatus.isUnlocked;
+
+    useEffect(() => {
+        if (!isLoading && currentModuleStatus && !currentModuleStatus.isUnlocked) {
+            toast.error("You must complete previous units first.");
+            router.replace("/learn");
+        }
+    }, [isLoading, currentModuleStatus, router]);
+
+    const phrases = currentModule?.phrases || [];
+    const totalPhrases = currentModule?.totalPhrases || 0;
+    const completedIds = new Set<string>();
+    phrases.forEach(p => {
+        if (p.userProgress?.completed) completedIds.add(p._id);
+    });
+    const completedCount = completedIds.size;
+    const progress = totalPhrases > 0 ? Math.round((completedCount / totalPhrases) * 100) : 0;
+
+    const isUnlockedPhrase = (index: number) => {
         if (index === 0) return true;
         return completedIds.has(phrases[index - 1]._id);
     };
 
     const handlePhraseClick = (phrase: Phrase, index: number) => {
-        if (!isUnlocked(index)) {
+        if (!isUnlockedPhrase(index)) {
             toast.error("Complete the previous phrase first.");
             return;
         }
@@ -143,14 +152,12 @@ export default function LessonPage() {
                 audioUrl: phrase.audioUrl || "",
                 romanization: phrase.romanization || "",
                 toneNotes: phrase.toneNotes || "",
-                category: categorySlug,   // ← ADD
+                category: categorySlug,
             },
         });
     };
 
-    const completedCount = phrases.filter((p) => completedIds.has(p._id)).length;
-    const progress = phrases.length > 0 ? Math.round((completedCount / phrases.length) * 100) : 0;
-    const activeIndex = phrases.findIndex((_, idx) => !completedIds.has(phrases[idx]._id) && isUnlocked(idx));
+    const activeIndex = phrases.findIndex((_, idx) => !completedIds.has(phrases[idx]._id) && isUnlockedPhrase(idx));
     const activePhrase = activeIndex !== -1 ? phrases[activeIndex] : null;
 
     const getLanguageName = () => {
@@ -159,7 +166,8 @@ export default function LessonPage() {
     };
     const getWatermarkLetter = () => activeLanguage?.charAt(0).toUpperCase() || "A";
 
-    // Auth loading
+    const currentUnitNumber = moduleStatuses.findIndex(m => m.category === categorySlug) + 1;
+
     if (!ready || !authenticated) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -168,20 +176,6 @@ export default function LessonPage() {
         );
     }
 
-    // Unknown category
-    if (!isLoading && !meta) {
-        return (
-            <div className="min-h-screen flex flex-col">
-                <Navbar />
-                <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                    <p className="text-on-surface-variant font-medium">Lesson not found.</p>
-                    <Button onClick={() => router.push("/learn")}>Back to Learn</Button>
-                </div>
-            </div>
-        );
-    }
-
-    // Data loading skeleton
     if (isLoading) {
         return (
             <div className="min-h-screen bg-surface text-on-surface">
@@ -210,6 +204,20 @@ export default function LessonPage() {
             </div>
         );
     }
+
+    if (error || !currentModule) {
+        return (
+            <div className="min-h-screen flex flex-col">
+                <Navbar />
+                <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                    <p className="text-on-surface-variant font-medium">{error || "Lesson not found."}</p>
+                    <Button onClick={() => router.push("/learn")}>Back to Learn</Button>
+                </div>
+            </div>
+        );
+    }
+
+    const meta = CATEGORY_META[categorySlug] || { label: "Lesson", description: "" };
 
     return (
         <>
@@ -247,24 +255,37 @@ export default function LessonPage() {
                                     <div className="h-full bg-secondary rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
                                 </div>
 
-                                {/* Dynamic unit list from CATEGORY_META */}
+                                {/* Module list with unlock status */}
                                 <div className="space-y-4 pt-4 border-t border-outline-variant/20">
-                                    {Object.entries(CATEGORY_META).map(([slug, info]) => {
-                                        const isCurrent = slug === categorySlug;
+                                    {moduleStatuses.map((mod) => {
+                                        const isCurrent = mod.category === categorySlug;
+                                        const isUnlocked = mod.isUnlocked;
+                                        const isCompleted = mod.isCompleted;
+                                        const modMeta = CATEGORY_META[mod.category] || { label: mod.category };
+
                                         return (
                                             <Link
-                                                key={slug}
-                                                href={`/lessons/${slug}`}
-                                                className={`flex items-center gap-3 text-sm font-medium transition-colors ${isCurrent
-                                                    ? "text-secondary font-bold"
-                                                    : "text-on-surface-variant hover:text-primary"
-                                                    }`}
+                                                key={mod.category}
+                                                href={isUnlocked ? `/lessons/${mod.category}` : "#"}
+                                                className={`flex items-center gap-3 text-sm font-medium transition-colors ${
+                                                    isCurrent
+                                                        ? "text-secondary font-bold"
+                                                        : isUnlocked
+                                                        ? "text-on-surface-variant hover:text-primary"
+                                                        : "text-on-surface-variant opacity-50 cursor-not-allowed"
+                                                }`}
+                                                onClick={(e) => !isUnlocked && e.preventDefault()}
                                             >
-                                                {isCurrent
-                                                    ? <Mic className="h-4 w-4 text-secondary shrink-0" />
-                                                    : <CheckCircle2 className="h-4 w-4 shrink-0" />
-                                                }
-                                                <span>{info.label}</span>
+                                                {isCompleted ? (
+                                                    <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                                                ) : isCurrent ? (
+                                                    <Mic className="h-4 w-4 text-secondary shrink-0" />
+                                                ) : isUnlocked ? (
+                                                    <div className="w-4 h-4" /> // placeholder for alignment
+                                                ) : (
+                                                    <Lock className="h-4 w-4 shrink-0" />
+                                                )}
+                                                <span>{modMeta.label}</span>
                                             </Link>
                                         );
                                     })}
@@ -291,12 +312,13 @@ export default function LessonPage() {
                         <div className="lg:col-span-6 space-y-6">
                             {/* Lesson Context Card */}
                             <div
-                                className={`relative overflow-hidden bg-[#4e3b2a] rounded-3xl p-8 text-white shadow-lg border border-primary/10 transition-all duration-700 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                                    }`}
+                                className={`relative overflow-hidden bg-[#4e3b2a] rounded-3xl p-8 text-white shadow-lg border border-primary/10 transition-all duration-700 ${
+                                    showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                                }`}
                             >
                                 <div className="relative z-10 max-w-lg">
                                     <p className="text-[#c0a58f] text-xs uppercase tracking-widest font-bold mb-2">
-                                        Unit {meta.unit} · {meta.label}
+                                        Unit {currentUnitNumber} · {meta.label}
                                     </p>
                                     <h2 className="font-black text-4xl mb-4">Essential {getLanguageName()}</h2>
                                     <p className="text-white/90 text-lg leading-relaxed">{meta.description}</p>
@@ -316,11 +338,11 @@ export default function LessonPage() {
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    {/* Active Phrase — large card */}
                                     {activePhrase && (
                                         <div
-                                            className={`transition-all duration-700 delay-100 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                                                } w-full text-left`}
+                                            className={`transition-all duration-700 delay-100 ${
+                                                showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                                            } w-full text-left`}
                                         >
                                             <div className="bg-[#4e3b2a] rounded-[1.5rem] p-8 border-2 border-[#652f19]/30 shadow-[0px_15px_30px_rgba(78,59,42,0.12)]">
                                                 <div className="flex justify-between items-start mb-6">
@@ -354,7 +376,6 @@ export default function LessonPage() {
                                         </div>
                                     )}
 
-                                    {/* Other Phrases */}
                                     <div className="grid grid-cols-1 gap-4">
                                         {phrases.map((phrase, idx) => {
                                             const completed = completedIds.has(phrase._id);
@@ -365,13 +386,15 @@ export default function LessonPage() {
                                                     key={phrase._id}
                                                     onClick={() => handlePhraseClick(phrase, idx)}
                                                     disabled={locked}
-                                                    className={`transition-all duration-700 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                                                        } w-full flex justify-between items-center bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 ${completed
+                                                    className={`transition-all duration-700 ${
+                                                        showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                                                    } w-full flex justify-between items-center bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 ${
+                                                        completed
                                                             ? "cursor-pointer hover:bg-green-50/30"
                                                             : locked
-                                                                ? "cursor-not-allowed opacity-50"
-                                                                : "cursor-pointer hover:bg-surface-container-low"
-                                                        }`}
+                                                            ? "cursor-not-allowed opacity-50"
+                                                            : "cursor-pointer hover:bg-surface-container-low"
+                                                    }`}
                                                 >
                                                     <div>
                                                         <h3 className="font-bold text-xl text-primary mb-1">{phrase.text}</h3>
@@ -396,17 +419,17 @@ export default function LessonPage() {
                         {/* RIGHT SIDEBAR */}
                         <aside className="lg:col-span-3 space-y-6">
                             <div className="sticky top-28 space-y-6">
-                                {/* Lesson Action Card */}
                                 <div
-                                    className={`bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/20 shadow-xl shadow-primary/5 transition-all duration-700 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                                        }`}
+                                    className={`bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/20 shadow-xl shadow-primary/5 transition-all duration-700 ${
+                                        showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                                    }`}
                                 >
                                     <div className="flex items-center gap-3 mb-6">
                                         <div className="w-10 h-10 bg-primary/5 rounded-full flex items-center justify-center">
                                             <Sparkles className="h-5 w-5 text-primary" />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-primary">Unit {meta.unit}</h4>
+                                            <h4 className="font-bold text-primary">Unit {currentUnitNumber}</h4>
                                             <p className="text-xs text-on-surface-variant font-medium">Topic: {meta.label}</p>
                                         </div>
                                     </div>
@@ -414,18 +437,19 @@ export default function LessonPage() {
                                     <div className="space-y-4 mb-8">
                                         <div className="flex justify-between items-center text-sm">
                                             <span className="text-on-surface-variant">Steps</span>
-                                            <span className="font-bold text-primary">{completedCount} / {phrases.length}</span>
+                                            <span className="font-bold text-primary">{completedCount} / {totalPhrases}</span>
                                         </div>
                                         <div className="flex gap-1.5">
                                             {phrases.map((_, idx) => (
                                                 <div
                                                     key={idx}
-                                                    className={`h-1.5 flex-1 rounded-full ${idx < completedCount
-                                                        ? "bg-secondary"
-                                                        : idx === activeIndex
+                                                    className={`h-1.5 flex-1 rounded-full ${
+                                                        idx < completedCount
+                                                            ? "bg-secondary"
+                                                            : idx === activeIndex
                                                             ? "bg-secondary animate-pulse"
                                                             : "bg-surface-container-highest"
-                                                        }`}
+                                                    }`}
                                                 />
                                             ))}
                                         </div>
@@ -444,7 +468,7 @@ export default function LessonPage() {
                                                         audioUrl: activePhrase.audioUrl || "",
                                                         romanization: activePhrase.romanization || "",
                                                         toneNotes: activePhrase.toneNotes || "",
-                                                        category: categorySlug,   // ← ADD
+                                                        category: categorySlug,
                                                     },
                                                 }
                                                 : "#"
@@ -456,10 +480,10 @@ export default function LessonPage() {
                                     </Link>
                                 </div>
 
-                                {/* Cultural Note Card */}
                                 <div
-                                    className={`bg-surface-container-low p-6 rounded-2xl border border-outline-variant/10 transition-all duration-700 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                                        }`}
+                                    className={`bg-surface-container-low p-6 rounded-2xl border border-outline-variant/10 transition-all duration-700 ${
+                                        showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                                    }`}
                                 >
                                     <h5 className="font-bold text-primary text-sm mb-3 flex items-center gap-2">
                                         <Star className="h-4 w-4 text-secondary" />
@@ -475,10 +499,11 @@ export default function LessonPage() {
                     </div>
 
                     {/* Unit Complete Banner */}
-                    {!isLoading && completedCount === phrases.length && phrases.length > 0 && (
+                    {!isLoading && completedCount === totalPhrases && totalPhrases > 0 && (
                         <div
-                            className={`mt-10 transition-all duration-700 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                                }`}
+                            className={`mt-10 transition-all duration-700 ${
+                                showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                            }`}
                         >
                             <div className="relative overflow-hidden bg-[#4e3b2a] rounded-3xl p-10 text-white shadow-lg border border-primary/10">
                                 <div className="absolute -right-8 -bottom-12 opacity-10 pointer-events-none">
@@ -487,7 +512,7 @@ export default function LessonPage() {
                                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                                     <div>
                                         <p className="text-[#c0a58f] text-xs uppercase tracking-widest font-bold mb-2">
-                                            Unit {meta.unit} Complete
+                                            Unit {currentUnitNumber} Complete
                                         </p>
                                         <h3 className="font-black text-4xl mb-3">All Phrases Mastered</h3>
                                         <p className="text-white/70 text-sm leading-relaxed max-w-sm">

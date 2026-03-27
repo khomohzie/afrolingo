@@ -29,6 +29,7 @@ const KNOWN_CATEGORIES: Record<string, string> = {
   food:      "Food & Market",
 };
 
+// Daily quest target — complete this many phrases in a session
 const DAILY_QUEST_TARGET = 3;
 
 const formatCategoryName = (category: string): string =>
@@ -60,7 +61,6 @@ export default function LearnPath() {
       try {
         const result = await getPhrases(user.selectedLanguage as string);
         const allModules: PhraseModule[] = result?.data?.modules || [];
-        // Keep only known categories (or all, but we filter to avoid unknown)
         setModules(allModules.filter((m) => m.category in KNOWN_CATEGORIES));
       } catch (error) {
         console.error("Failed to fetch modules:", error);
@@ -72,7 +72,7 @@ export default function LearnPath() {
     fetchModules();
   }, [user?.selectedLanguage]);
 
-  // Fetch user stats
+  // Fetch user stats for Daily Quest
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -115,28 +115,13 @@ export default function LearnPath() {
     description: "Continue your learning journey",
   };
 
-  // ----- SEQUENTIAL UNLOCKING -----
-  // For each module, compute:
-  // - isCompleted (all phrases done)
-  // - isLocked (if not first unit and previous unit not completed)
-  const modulesWithStatus = modules.map((module, idx) => {
-    const isCompleted = module.completedPhrases === module.totalPhrases;
-    // Previous unit must be completed to unlock this one (except first)
-    const previousCompleted = idx === 0 ? true : modules.slice(0, idx).every(prev => prev.completedPhrases === prev.totalPhrases);
-    // Also respect backend's isUnlocked (e.g., premium flags) – but we combine with our sequential rule
-    const isLocked = !previousCompleted || !module.isUnlocked;
-    return { ...module, isCompleted, isLocked };
-  });
-
-  // Find the first unit that is not completed and not locked – that's the active unit
-  const activeIndex = modulesWithStatus.findIndex(
-    (m) => !m.isCompleted && !m.isLocked
+  const activeIndex = modules.findIndex(
+    (m) => m.isUnlocked && m.completedPhrases < m.totalPhrases
   );
 
-  // Helper to get status for display
-  const getUnitStatus = (module: typeof modulesWithStatus[0], index: number) => {
-    if (module.isLocked) return "locked";
-    if (module.isCompleted) return "completed";
+  const getUnitStatus = (module: PhraseModule, index: number) => {
+    if (!module.isUnlocked) return "locked";
+    if (module.completedPhrases === module.totalPhrases) return "completed";
     if (index === activeIndex) return "active";
     return "inactive";
   };
@@ -163,7 +148,7 @@ export default function LearnPath() {
     return "text-on-surface-variant";
   };
 
-  const getProgressText = (module: typeof modulesWithStatus[0], status: string) => {
+  const getProgressText = (module: PhraseModule, status: string) => {
     if (status === "completed") return "Completed";
     if (status === "active")    return "In Progress";
     if (status === "locked")    return "Locked";
@@ -171,7 +156,9 @@ export default function LearnPath() {
     return `${module.completedPhrases}/${module.totalPhrases} phrases`;
   };
 
-  // Daily Quest progress (using totalCompleted from stats as a proxy)
+  // ── Daily Quest derived from real stats ──────────────────
+  // Use totalCompleted mod DAILY_QUEST_TARGET as a rolling daily progress proxy
+  // until a dedicated daily endpoint exists
   const totalCompleted      = userStats?.totalCompleted ?? 0;
   const questDone           = Math.min(totalCompleted % DAILY_QUEST_TARGET || (totalCompleted > 0 && totalCompleted % DAILY_QUEST_TARGET === 0 ? DAILY_QUEST_TARGET : 0), DAILY_QUEST_TARGET);
   const questProgress       = Math.round((questDone / DAILY_QUEST_TARGET) * 100);
@@ -209,11 +196,11 @@ export default function LearnPath() {
             <div className="relative flex flex-col items-center w-full">
               <div className="absolute top-0 bottom-11 left-1/2 -translate-x-1/2 w-1 border-l-[3px] border-dashed border-primary/20 z-0" />
 
-              {modulesWithStatus.map((module, index) => {
-                const status = getUnitStatus(module, index);
-                const isActive = status === "active";
+              {modules.map((module, index) => {
+                const status      = getUnitStatus(module, index);
+                const isActive    = status === "active";
                 const isCompleted = status === "completed";
-                const isLocked = status === "locked";
+                const isLocked    = status === "locked";
                 const categoryName = formatCategoryName(module.category);
 
                 return (
@@ -261,7 +248,7 @@ export default function LearnPath() {
                       )}
                       {isLocked && (
                         <p className="text-xs font-bold text-on-surface-variant group-hover:text-error transition-colors">
-                          {index === 0 ? "Complete this unit to unlock next" : "Complete previous unit to unlock"}
+                          Complete previous unit to unlock
                         </p>
                       )}
                     </div>
@@ -272,9 +259,10 @@ export default function LearnPath() {
           </div>
         </main>
 
-        {/* RIGHT SIDEBAR (unchanged except daily quest) */}
+        {/* RIGHT SIDEBAR */}
         <aside className="w-[390px] fixed right-0 top-0 bottom-0 border-l border-border bg-surface-container-lowest z-20 p-8 overflow-y-auto">
-          {/* Streak & XP cards – same as before */}
+
+          {/* Streak + XP */}
           <div className="flex items-center justify-between gap-4 mb-10">
             <div className="group flex-1 bg-surface-container-lowest border border-border hover:border-warning/50 rounded-2xl p-4 flex flex-col items-center justify-center shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer transition-all active:scale-95">
               <div className="flex items-center gap-2 text-xl font-black text-foreground group-hover:scale-110 transition-transform">
@@ -300,6 +288,7 @@ export default function LearnPath() {
                 View All
               </Link>
             </div>
+
             <div className="space-y-2">
               {loadingLeaderboard && (
                 <div className="space-y-2">
@@ -313,15 +302,18 @@ export default function LearnPath() {
                   ))}
                 </div>
               )}
+
               {!loadingLeaderboard && leaderboardData.length === 0 && (
                 <div className="text-center py-6 text-sm text-muted-foreground">
                   No leaderboard data available yet.
                 </div>
               )}
+
               {!loadingLeaderboard && leaderboardData.slice(0, 3).map((item) => {
                 const isCurrentUser = item.id === user._id;
                 const isTop3        = item.rank <= 3;
                 const initials      = item.name.slice(0, 2).toUpperCase();
+
                 return (
                   <div
                     key={item.id}
@@ -338,6 +330,7 @@ export default function LearnPath() {
                     <span className={`font-bold w-6 transition-colors ${isCurrentUser ? "" : isTop3 ? "text-primary" : "text-muted-foreground group-hover:text-primary"}`}>
                       {item.rank === 1 ? "🥇" : item.rank === 2 ? "🥈" : item.rank === 3 ? "🥉" : item.rank}
                     </span>
+
                     <Avatar className={`w-8 h-8 transition-transform ${isCurrentUser ? "group-hover:rotate-6" : "group-hover:scale-110"}`}>
                       <AvatarFallback className={`text-xs font-bold ${
                         isCurrentUser ? "bg-on-primary/20 text-on-primary"
@@ -350,12 +343,14 @@ export default function LearnPath() {
                         {initials}
                       </AvatarFallback>
                     </Avatar>
+
                     <span className={`font-bold flex-1 text-sm ${isCurrentUser ? "" : "group-hover:text-primary transition-colors"}`}>
                       {isCurrentUser ? `You (${item.name})` : item.name}
                       {isCurrentUser && user?.isPremium && (
                         <span className="ml-2 bg-yellow-500 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider align-middle">PREMIUM</span>
                       )}
                     </span>
+
                     <span className={`font-bold text-sm ${isCurrentUser ? "text-on-primary" : "text-muted-foreground"}`}>
                       {item.xp.toLocaleString()}
                     </span>
@@ -365,7 +360,7 @@ export default function LearnPath() {
             </div>
           </div>
 
-          {/* Daily Quest */}
+          {/* Daily Quest — dynamic */}
           <div className={`group border p-6 rounded-2xl relative overflow-hidden cursor-pointer hover:shadow-md transition-all active:scale-[0.98] ${
             questComplete
               ? "bg-green-50/50 border-green-500/30 hover:border-green-500/50"
@@ -374,6 +369,7 @@ export default function LearnPath() {
             <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-2xl transition-colors ${
               questComplete ? "bg-green-500/10 group-hover:bg-green-500/20" : "bg-accent/10 group-hover:bg-accent/20"
             }`} />
+
             <div className="flex items-start gap-4 relative z-10">
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300 ${
                 questComplete ? "bg-green-500 text-white" : "bg-accent text-accent-foreground"
@@ -397,6 +393,7 @@ export default function LearnPath() {
                 </p>
               </div>
             </div>
+
             <div className="mt-6 relative z-10">
               <div className={`flex justify-between text-[10px] font-bold tracking-wider mb-2 uppercase transition-colors ${
                 questComplete ? "text-green-600" : "text-muted-foreground group-hover:text-accent"
@@ -413,6 +410,8 @@ export default function LearnPath() {
                 }`}
               />
             </div>
+
+            {/* Level + avg score row from stats */}
             {userStats && (
               <div className="mt-4 pt-4 border-t border-outline-variant/10 flex items-center justify-between relative z-10">
                 <div className="text-center">
