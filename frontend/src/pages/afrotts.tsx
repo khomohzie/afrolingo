@@ -320,7 +320,7 @@ export default function AfroTTSPage() {
                           <Play
                             size={32}
                             fill="currentColor"
-                            className="ml-2"
+                            className=""
                           />
                         )}
                       </Button>
