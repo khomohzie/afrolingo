@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { clearAuth, getStoredUser, isAuthenticated } from "@/lib/auth";
+import {
+  clearAuth,
+  getStoredUser,
+  isAuthenticated,
+  getUpdatedUser,
+} from "@/lib/auth";
 import type { User } from "@/types";
 
 export function useAuth() {
@@ -25,5 +30,6 @@ export function useAuth() {
     authenticated,
     ready,
     logout: clearAuth,
+    getUpdatedUser,
   };
 }

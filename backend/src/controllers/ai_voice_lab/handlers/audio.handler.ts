@@ -1,10 +1,10 @@
-import CustomException from "../../../utils/handlers/error.handler";
-import CustomResponse from "../../../utils/handlers/response.handler";
 import { NextFunction, Request, Response } from "express";
 import {
   batchCacheAudio,
   cacheAudioForPhrase,
 } from "../../../services/yarngpt.service";
+import CustomException from "../../../utils/handlers/error.handler";
+import CustomResponse from "../../../utils/handlers/response.handler";
 
 /**
  * @route POST /api/ai/cacheAudioAll
@@ -15,7 +15,7 @@ import {
 const cacheAudioAll = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   try {
     const { language } = req.body;
@@ -25,7 +25,7 @@ const cacheAudioAll = async (
         new CustomException(400, "Please provide a language.", {
           success: false,
           path: "/ai/cacheAudioAll",
-        }),
+        })
       );
     }
 
@@ -41,7 +41,7 @@ const cacheAudioAll = async (
       {
         type: "success",
         action: "Batch Cache Audio",
-      },
+      }
     );
   } catch (error) {
     console.error(error);
@@ -63,18 +63,18 @@ const cacheAudio = async (req: Request, res: Response, next: NextFunction) => {
         new CustomException(400, "Please provide a phraseId.", {
           success: false,
           path: "/ai/cacheAudio",
-        }),
+        })
       );
     }
 
-    const url = await cacheAudioForPhrase(phraseId);
+    const url = await cacheAudioForPhrase({ phraseId });
 
     if (!url) {
       return next(
         new CustomException(500, "Failed to retrieve audio url", {
           success: false,
           path: "/ai/cacheAudio",
-        }),
+        })
       );
     }
 
