@@ -4,6 +4,7 @@ import userProgressModel from "../../../models/user-progress.model";
 import CustomException from "../../../utils/handlers/error.handler";
 import CustomResponse from "../../../utils/handlers/response.handler";
 import { cacheAudioForPhrase } from "../../../services/yarngpt.service";
+import { translateText } from "../../../services/translation.service";
 
 /**
  * @route GET /api/lessons/phrase/:phraseId
@@ -148,8 +149,13 @@ export const submitPhraseForAudio = async (
       );
     }
 
+    const result = await translateText(
+      text,
+      language as "yoruba" | "igbo" | "hausa"
+    );
+
     const url = await cacheAudioForPhrase({
-      phraseText: text,
+      phraseText: language === "yoruba" ? result.amiOhun : text,
       language: language,
     });
 
@@ -164,8 +170,8 @@ export const submitPhraseForAudio = async (
 
     const newPhrase = new phraseModel({
       language: language,
-      text: text,
-      translation: "",
+      text: language === "yoruba" ? result.amiOhun : text,
+      translation: result.english,
       audioUrl: url,
       category: "custom",
     });
