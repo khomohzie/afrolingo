@@ -20,7 +20,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
- 
+
 interface PhraseData {
   id: string;
   targetPhrase: string;
@@ -44,22 +44,22 @@ interface IHistoryRecord {
   score: number;
   recordedAt: string;
 }
- 
+
 interface FeatureCardProps {
   title: string;
   description: string;
   icon: React.ReactNode;
 }
- 
+
 const DEFAULT_WAVE_HEIGHTS = [
   40, 60, 30, 80, 100, 60, 40, 90, 70, 50, 80, 40, 60,
 ];
- 
+
 function AccuracyRing({ score }: { score: number }) {
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - score / 100);
- 
+
   const colorClass =
     score >= 80
       ? "stroke-green-500"
@@ -78,7 +78,7 @@ function AccuracyRing({ score }: { score: number }) {
       : score >= 60
         ? "Good effort, keep practicing"
         : "Keep going, you'll get it!";
- 
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col items-center gap-3 w-full">
       <div className="relative w-24 h-24">
@@ -116,29 +116,29 @@ function AccuracyRing({ score }: { score: number }) {
     </div>
   );
 }
- 
+
 export default function PracticePage() {
   const router = useRouter();
   const { authenticated, ready } = useAuth();
   const { phraseId, phrase, translation, language } = router.query;
- 
+
   const [phraseData, setPhraseData] = useState<PhraseData | null>(null);
   const [isLoadingPhrase, setIsLoadingPhrase] = useState(true);
   const [error, setError] = useState<string | null>(null);
- 
- 
+
+
   useEffect(() => {
     if (!ready) return;
     if (!authenticated) router.replace("/login");
   }, [ready, authenticated, router]);
- 
+
   useEffect(() => {
     if (!ready || !authenticated) return;
- 
+
     const fetchPhraseData = async () => {
       setIsLoadingPhrase(true);
       setError(null);
- 
+
       if (phrase && translation && language) {
         setPhraseData({
           id: (phraseId as string) || "temp",
@@ -152,23 +152,23 @@ export default function PracticePage() {
         setIsLoadingPhrase(false);
         return;
       }
- 
+
       setError("Missing phrase information");
       setIsLoadingPhrase(false);
     };
- 
+
     fetchPhraseData();
   }, [phraseId, phrase, translation, language, ready, authenticated]);
- 
+
   const mainRef = useRef<HTMLElement>(null);
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isPlayingNative, setIsPlayingNative] = useState<boolean>(false);
- 
+
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [hasAttempted, setHasAttempted] = useState<boolean>(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
- 
+
   const [analysisStatus, setAnalysisStatus] = useState<
     "idle" | "analyzing" | "complete"
   >("idle");
@@ -182,21 +182,21 @@ export default function PracticePage() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
- 
+
   const [waveHeights, setWaveHeights] = useState<number[]>(DEFAULT_WAVE_HEIGHTS);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const idleAnimationRef = useRef<number | null>(null);
- 
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
- 
+
   // GSAP animations
   useEffect(() => {
     if (!isMounted || isLoadingPhrase || !mainRef.current) return;
- 
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline();
       tl.from(".animate-nav", { opacity: 0, y: -10, duration: 0.4, ease: "power2.out" })
@@ -207,7 +207,7 @@ export default function PracticePage() {
     }, mainRef);
     return () => ctx.revert();
   }, [isMounted, isLoadingPhrase]);
- 
+
   const loadPhraseHistory = useCallback(async (id: string) => {
     if (!id || id === "temp") return;
 
@@ -234,7 +234,7 @@ export default function PracticePage() {
     const shouldAnimate =
       !isRecording &&
       analysisStatus !== "analyzing";
- 
+
     if (shouldAnimate) {
       const animateIdle = () => {
         setWaveHeights((prev) =>
@@ -247,12 +247,12 @@ export default function PracticePage() {
       };
       idleAnimationRef.current = window.setTimeout(animateIdle, 120);
     }
- 
+
     return () => {
       if (idleAnimationRef.current) clearTimeout(idleAnimationRef.current);
     };
   }, [isRecording, analysisStatus]);
- 
+
   const handlePlayNative = useCallback(() => {
     if (!phraseData) return;
     if (!phraseData.audioUrl) {
@@ -260,7 +260,7 @@ export default function PracticePage() {
       return;
     }
     if (isPlayingNative) return;
- 
+
     setIsPlayingNative(true);
     const audio = new Audio(phraseData.audioUrl);
     audio.onended = () => setIsPlayingNative(false);
@@ -270,14 +270,14 @@ export default function PracticePage() {
       toast.error("Could not play audio.");
     });
   }, [phraseData, isPlayingNative]);
- 
+
   const handleToggleRecord = useCallback(async () => {
     if (!phraseData) return;
     if (!phraseData.id || phraseData.id === "temp") {
       toast.error("Phrase id is missing. Please open this from a lesson phrase.");
       return;
     }
- 
+
     if (!isRecording) {
       setWaveHeights(DEFAULT_WAVE_HEIGHTS);
       setHasAttempted(false);
@@ -285,13 +285,13 @@ export default function PracticePage() {
       setPronunciationBreakdown(null);
       setXpEarned(0);
       setPassedAttempt(null);
- 
+
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorderRef.current = mediaRecorder;
         audioChunksRef.current = [];
- 
+
         const audioCtx = new (window.AudioContext ||
           (window as any).webkitAudioContext)();
         const analyser = audioCtx.createAnalyser();
@@ -300,7 +300,7 @@ export default function PracticePage() {
         analyser.fftSize = 32;
         audioContextRef.current = audioCtx;
         analyserRef.current = analyser;
- 
+
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         const updateWave = () => {
           if (analyserRef.current) {
@@ -314,11 +314,11 @@ export default function PracticePage() {
           }
         };
         updateWave();
- 
+
         mediaRecorder.ondataavailable = (event) => {
           if (event.data.size > 0) audioChunksRef.current.push(event.data);
         };
- 
+
         mediaRecorder.start();
         setIsRecording(true);
         setAnalysisStatus("idle");
@@ -328,23 +328,23 @@ export default function PracticePage() {
       }
     } else {
       if (!mediaRecorderRef.current) return;
- 
+
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
- 
+
       if (animationFrameRef.current)
         cancelAnimationFrame(animationFrameRef.current);
       setWaveHeights((prev) => [...prev]);
       analyserRef.current = null;
       if (audioContextRef.current) audioContextRef.current.close();
- 
+
       mediaRecorderRef.current.onstop = () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         setIsRecording(false);
         setHasAttempted(true);
         setAnalysisStatus("analyzing");
 
-        (async () => {
+        const sendRecording = async () => {
           try {
             const formData = new FormData();
             formData.append("audio", audioBlob, "recording.webm");
@@ -371,11 +371,13 @@ export default function PracticePage() {
             setAnalysisStatus("idle");
             toast.error("Could not score recording. Please try again.");
           }
-        })();
+        };
+
+        sendRecording();
       };
     }
   }, [isRecording, phraseData, loadPhraseHistory]);
- 
+
   const handleComplete = useCallback(async () => {
     if (!phraseData?.id) return;
     setIsCompleting(true);
@@ -394,8 +396,8 @@ export default function PracticePage() {
       setIsCompleting(false);
     }
   }, [phraseData, router]);
- 
- 
+
+
   if (!ready || !authenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -403,7 +405,7 @@ export default function PracticePage() {
       </div>
     );
   }
- 
+
   if (isLoadingPhrase) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -414,8 +416,8 @@ export default function PracticePage() {
       </div>
     );
   }
- 
- 
+
+
   if (error || !phraseData) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -427,16 +429,16 @@ export default function PracticePage() {
       </div>
     );
   }
- 
+
   return (
     <>
       <Head>
         <title>Practice | AI Voice Lab - AfroLingo</title>
       </Head>
- 
+
       <div className="min-h-screen flex flex-col bg-surface font-sans text-foreground">
         <Navbar />
- 
+
         <main
           ref={mainRef}
           className="flex-1 w-full max-w-6xl mx-auto px-6 pt-8 pb-20"
@@ -448,18 +450,18 @@ export default function PracticePage() {
             <span>›</span>
             <button
               onClick={() => router.back()}
-              className="hover:text-primary cursor-pointer ransition-colors capitalize"
+              className="hover:text-primary cursor-pointer transition-colors capitalize"
             >
               {phraseData.language} Basics
             </button>
             <span>›</span>
             <span className="text-primary font-bold">Pronunciation</span>
           </nav>
- 
+
           <h1 className="animate-title text-4xl md:text-5xl font-heading font-bold text-primary mb-10">
             AI Voice Lab
           </h1>
- 
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-4xl overflow-hidden float-shadow mb-8">
             <div className="animate-panel-left bg-surface-container-lowest p-10 md:p-14 flex flex-col justify-center">
               <div className="mb-8">
@@ -467,20 +469,20 @@ export default function PracticePage() {
                   Target Phrase
                 </span>
               </div>
- 
+
               <h2 className="text-6xl md:text-7xl font-heading font-bold text-primary mb-4 tracking-tight">
                 {phraseData.targetPhrase}
               </h2>
               <p className="text-2xl text-on-surface-variant mb-12">
                 {phraseData.translation}
               </p>
- 
+
               {phraseData.romanization && (
                 <p className="text-sm text-on-surface-variant mb-4 italic">
                   {phraseData.romanization}
                 </p>
               )}
- 
+
               <div className="flex items-center gap-4 mb-16">
                 <Button
                   onClick={handlePlayNative}
@@ -490,7 +492,7 @@ export default function PracticePage() {
                   <FaVolumeUp className="text-xl" />
                   {isPlayingNative ? "Playing..." : "Listen to Native"}
                 </Button>
- 
+
                 {hasAttempted && !isCompleted && (
                   <Button
                     onClick={handleComplete}
@@ -505,7 +507,7 @@ export default function PracticePage() {
                     {isCompleting ? "Saving..." : "Complete Lesson"}
                   </Button>
                 )}
- 
+
                 {isCompleted && (
                   <div className="flex items-center gap-2 text-green-500 font-bold">
                     <FaCheckCircle />
@@ -513,13 +515,13 @@ export default function PracticePage() {
                   </div>
                 )}
               </div>
- 
+
               <div className="flex items-center gap-3 text-sm font-medium text-green-500 bg-green-50 w-fit px-4 py-2 rounded-lg">
                 <FaCheckCircle className="text-lg" />
                 AI analysis active.
               </div>
             </div>
- 
+
             <div className="animate-panel-right bg-surface-container-low p-10 md:p-14 flex flex-col items-center justify-center relative min-h-125">
               <div className="flex items-center justify-center gap-1.5 h-32 mb-16">
                 {waveHeights.map((height, i) => (
@@ -535,7 +537,7 @@ export default function PracticePage() {
                   />
                 ))}
               </div>
- 
+
               <Button
                 onClick={handleToggleRecord}
                 disabled={analysisStatus === "analyzing"}
@@ -548,12 +550,12 @@ export default function PracticePage() {
               >
                 {isRecording ? <FaStop /> : hasAttempted ? <FaRedo /> : <FaMicrophone />}
               </Button>
- 
+
               <div className="mt-8 text-center flex flex-col items-center justify-start w-full max-w-sm gap-4">
                 {accuracyScore !== null && analysisStatus !== "analyzing" && (
                   <AccuracyRing score={accuracyScore} />
                 )}
- 
+
                 {analysisStatus === "analyzing" && (
                   <div className="animate-in fade-in duration-300">
                     <h3 className="text-xl font-bold text-primary mb-1">
@@ -564,7 +566,7 @@ export default function PracticePage() {
                     </div>
                   </div>
                 )}
- 
+
                 {pronunciationBreakdown && analysisStatus !== "analyzing" && (
                   <div className="w-full bg-surface-container-lowest border border-border rounded-xl p-4 text-left space-y-2">
                     <div className="flex items-center justify-between text-sm">
@@ -601,7 +603,7 @@ export default function PracticePage() {
                     </div>
                   </div>
                 )}
- 
+
                 {analysisStatus === "idle" &&
                   !pronunciationBreakdown &&
                   accuracyScore === null && (
@@ -610,7 +612,7 @@ export default function PracticePage() {
               </div>
             </div>
           </div>
- 
+
           <div className="bg-surface-container-lowest rounded-2xl p-6 float-shadow mb-8">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-heading font-bold text-xl text-primary">
@@ -676,13 +678,13 @@ export default function PracticePage() {
             />
           </div>
         </main>
- 
+
         <Footer />
       </div>
     </>
   );
 }
- 
+
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
     <div className="animate-feature bg-surface-container-lowest p-8 rounded-2xl float-shadow transition-transform hover:-translate-y-1">
