@@ -5,6 +5,7 @@ const router: Router = express.Router();
 //Import Controller
 import {
   completePhrase,
+  getCustomPhraseHistory,
   getLanguages,
   getLessonsByLanguage,
   getPhrase,
@@ -16,6 +17,7 @@ router.get("/languages", getLanguages);
 router.get("/:language", requireSignin, getLessonsByLanguage);
 
 router.get("/phrase/:phraseId", requireSignin, getPhrase);
+router.get("/phrase/custom/history", requireSignin, getCustomPhraseHistory);
 router.post("/phrase/:phraseId/complete", requireSignin, completePhrase);
 router.post("/phrase", requireSignin, submitPhraseForAudio);
 

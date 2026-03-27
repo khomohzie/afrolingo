@@ -1,16 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Head from "next/head";
-import Image from "next/image";
-import Link from "next/link";
 import { Geist } from "next/font/google";
 import {
-  Home,
-  BookOpen,
-  BarChart2,
   Target,
-  ShoppingCart,
   Volume2,
-  Award,
   Play,
   Pause,
   Download,
@@ -20,6 +13,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LeftSidebar from "@/components/layout/LeftSidebar";
+import api from "@/lib/axios";
+import { toast } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,26 +27,120 @@ export default function AfroTTSPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [audioUrl, setAudioUrl] = useState("");
+  const [autoplayHistory, setAutoplayHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [history, setHistory] = useState<
+    {
+      _id: string;
+      text: string;
+      translation: string;
+      audioUrl: string;
+      language: string;
+      createdAt: string;
+    }[]
+  >([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Mock waveform data for the UI
   const waveHeights = [
     20, 40, 70, 40, 90, 60, 30, 80, 100, 50, 30, 60, 40, 80, 50,
   ];
 
-  const handleGenerate = () => {
-    if (!text) return;
+  const getLanguageCode = (value: string) => value.toLowerCase();
+
+  const fetchHistory = async () => {
+    setLoadingHistory(true);
+
+    try {
+      const res = await api.get("/lessons/phrase/custom/history", {
+        params: { language: getLanguageCode(language) },
+      });
+
+      setHistory(res.data.data || []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, [language]);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!autoplayHistory) return;
+    if (!audioRef.current || !audioUrl) return;
+
+    audioRef.current
+      .play()
+      .then(() => setIsPlaying(true))
+      .catch((error) => {
+        console.error(error);
+        setIsPlaying(false);
+      })
+      .finally(() => setAutoplayHistory(false));
+  }, [autoplayHistory, audioUrl]);
+
+  const handleGenerate = async () => {
+    if (!text.trim()) return;
     setIsGenerating(true);
     setAudioReady(false);
+    setIsPlaying(false);
 
-    // Mock API Call delay
-    setTimeout(() => {
+    try {
+      const res = await api.post("/lessons/phrase", {
+        text: text.trim(),
+        language: getLanguageCode(language),
+      });
+
+      const generatedAudioUrl = res.data.data as string;
+      setAudioUrl(generatedAudioUrl);
       setIsGenerating(false);
       setAudioReady(true);
-    }, 2000);
+      toast.success(res.data.message || "Speech generated successfully!");
+      fetchHistory();
+      setText("");
+    } catch (error) {
+      console.error(error);
+      setIsGenerating(false);
+      setAudioReady(false);
+      setIsPlaying(false);
+    }
   };
 
   const togglePlay = () => {
-    setIsPlaying(!isPlaying);
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    audioRef.current
+      .play()
+      .then(() => setIsPlaying(true))
+      .catch((error) => {
+        console.error(error);
+        setIsPlaying(false);
+      });
+  };
+
+  const playHistoryAudio = (url: string) => {
+    setAudioUrl(url);
+    setAudioReady(true);
+    setIsPlaying(false);
+    setAutoplayHistory(true);
   };
 
   return (
@@ -67,6 +156,14 @@ export default function AfroTTSPage() {
 
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 ml-60 min-h-screen py-12 px-10 relative bg-surface/30">
+          <audio
+            ref={audioRef}
+            src={audioUrl}
+            onEnded={() => setIsPlaying(false)}
+            onPause={() => setIsPlaying(false)}
+            onPlay={() => setIsPlaying(true)}
+          />
+
           <header className="mb-10">
             <h1 className="text-4xl font-extrabold text-primary mb-2 flex items-center gap-3">
               <Volume2 size={36} className="text-[#8B4513]" />
@@ -102,7 +199,7 @@ export default function AfroTTSPage() {
                   className="w-full h-75 p-6 bg-surface-container-lowest border border-border rounded-3xl shadow-sm resize-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-lg transition-all"
                   placeholder={`Type something in ${language} to generate speech... \n\nExample: Bawo ni? (How are you?)`}
                   value={text}
-                  onChange={(e) => setText(e.target.value)}
+                  onChange={(e) => setText(e.target.value.slice(0, 500))}
                 />
                 <div className="absolute bottom-6 right-6 text-sm font-medium text-muted-foreground">
                   {text.length} / 500
@@ -196,10 +293,13 @@ export default function AfroTTSPage() {
 
                     <div className="text-center w-full bg-surface-container px-4 py-3 rounded-xl border border-border">
                       <p className="text-sm font-bold text-foreground">
+                        {audioUrl ? "Generated Speech Ready" : "No audio file"}
                         afrotts_{language.toLowerCase()}_001.mp3
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Ready to download
+                        {audioUrl
+                          ? "Ready to play or download"
+                          : "Generate audio"}
                       </p>
                     </div>
                   </div>
@@ -207,6 +307,62 @@ export default function AfroTTSPage() {
               </div>
             </div>
           </div>
+
+          <section className="mt-10 max-w-6xl">
+            <div className="bg-surface-container-lowest border border-border rounded-3xl shadow-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-foreground">
+                  Generated History
+                </h2>
+                <Button
+                  variant="outline"
+                  onClick={fetchHistory}
+                  disabled={loadingHistory}
+                >
+                  Refresh
+                </Button>
+              </div>
+
+              {loadingHistory && (
+                <p className="text-sm text-muted-foreground">
+                  Loading generated phrases...
+                </p>
+              )}
+
+              {!loadingHistory && history.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No generated phrases yet for this language.
+                </p>
+              )}
+
+              {!loadingHistory && history.length > 0 && (
+                <div className="space-y-3">
+                  {history.map((item) => (
+                    <div
+                      key={item._id}
+                      className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4 border border-border rounded-2xl bg-surface"
+                    >
+                      <div>
+                        <p className="font-semibold text-foreground">
+                          {item.text}
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {item.translation}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(item.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <Button onClick={() => playHistoryAudio(item.audioUrl)}>
+                        <Play size={16} className="mr-2" />
+                        Play Audio
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
         </main>
       </div>
     </>
