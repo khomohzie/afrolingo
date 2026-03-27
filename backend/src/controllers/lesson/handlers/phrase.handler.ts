@@ -5,6 +5,7 @@ import CustomException from "../../../utils/handlers/error.handler";
 import CustomResponse from "../../../utils/handlers/response.handler";
 import { cacheAudioForPhrase } from "../../../services/yarngpt.service";
 import { translateText } from "../../../services/translation.service";
+import { cloudinaryDelete } from "../../../utils/cloudinary";
 
 /**
  * @route GET /api/lessons/phrase/:phraseId
@@ -235,6 +236,118 @@ export const getCustomPhraseHistory = async (
     return new CustomResponse(res).success(
       "Custom phrase history retrieved!",
       phrases,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+};
+
+/**
+ * @route DELETE /api/lessons/phrase/custom/:id
+ * @desc Soft delete a specific custom phrase
+ * @access Public
+ * @param req
+ * @param res
+ * @param next
+ */
+export const deleteCustomPhrase = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user.id;
+    const phraseId = req.params.id;
+
+    const phrase = await phraseModel.findOne({
+      _id: phraseId,
+      createdBy: userId,
+      category: "custom",
+    });
+
+    if (!phrase) {
+      return next(
+        new CustomException(404, "Phrase not found or already deleted", {
+          success: false,
+          path: "/lessons/phrase/custom/:id",
+        })
+      );
+    }
+
+    // Delete audio from Cloudinary
+    if (phrase.audioUrl) {
+      try {
+        await cloudinaryDelete(phrase.audioUrl);
+      } catch (err) {
+        console.error("Cloudinary delete error:", err);
+      }
+    }
+
+    await phrase.deleteOne();
+
+    return new CustomResponse(res).success(
+      "Custom phrase deleted successfully!",
+      {},
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+};
+
+/**
+ * @route DELETE /api/lessons/phrase/custom
+ * @desc Soft delete all custom phrases for current user
+ * @access Public
+ * @param req
+ * @param res
+ * @param next
+ */
+export const deleteAllCustomPhrases = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user.id;
+
+    const phrases = await phraseModel.find({
+      createdBy: userId,
+      category: "custom",
+    });
+
+    if (!phrases.length) {
+      return new CustomResponse(res).success(
+        "No active custom phrases to delete",
+        [],
+        200
+      );
+    }
+
+    // Delete all Cloudinary audio files
+    const deletePromises = phrases
+      .filter((p) => p.audioUrl)
+      .map((p) => {
+        if (p.audioUrl) {
+          return cloudinaryDelete(p.audioUrl).catch((err) => {
+            console.error("Cloudinary delete error:", err);
+          });
+        }
+      });
+
+    await Promise.all(deletePromises);
+
+    await phraseModel.deleteMany({
+      createdBy: userId,
+      category: "custom",
+    });
+
+    return new CustomResponse(res).success(
+      "All custom phrases deleted successfully!",
+      null,
       200
     );
   } catch (error) {

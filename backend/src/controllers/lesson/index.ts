@@ -8,4 +8,6 @@ export {
   completePhrase,
   submitPhraseForAudio,
   getCustomPhraseHistory,
+  deleteCustomPhrase,
+  deleteAllCustomPhrases,
 } from "./handlers/phrase.handler";
