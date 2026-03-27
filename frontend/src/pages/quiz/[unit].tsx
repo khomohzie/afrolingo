@@ -33,7 +33,7 @@ interface UserAnswer {
 }
 
 export default function QuizPage() {
-  const { user, authenticated, ready, logout } = useAuth();
+  const { user, authenticated, ready, getUpdatedUser } = useAuth();
   const router = useRouter();
   const { unit } = router.query; // e.g., "yoruba" from /quiz/yoruba
 
@@ -150,6 +150,9 @@ export default function QuizPage() {
         console.error("Submit error:", error);
       } finally {
         setIsSubmitting(false);
+
+        // update stored user object with recent database information
+        getUpdatedUser();
       }
     }
   };
