@@ -3,16 +3,19 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import { ILeaderboardData } from "@/interfaces/learn.interfaces";
-import api from "@/lib/api";
+import api from "@/lib/axios";
 import { getPhrases, getUserStats, type PhraseModule, type UserStats } from "@/lib/lessons";
-import { Check, Flame, Lock, Play, Zap, Target } from "lucide-react";
+import { Check, Flame, Lock, Play, Trophy, Zap, Target } from "lucide-react";
 import { Geist } from "next/font/google";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
 const languageMeta: Record<string, { title: string; description: string }> = {
   yoruba: { title: "Yoruba Path",  description: "Master the language of the Orishas" },
@@ -26,6 +29,7 @@ const KNOWN_CATEGORIES: Record<string, string> = {
   food:      "Food & Market",
 };
 
+// Daily quest target — complete this many phrases in a session
 const DAILY_QUEST_TARGET = 3;
 
 const formatCategoryName = (category: string): string =>
@@ -41,14 +45,17 @@ export default function LearnPath() {
   const [loadingModules, setLoadingModules]         = useState(true);
   const [userStats, setUserStats]                   = useState<UserStats | null>(null);
 
+  // Auth guard
   useEffect(() => {
     if (!ready) return;
     if (!authenticated) { router.replace("/login"); return; }
     if (user && !user.selectedLanguage) { router.replace("/onboarding/choose-language"); return; }
   }, [ready, authenticated, user, router]);
 
+  // Fetch modules
   useEffect(() => {
     if (!user?.selectedLanguage) return;
+
     const fetchModules = async () => {
       setLoadingModules(true);
       try {
@@ -61,9 +68,11 @@ export default function LearnPath() {
         setLoadingModules(false);
       }
     };
+
     fetchModules();
   }, [user?.selectedLanguage]);
 
+  // Fetch user stats for Daily Quest
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -76,6 +85,7 @@ export default function LearnPath() {
     fetchStats();
   }, []);
 
+  // Fetch leaderboard
   useEffect(() => {
     const getLeaderboardData = async () => {
       setLoadingLeaderboard(true);
@@ -100,9 +110,14 @@ export default function LearnPath() {
   }
 
   const languageCode = user.selectedLanguage.toLowerCase();
-  const meta = languageMeta[languageCode] || { title: "Language Path", description: "Continue your learning journey" };
+  const meta = languageMeta[languageCode] || {
+    title: "Language Path",
+    description: "Continue your learning journey",
+  };
 
-  const activeIndex = modules.findIndex((m) => m.isUnlocked && m.completedPhrases < m.totalPhrases);
+  const activeIndex = modules.findIndex(
+    (m) => m.isUnlocked && m.completedPhrases < m.totalPhrases
+  );
 
   const getUnitStatus = (module: PhraseModule, index: number) => {
     if (!module.isUnlocked) return "locked";
@@ -141,14 +156,13 @@ export default function LearnPath() {
     return `${module.completedPhrases}/${module.totalPhrases} phrases`;
   };
 
-  const totalCompleted = userStats?.totalCompleted ?? 0;
-  const questDone = Math.min(
-    totalCompleted % DAILY_QUEST_TARGET ||
-    (totalCompleted > 0 && totalCompleted % DAILY_QUEST_TARGET === 0 ? DAILY_QUEST_TARGET : 0),
-    DAILY_QUEST_TARGET
-  );
-  const questProgress = Math.round((questDone / DAILY_QUEST_TARGET) * 100);
-  const questComplete = questDone >= DAILY_QUEST_TARGET;
+  // ── Daily Quest derived from real stats ──────────────────
+  // Use totalCompleted mod DAILY_QUEST_TARGET as a rolling daily progress proxy
+  // until a dedicated daily endpoint exists
+  const totalCompleted      = userStats?.totalCompleted ?? 0;
+  const questDone           = Math.min(totalCompleted % DAILY_QUEST_TARGET || (totalCompleted > 0 && totalCompleted % DAILY_QUEST_TARGET === 0 ? DAILY_QUEST_TARGET : 0), DAILY_QUEST_TARGET);
+  const questProgress       = Math.round((questDone / DAILY_QUEST_TARGET) * 100);
+  const questComplete       = questDone >= DAILY_QUEST_TARGET;
 
   if (loadingModules) {
     return (
@@ -183,10 +197,10 @@ export default function LearnPath() {
               <div className="absolute top-0 bottom-11 left-1/2 -translate-x-1/2 w-1 border-l-[3px] border-dashed border-primary/20 z-0" />
 
               {modules.map((module, index) => {
-                const status       = getUnitStatus(module, index);
-                const isActive     = status === "active";
-                const isCompleted  = status === "completed";
-                const isLocked     = status === "locked";
+                const status      = getUnitStatus(module, index);
+                const isActive    = status === "active";
+                const isCompleted = status === "completed";
+                const isLocked    = status === "locked";
                 const categoryName = formatCategoryName(module.category);
 
                 return (
@@ -196,7 +210,7 @@ export default function LearnPath() {
                     )}
 
                     <Link
-                      href={isLocked ? "#" : `/lesson/${module.category}?language=${languageCode}`}
+                      href={isLocked ? "#" : `/lessons/${module.category}`}
                       className={isLocked ? "cursor-not-allowed" : "cursor-pointer"}
                       onClick={(e) => isLocked && e.preventDefault()}
                     >
@@ -397,6 +411,7 @@ export default function LearnPath() {
               />
             </div>
 
+            {/* Level + avg score row from stats */}
             {userStats && (
               <div className="mt-4 pt-4 border-t border-outline-variant/10 flex items-center justify-between relative z-10">
                 <div className="text-center">
