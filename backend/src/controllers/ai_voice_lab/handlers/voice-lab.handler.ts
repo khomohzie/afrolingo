@@ -129,35 +129,25 @@ export const scorePhraseRecording = async (
       phrase.text
     );
 
-    // Generate AI feedback (runs in parallel with DB update)
-    // const [aiFeedback] = await Promise.all([
-    //   generateAIFeedback(
-    //     phrase.text,
-    //     phrase.translation,
-    //     phrase.toneNotes,
-    //     phrase.language,
-    //     score
-    //   ),
-    //   // Save progress record
-    //   userProgressModel.findOneAndUpdate(
-    //     { user: userId, phrase: phraseId },
-    //     {
-    //       $inc: { attempts: 1 },
-    //       $set: {
-    //         lastScore: score.overall,
-    //         ...(score.overall >= 60 && { completedAt: new Date() }),
-    //       },
-    //       $max: { bestScore: score.overall },
-    //       $push: {
-    //         voiceRecordings: {
-    //           score: score.overall,
-    //           recordedAt: new Date(),
-    //         },
-    //       },
-    //     },
-    //     { upsert: true, new: true }
-    //   ),
-    // ]);
+    // Save progress record for history/tracking
+    const progress = await userProgressModel.findOneAndUpdate(
+      { user: userId, phrase: phraseId },
+      {
+        $inc: { attempts: 1 },
+        $set: {
+          lastScore: score.overall,
+          ...(score.overall >= 60 && { completedAt: new Date() }),
+        },
+        $max: { bestScore: score.overall },
+        $push: {
+          voiceRecordings: {
+            score: score.overall,
+            recordedAt: new Date(),
+          },
+        },
+      },
+      { upsert: true, new: true }
+    );
 
     // Award XP based on score (only if they passed)
     let xpEarned = 0;
@@ -180,6 +170,9 @@ export const scorePhraseRecording = async (
         totalXP,
         streak,
         passed: score.overall >= 60,
+        attempts: progress?.attempts ?? 1,
+        bestScore: progress?.bestScore ?? score.overall,
+        lastScore: progress?.lastScore ?? score.overall,
         phraseText: phrase.text,
         translation: phrase.translation,
         toneNotes: phrase.toneNotes,
