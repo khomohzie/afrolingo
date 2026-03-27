@@ -19,8 +19,7 @@ import {
   Download,
   Wand2,
   Languages,
-  Settings2,
-  Trash2, // <-- Added Trash2 icon
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LeftSidebar from "@/components/layout/LeftSidebar";
@@ -439,22 +438,26 @@ export default function AfroTTSPage() {
         </main>
       </div>
       <AlertDialog open={isClearModalOpen} onOpenChange={setIsClearModalOpen}>
-        <AlertDialogContent className="p-6 bg-surface-container-lowest border border-border rounded-3xl">
+        <AlertDialogContent className="p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl font-bold text-foreground">
+            <AlertDialogTitle className="text-xl font-semibold">
               Clear History
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-base text-muted-foreground mt-2">
-              Are you sure you want to delete all generated history for <strong>{language}</strong>? This action cannot be undone.
+
+            <AlertDialogDescription className="text-sm">
+              Are you sure you want to delete all generated history for{" "}
+              <strong>{language}</strong>? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="mt-6 flex w-full flex-col sm:flex-row sm:justify-between sm:space-x-0 gap-3">
-            <AlertDialogCancel className="rounded-full px-6 font-bold border-2 border-border hover:bg-surface-container sm:mt-0">
+
+          <AlertDialogFooter>
+            <AlertDialogCancel className="px-6 py-6 cursor-pointer">
               Cancel
             </AlertDialogCancel>
+
             <AlertDialogAction
               onClick={handleDeleteAll}
-              className="rounded-full px-6 font-bold bg-destructive hover:bg-destructive/90 text-white"
+              className="cursor-pointer px-6 py-6 bg-red-500 hover:bg-red-600 focus:ring-red-500 text-white"
             >
               Yes, delete all
             </AlertDialogAction>
