@@ -118,7 +118,20 @@ export default function AfroTTSPage() {
     }
   };
 
+  const handleDownload = () => {
+    if (!audioUrl) return;
+
+    // Creates a temporary link to trigger the browser's download
+    const link = document.createElement("a");
+    link.href = audioUrl;
+    link.download = `afrotts_${language.toLowerCase()}_audio.mp3`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
   const togglePlay = () => {
+
     if (!audioRef.current) return;
 
     if (isPlaying) {
@@ -210,8 +223,8 @@ export default function AfroTTSPage() {
                 onClick={handleGenerate}
                 disabled={!text || isGenerating}
                 className={`w-full h-16 rounded-2xl font-bold text-lg shadow-lg transition-all ${isGenerating
-                    ? "bg-primary/70 cursor-wait"
-                    : "bg-primary hover:scale-[1.02] hover:shadow-primary/30 active:scale-95"
+                  ? "bg-primary/70 cursor-wait"
+                  : "bg-primary hover:scale-[1.02] hover:shadow-primary/30 active:scale-95"
                   }`}
               >
                 {isGenerating ? (
@@ -245,8 +258,8 @@ export default function AfroTTSPage() {
                         <div
                           key={i}
                           className={`w-2 rounded-full transition-all ${isPlaying
-                              ? "bg-primary animate-bounce duration-75"
-                              : "bg-primary/30"
+                            ? "bg-primary animate-bounce duration-75"
+                            : "bg-primary/30"
                             }`}
                           style={{
                             height: `${isPlaying ? height : height / 3}%`,
@@ -282,6 +295,8 @@ export default function AfroTTSPage() {
 
                       <Button
                         variant="outline"
+                        onClick={handleDownload}
+                        disabled={!audioUrl}
                         className="w-12 h-12 rounded-full border-2 border-border text-foreground hover:bg-surface-container group"
                       >
                         <Download
@@ -293,13 +308,10 @@ export default function AfroTTSPage() {
 
                     <div className="text-center w-full bg-surface-container px-4 py-3 rounded-xl border border-border">
                       <p className="text-sm font-bold text-foreground">
-                        {audioUrl ? "Generated Speech Ready" : "No audio file"}
-                        afrotts_{language.toLowerCase()}_001.mp3
+                        {audioUrl ? `afrotts_${language.toLowerCase()}_audio.mp3` : "No audio generated yet"}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {audioUrl
-                          ? "Ready to play or download"
-                          : "Generate audio"}
+                        {audioUrl ? "Ready to play or download" : "Enter text to generate audio"}
                       </p>
                     </div>
                   </div>
