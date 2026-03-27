@@ -33,7 +33,7 @@ if (typeof window !== "undefined") {
 }
 
 const defaultLinks = [
-  { href: "/courses", label: "Courses" },
+  { href: "/learn", label: "Courses" },
   { href: "/community", label: "Community" },
   { href: "/about", label: "About" },
 ];
@@ -45,7 +45,7 @@ const practiceLinks = [
 ];
 
 const isDisabledLink = (href: string) => {
-  return href === "/courses" || href === "/community";
+  return href === "/community";
 };
 
 export function Navbar() {
@@ -164,7 +164,7 @@ export function Navbar() {
                   <div
                     key={href}
                     className="transition-colors hover:text-primary cursor-pointer"
-                    onClick={() => {}}
+                    onClick={() => { }}
                   >
                     {label}
                   </div>
@@ -276,7 +276,7 @@ export function Navbar() {
               <div className="hidden md:flex items-center gap-2">
                 <Button
                   variant="outline"
-                  className="border-2 border-outline-variant text-on-surface-variant hover:bg-surface-container px-6 py-6 hover:text-primary"
+                  className="!bg-surface-container !text-on-surface border-2 border-outline-variant hover:!bg-surface-container-high hover:!text-primary px-6 py-6"
                   asChild
                 >
                   <Link href="/login">Login</Link>
@@ -284,7 +284,7 @@ export function Navbar() {
 
                 <Button
                   variant="default"
-                  className="bg-primary px-6 py-6 text-on-primary hover:bg-primary/90 rounded-lg font-bold"
+                  className="!bg-primary !text-on-primary px-6 py-6 hover:!bg-primary/90 rounded-lg font-bold"
                   asChild
                 >
                   <Link href="/register">Sign Up</Link>
@@ -309,7 +309,7 @@ export function Navbar() {
                         <div
                           key={href}
                           className="text-lg font-medium transition-colors hover:text-primary cursor-pointer"
-                          onClick={() => {}}
+                          onClick={() => { }}
                         >
                           {label}
                         </div>

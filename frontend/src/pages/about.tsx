@@ -170,7 +170,7 @@ export default function AboutPage() {
                   <img
                     className="w-full h-full object-cover"
                     alt="Daniel Komolafe"
-                    src="https://placehold.co/600x600/362516/faf9f8?text=Daniel\nKomolafe&font=Montserrat"
+                    src="/images/komo.jpg"
                   />
                 </div>
                 <div className="text-center">
@@ -193,7 +193,7 @@ export default function AboutPage() {
                   <img
                     className="w-full h-full object-cover"
                     alt="Oluwatobiloba Oni"
-                    src="https://placehold.co/600x600/4e3b2a/faf9f8?text=Oluwatobiloba\nOni&font=Montserrat"
+                    src="/images/tobi.jpg"
                   />
                 </div>
                 <div className="text-center">
@@ -216,7 +216,7 @@ export default function AboutPage() {
                   <img
                     className="w-full h-full object-cover"
                     alt="Boluwatife"
-                    src="https://placehold.co/600x600/944925/faf9f8?text=Boluwatife&font=Montserrat"
+                    src="/images/tife.jpg"
                   />
                 </div>
                 <div className="text-center">
