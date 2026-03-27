@@ -2,6 +2,16 @@ import React, { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import { Geist } from "next/font/google";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Target,
   Volume2,
   Play,
@@ -10,6 +20,7 @@ import {
   Wand2,
   Languages,
   Settings2,
+  Trash2, // <-- Added Trash2 icon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LeftSidebar from "@/components/layout/LeftSidebar";
@@ -30,6 +41,7 @@ export default function AfroTTSPage() {
   const [audioUrl, setAudioUrl] = useState("");
   const [autoplayHistory, setAutoplayHistory] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [history, setHistory] = useState<
     {
       _id: string;
@@ -42,7 +54,6 @@ export default function AfroTTSPage() {
   >([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Mock waveform data for the UI
   const waveHeights = [
     20, 40, 70, 40, 90, 60, 30, 80, 100, 50, 30, 60, 40, 80, 50,
   ];
@@ -57,12 +68,44 @@ export default function AfroTTSPage() {
         params: { language: getLanguageCode(language) },
       });
 
-      setHistory(res.data.data || []);
+      // 1. GET the list of IDs the user has "deleted" locally
+      const hiddenIds = JSON.parse(localStorage.getItem('hiddenAfroTTSHistory') || '[]');
+
+      // 2. Filter the backend data to ONLY show items that aren't hidden
+      const allData = res.data.data || [];
+      const visibleHistory = allData.filter((item: any) => !hiddenIds.includes(item._id));
+
+      setHistory(visibleHistory);
     } catch (error) {
       console.error(error);
     } finally {
       setLoadingHistory(false);
     }
+  };
+
+  const handleDelete = (id: string) => {
+    const hiddenIds = JSON.parse(localStorage.getItem('hiddenAfroTTSHistory') || '[]');
+
+    if (!hiddenIds.includes(id)) {
+      hiddenIds.push(id);
+      localStorage.setItem('hiddenAfroTTSHistory', JSON.stringify(hiddenIds));
+    }
+
+    setHistory((prev) => prev.filter((item) => item._id !== id));
+    toast.success("Phrase removed from history");
+  };
+
+  const handleDeleteAll = () => {
+    const hiddenIds = JSON.parse(localStorage.getItem('hiddenAfroTTSHistory') || '[]');
+
+    const currentVisibleIds = history.map(item => item._id);
+
+    const newHiddenIds = [...hiddenIds, ...currentVisibleIds];
+    localStorage.setItem('hiddenAfroTTSHistory', JSON.stringify(newHiddenIds));
+
+    setHistory([]);
+    setIsClearModalOpen(false); // Close the modal
+    toast.success(`All ${language} history removed`);
   };
 
   useEffect(() => {
@@ -121,7 +164,6 @@ export default function AfroTTSPage() {
   const handleDownload = () => {
     if (!audioUrl) return;
 
-    // Creates a temporary link to trigger the browser's download
     const link = document.createElement("a");
     link.href = audioUrl;
     link.download = `afrotts_${language.toLowerCase()}_audio.mp3`;
@@ -129,9 +171,8 @@ export default function AfroTTSPage() {
     link.click();
     document.body.removeChild(link);
   };
-  
-  const togglePlay = () => {
 
+  const togglePlay = () => {
     if (!audioRef.current) return;
 
     if (isPlaying) {
@@ -164,14 +205,12 @@ export default function AfroTTSPage() {
       <div
         className={`${geistSans.className} min-h-screen flex bg-background text-foreground`}
       >
-        {/* LEFT SIDEBAR */}
         <LeftSidebar title="AfroTTS" />
 
-        {/* MAIN CONTENT AREA */}
         <main className="flex-1 ml-60 min-h-screen py-12 px-10 relative bg-surface/30">
           <audio
             ref={audioRef}
-            src={audioUrl}
+            src={audioUrl || undefined}
             onEnded={() => setIsPlaying(false)}
             onPause={() => setIsPlaying(false)}
             onPlay={() => setIsPlaying(true)}
@@ -188,9 +227,7 @@ export default function AfroTTSPage() {
           </header>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-6xl">
-            {/* LEFT COLUMN: Input Controls (Spans 3 cols) */}
             <div className="lg:col-span-3 space-y-6">
-              {/* Controls Bar */}
               <div className="flex flex-wrap gap-4 p-2 bg-surface-container-lowest border border-border rounded-2xl shadow-sm">
                 <div className="flex-1 flex items-center gap-3 px-4 py-2">
                   <Languages size={18} className="text-muted-foreground" />
@@ -206,7 +243,6 @@ export default function AfroTTSPage() {
                 </div>
               </div>
 
-              {/* Text Input Area */}
               <div className="relative">
                 <textarea
                   className="w-full h-75 p-6 bg-surface-container-lowest border border-border rounded-3xl shadow-sm resize-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-lg transition-all"
@@ -240,7 +276,6 @@ export default function AfroTTSPage() {
               </Button>
             </div>
 
-            {/* RIGHT COLUMN: Playback & Results (Spans 2 cols) */}
             <div className="lg:col-span-2">
               <div className="bg-surface-container-lowest border border-border rounded-3xl shadow-sm p-8 h-full flex flex-col items-center justify-center relative overflow-hidden">
                 {!audioReady && !isGenerating ? (
@@ -252,7 +287,6 @@ export default function AfroTTSPage() {
                   </div>
                 ) : (
                   <div className="w-full flex flex-col items-center animate-in fade-in duration-500">
-                    {/* Animated Waveform */}
                     <div className="flex items-center justify-center gap-1.5 h-24 mb-10 w-full px-4">
                       {waveHeights.map((height, i) => (
                         <div
@@ -269,7 +303,6 @@ export default function AfroTTSPage() {
                       ))}
                     </div>
 
-                    {/* Audio Controls */}
                     <div className="flex items-center gap-6 mb-8">
                       <Button
                         variant="outline"
@@ -326,13 +359,28 @@ export default function AfroTTSPage() {
                 <h2 className="text-2xl font-bold text-foreground">
                   Generated History
                 </h2>
-                <Button
-                  variant="outline"
-                  onClick={fetchHistory}
-                  disabled={loadingHistory}
-                >
-                  Refresh
-                </Button>
+
+                {/* --- UPDATED HEADER ACTIONS --- */}
+                <div className="flex items-center gap-3">
+                  {history.length > 0 && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => setIsClearModalOpen(true)}
+                      disabled={loadingHistory}
+                      className="bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      <Trash2 size={16} className="mr-2" />
+                      Clear All
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    onClick={fetchHistory}
+                    disabled={loadingHistory}
+                  >
+                    Refresh
+                  </Button>
+                </div>
               </div>
 
               {loadingHistory && (
@@ -365,10 +413,23 @@ export default function AfroTTSPage() {
                           {new Date(item.createdAt).toLocaleString()}
                         </p>
                       </div>
-                      <Button onClick={() => playHistoryAudio(item.audioUrl)}>
-                        <Play size={16} className="mr-2" />
-                        Play Audio
-                      </Button>
+
+                      {/* --- UPDATED ITEM ACTIONS --- */}
+                      <div className="flex items-center gap-2">
+                        <Button onClick={() => playHistoryAudio(item.audioUrl)}>
+                          <Play size={16} className="mr-2" />
+                          Play Audio
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(item._id)}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                          title="Delete phrase"
+                        >
+                          <Trash2 size={18} />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -377,6 +438,29 @@ export default function AfroTTSPage() {
           </section>
         </main>
       </div>
+      <AlertDialog open={isClearModalOpen} onOpenChange={setIsClearModalOpen}>
+        <AlertDialogContent className="p-6 bg-surface-container-lowest border border-border rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-bold text-foreground">
+              Clear History
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-muted-foreground mt-2">
+              Are you sure you want to delete all generated history for <strong>{language}</strong>? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6 flex w-full flex-col sm:flex-row sm:justify-between sm:space-x-0 gap-3">
+            <AlertDialogCancel className="rounded-full px-6 font-bold border-2 border-border hover:bg-surface-container sm:mt-0">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAll}
+              className="rounded-full px-6 font-bold bg-destructive hover:bg-destructive/90 text-white"
+            >
+              Yes, delete all
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
