@@ -6,7 +6,7 @@ import cloudinaryUpload from "../utils/cloudinary";
 
 // Map our language codes to YarnGPT speaker names
 const YARNGPT_SPEAKERS: Record<string, string> = {
-  yoruba: "Tayo",
+  yoruba: "Remi",
   igbo: "Chinenye",
   hausa: "Umar",
 };
