@@ -57,7 +57,7 @@ export default function QuizPage() {
             try {
                 // IMPORTANT: Replace with how you actually store your token (localStorage, cookies, Zustand, etc.)
                 const token = getAccessToken();
-                const res = await fetch(`http://localhost:8080/api/quiz/${unit}`, {
+                const res = await fetch(`https://afrolingo-w4ph.onrender.com/api/quiz/${unit}`, {
                     headers: {
                         "Authorization": `Bearer ${token}`
                     }

@@ -177,7 +177,7 @@ export default function LearnPath() {
                         <div className="pt-2">
                             <button
                                 onClick={handleLogoutClick}
-                                className="group cursor-pointer w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-150 hover:!bg-red-500"
+                                className="group cursor-pointer w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-150 hover:bg-red-500!"
                             >
                                 <LogOut className="h-4 w-4 text-red-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
                                 <span className="text-red-500 group-hover:text-white">Logout</span>
@@ -270,7 +270,7 @@ export default function LearnPath() {
                 </main>
 
                 {/* RIGHT SIDEBAR */}
-                <aside className="w-[390px] fixed right-0 top-0 bottom-0 border-l border-border bg-surface-container-lowest z-20 p-8 overflow-y-auto">
+                <aside className="w-97.5 fixed right-0 top-0 bottom-0 border-l border-border bg-surface-container-lowest z-20 p-8 overflow-y-auto">
                     <div className="flex items-center justify-between gap-4 mb-10">
                         <div className="group flex-1 bg-surface-container-lowest border border-border hover:border-warning/50 rounded-2xl p-4 flex flex-col items-center justify-center shadow-sm hover:shadow-md hover:-translate-y-1 cursor-pointer transition-all active:scale-95">
                             <div className="flex items-center gap-2 text-xl font-black text-foreground group-hover:scale-110 transition-transform">
