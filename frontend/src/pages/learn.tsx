@@ -453,7 +453,7 @@ export default function LearnPath() {
 
               {/* Leaderboard */}
               {!loadingLeaderboard &&
-                leaderboardData.map((item) => {
+                leaderboardData.slice(0, 3).map((item) => {
                   const isCurrentUser = item.id === user._id;
                   const isTop3 = item.rank <= 3;
 
