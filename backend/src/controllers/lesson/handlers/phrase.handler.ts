@@ -169,6 +169,7 @@ export const submitPhraseForAudio = async (
     }
 
     const newPhrase = new phraseModel({
+      createdBy: userId,
       language: language,
       text: language === "yoruba" ? result.amiOhun : text,
       translation: result.english,
@@ -181,6 +182,59 @@ export const submitPhraseForAudio = async (
     return new CustomResponse(res).success(
       "Speech generation successful!",
       url,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+};
+
+/**
+ * @route GET /api/lessons/phrase/custom/history
+ * @desc Retrieve current user's custom generated phrases
+ * @access Public
+ * @param req
+ * @param res
+ * @param next
+ */
+export const getCustomPhraseHistory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user.id;
+    const language = req.query.language as string | undefined;
+    const validLanguages = ["yoruba", "igbo", "hausa"];
+
+    const query: Record<string, any> = {
+      createdBy: userId,
+      category: "custom",
+      isActive: true,
+    };
+
+    if (language) {
+      if (!validLanguages.includes(language)) {
+        return next(
+          new CustomException(400, "Invalid language", {
+            success: false,
+            path: "/lessons/phrase/custom/history",
+          })
+        );
+      }
+
+      query.language = language;
+    }
+
+    const phrases = await phraseModel
+      .find(query)
+      .sort({ createdAt: -1 })
+      .select("text translation audioUrl language category createdAt");
+
+    return new CustomResponse(res).success(
+      "Custom phrase history retrieved!",
+      phrases,
       200
     );
   } catch (error) {
