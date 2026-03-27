@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Sun, Moon } from "lucide-react";
+import { Menu } from "lucide-react"; // Removed Sun and Moon
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -50,7 +49,7 @@ const isDisabledLink = (href: string) => {
 
 export function Navbar() {
   const router = useRouter();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  // Removed useTheme hook
   const { user, authenticated, logout } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
@@ -112,11 +111,8 @@ export function Navbar() {
 
   const isActive = (path: string) => router.pathname === path;
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+  // Removed toggleTheme function and currentTheme constant
 
-  const currentTheme = resolvedTheme || theme;
   const isAuthenticated = authenticated;
   const userInitial = user?.name?.charAt(0)?.toUpperCase() || "U";
 
@@ -186,27 +182,10 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="text-on-surface-variant hover:text-primary rounded-full bg-surface-container"
-            >
-              {mounted ? (
-                currentTheme === "dark" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )
-              ) : (
-                <div className="h-5 w-5" />
-              )}
-            </Button>
+            {/* Desktop Theme Toggle Button was here - REMOVED */}
 
             {isAuthenticated ? (
               <div className="hidden md:flex items-center gap-4">
-                {/* Only show Go Premium button if user is not premium */}
                 {!user?.isPremium && (
                   <Button className="bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black px-6 py-6 font-bold border-none hover:opacity-90">
                     <Link href="/premium">Go Premium</Link>
@@ -228,7 +207,6 @@ export function Navbar() {
                     align="end"
                     className="w-64 p-2 mt-4 bg-surface-container-lowest/95 backdrop-blur-sm border border-outline-variant/20 rounded-xl shadow-xl"
                   >
-                    {/* User Info with Premium Badge */}
                     <div className="flex items-center gap-3 px-2 py-3 border-b border-outline-variant/20">
                       <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                         <span className="text-sm font-bold text-primary">{userInitial}</span>
@@ -254,7 +232,7 @@ export function Navbar() {
 
                     <DropdownMenuItem
                       onClick={() => router.push("/learn")}
-                      className="group cursor-pointer hover:!bg-primary -mt-3 gap-3 py-3 px-4 rounded-lg transition-all duration-150"
+                      className="group cursor-pointer hover:bg-primary! -mt-3 gap-3 py-3 px-4 rounded-lg transition-all duration-150"
                     >
                       <BookOpen className="h-4 w-4 text-primary transition-transform group-hover:scale-110 group-hover:text-white" />
                       <span className="text-on-surface group-hover:text-white">My Learning</span>
@@ -264,7 +242,7 @@ export function Navbar() {
 
                     <DropdownMenuItem
                       onClick={handleSignOut}
-                      className="group cursor-pointer -mt-3 hover:!bg-red-500 gap-3 py-3 px-4 rounded-lg transition-all duration-150"
+                      className="group cursor-pointer -mt-3 hover:bg-red-500! gap-3 py-3 px-4 rounded-lg transition-all duration-150"
                     >
                       <LogOut className="h-4 w-4 text-red-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
                       <span className="text-red-500 group-hover:text-white">Logout</span>
@@ -276,7 +254,7 @@ export function Navbar() {
               <div className="hidden md:flex items-center gap-2">
                 <Button
                   variant="outline"
-                  className="!bg-surface-container !text-on-surface border-2 border-outline-variant hover:!bg-surface-container-high hover:!text-primary px-6 py-6"
+                  className="bg-surface-container! text-on-surface! border-2 border-outline-variant hover:bg-surface-container-high! hover:text-primary! px-6 py-6"
                   asChild
                 >
                   <Link href="/login">Login</Link>
@@ -284,7 +262,7 @@ export function Navbar() {
 
                 <Button
                   variant="default"
-                  className="!bg-primary !text-on-primary px-6 py-6 hover:!bg-primary/90 rounded-lg font-bold"
+                  className="bg-primary! text-on-primary! px-6 py-6 hover:bg-primary/90! rounded-lg font-bold"
                   asChild
                 >
                   <Link href="/register">Sign Up</Link>
@@ -328,31 +306,12 @@ export function Navbar() {
                     );
                   })}
 
-                  {mounted && (
-                    <button
-                      onClick={() => {
-                        toggleTheme();
-                        setOpen(false);
-                      }}
-                      className="flex items-center gap-2 text-lg font-medium text-on-surface-variant hover:text-primary"
-                    >
-                      {currentTheme === "dark" ? (
-                        <>
-                          <Sun className="h-5 w-5" /> Light Mode
-                        </>
-                      ) : (
-                        <>
-                          <Moon className="h-5 w-5" /> Dark Mode
-                        </>
-                      )}
-                    </button>
-                  )}
+                  {/* Mobile Theme Toggle Button was here - REMOVED */}
 
                   <div className="w-full h-px bg-outline-variant my-2" />
 
                   {isAuthenticated ? (
                     <div className="flex flex-col gap-4">
-                      {/* Only show Go Premium button if user is not premium */}
                       {!user?.isPremium && (
                         <Button className="w-full bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none">
                           <Link href="/premium">Go Premium</Link>
