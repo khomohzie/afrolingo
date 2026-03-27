@@ -25,20 +25,17 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-const LeftSidebar = ({ title }: { title: string }) => {
+const LeftSidebar = ({ title, isPremium }: { title: string; isPremium?: boolean }) => {
   const router = useRouter();
-
   const { user, authenticated, ready, logout } = useAuth();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!ready) return;
-
     if (!authenticated) {
       router.replace("/login");
       return;
     }
-
     if (user && !user.selectedLanguage) {
       router.replace("/onboarding/choose-language");
       return;
@@ -63,7 +60,6 @@ const LeftSidebar = ({ title }: { title: string }) => {
     router.push("/");
   };
 
-  // Function to determine if the current link is active
   const isActive = (href: string) => router.pathname === href;
 
   return (
@@ -97,15 +93,9 @@ const LeftSidebar = ({ title }: { title: string }) => {
               isActive("/")
                 ? "bg-primary text-on-primary"
                 : "text-muted-foreground"
-            } ${
-              !isActive("/") ? "hover:bg-surface-container" : ""
-            } rounded-xl font-semibold transition-all active:scale-95`}
+            } ${!isActive("/") ? "hover:bg-surface-container" : ""} rounded-xl font-semibold transition-all active:scale-95`}
           >
-            <Home
-              size={20}
-              className="group-hover:-translate-y-1 transition-transform"
-            />{" "}
-            Home
+            <Home size={20} className="group-hover:-translate-y-1 transition-transform" /> Home
           </Link>
           <Link
             href="/learn"
@@ -113,15 +103,9 @@ const LeftSidebar = ({ title }: { title: string }) => {
               isActive("/learn")
                 ? "bg-primary text-on-primary"
                 : "text-muted-foreground"
-            } ${
-              !isActive("/learn") ? "hover:bg-surface-container" : ""
-            } rounded-xl font-semibold transition-all active:scale-95`}
+            } ${!isActive("/learn") ? "hover:bg-surface-container" : ""} rounded-xl font-semibold transition-all active:scale-95`}
           >
-            <BookOpen
-              size={20}
-              className="group-hover:scale-110 transition-transform"
-            />{" "}
-            Learn
+            <BookOpen size={20} className="group-hover:scale-110 transition-transform" /> Learn
           </Link>
           <Link
             href="/leaderboard"
@@ -129,15 +113,9 @@ const LeftSidebar = ({ title }: { title: string }) => {
               isActive("/leaderboard")
                 ? "bg-primary text-on-primary"
                 : "text-muted-foreground"
-            } ${
-              !isActive("/leaderboard") ? "hover:bg-surface-container" : ""
-            } rounded-xl font-semibold transition-all active:scale-95`}
+            } ${!isActive("/leaderboard") ? "hover:bg-surface-container" : ""} rounded-xl font-semibold transition-all active:scale-95`}
           >
-            <BarChart2
-              size={20}
-              className="group-hover:-translate-y-1 transition-transform"
-            />{" "}
-            Leaderboard
+            <BarChart2 size={20} className="group-hover:-translate-y-1 transition-transform" /> Leaderboard
           </Link>
           <Link
             href="/quests"
@@ -145,15 +123,9 @@ const LeftSidebar = ({ title }: { title: string }) => {
               isActive("/quests")
                 ? "bg-primary text-on-primary"
                 : "text-muted-foreground"
-            } ${
-              !isActive("/quests") ? "hover:bg-surface-container" : ""
-            } rounded-xl font-semibold transition-all active:scale-95`}
+            } ${!isActive("/quests") ? "hover:bg-surface-container" : ""} rounded-xl font-semibold transition-all active:scale-95`}
           >
-            <Target
-              size={20}
-              className="group-hover:-translate-y-1 transition-transform"
-            />{" "}
-            Quests
+            <Target size={20} className="group-hover:-translate-y-1 transition-transform" /> Quests
           </Link>
           <Link
             href="/shop"
@@ -161,15 +133,9 @@ const LeftSidebar = ({ title }: { title: string }) => {
               isActive("/shop")
                 ? "bg-primary text-on-primary"
                 : "text-muted-foreground"
-            } ${
-              !isActive("/shop") ? "hover:bg-surface-container" : ""
-            } rounded-xl font-semibold transition-all active:scale-95`}
+            } ${!isActive("/shop") ? "hover:bg-surface-container" : ""} rounded-xl font-semibold transition-all active:scale-95`}
           >
-            <ShoppingCart
-              size={20}
-              className="group-hover:-translate-y-1 transition-transform"
-            />{" "}
-            Shop
+            <ShoppingCart size={20} className="group-hover:-translate-y-1 transition-transform" /> Shop
           </Link>
           <Link
             href="/afrotts"
@@ -177,35 +143,28 @@ const LeftSidebar = ({ title }: { title: string }) => {
               isActive("/afrotts")
                 ? "bg-primary text-on-primary"
                 : "text-muted-foreground"
-            } ${
-              !isActive("/afrotts") ? "hover:bg-surface-container" : ""
-            } rounded-xl font-semibold transition-all active:scale-95`}
+            } ${!isActive("/afrotts") ? "hover:bg-surface-container" : ""} rounded-xl font-semibold transition-all active:scale-95`}
           >
-            <Volume2
-              size={20}
-              className="group-hover:-translate-y-1 transition-transform"
-            />{" "}
-            AfroTTS
+            <Volume2 size={20} className="group-hover:-translate-y-1 transition-transform" /> AfroTTS
           </Link>
 
-          <div className="pt-4">
-            <Button className="group w-full flex items-center justify-center gap-2 bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black h-auto py-4 rounded-xl font-bold border-none transition-all hover:opacity-90 active:scale-95">
-              <Award
-                size={20}
-                className="group-hover:rotate-12 transition-transform"
-              />{" "}
-              Go Premium
-            </Button>
-          </div>
+          {/* Only show "Go Premium" button if the user is NOT premium */}
+          {!isPremium && (
+            <div className="pt-4">
+              <Button className="group w-full flex items-center justify-center gap-2 bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black h-auto py-4 rounded-xl font-bold border-none transition-all hover:opacity-90 active:scale-95">
+                <Award size={20} className="group-hover:rotate-12 transition-transform" />
+                <Link href="/premium">Go Premium</Link>
+              </Button>
+            </div>
+          )}
+
           <div className="pt-2">
             <button
               onClick={handleLogoutClick}
               className="group cursor-pointer w-full flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-150 hover:!bg-red-500"
             >
               <LogOut className="h-4 w-4 text-red-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
-              <span className="text-red-500 group-hover:text-white">
-                Logout
-              </span>
+              <span className="text-red-500 group-hover:text-white">Logout</span>
             </button>
           </div>
         </nav>
@@ -219,14 +178,11 @@ const LeftSidebar = ({ title }: { title: string }) => {
               Confirm Logout
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm">
-              Are you sure you want to log out? You'll need to sign in again to
-              access your progress.
+              Are you sure you want to log out? You'll need to sign in again to access your progress.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className=" px-6 py-6 cursor-pointer">
-              No, go back
-            </AlertDialogCancel>
+            <AlertDialogCancel className="px-6 py-6 cursor-pointer">No, go back</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmLogout}
               className="cursor-pointer px-6 py-6 bg-red-500 hover:bg-red-600 focus:ring-red-500"

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import { Geist } from "next/font/google";
 import gsap from "gsap";
 
@@ -102,7 +103,7 @@ export default function Register() {
           <div className="gsap-card w-full max-w-5xl grid md:grid-cols-2 bg-surface-container-lowest rounded-[2rem] overflow-hidden editorial-shadow border border-outline-variant/20">
             <div className="gsap-hero hidden md:block relative bg-primary overflow-hidden">
               <Image
-                src="/hero-signup.jpg"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKLcPxbSBnyF9s6ZaStBcZ338wwEL1CB-mg1v8KneUScOObbIYAObf9rI-z3kkrYTWCT6UG9D6R13vM-PZRJ3QXBtdKjTTjEbkIUbM-v8W9ac-HcXuw3CztIdYKMqL-LqERoQq182bxp3gpMtbDvRzhbwvlxetTSIMfzMjqdqUbuzfxCvlB4-dCbqnj-E4JBRD0_OUztdnHxwC2u5b9CGWTqBoTh5D8iR98oTeN9Ab0nwzKFvEq60lJD0TAuykMWwXxdsDeuqH2uM"
                 alt="Cultural Heritage"
                 fill
                 sizes="50vw"
@@ -140,7 +141,7 @@ export default function Register() {
                   <label className="font-label text-sm font-bold text-primary px-1" htmlFor="name">Full Name</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
-                      <span className="material-symbols-outlined text-[20px]">person</span>
+                      <FaUser className="text-[18px] text-primary/60" />
                     </div>
                     <Input
                       className="w-full pl-11 pr-4 py-6 bg-surface-container-low border-none rounded-xl text-on-surface placeholder:text-outline/50 focus-visible:ring-2 focus-visible:ring-secondary/20 transition-all shadow-none"
@@ -161,7 +162,7 @@ export default function Register() {
                   <label className="font-label text-sm font-bold text-primary px-1" htmlFor="email">Email Address</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
-                      <span className="material-symbols-outlined text-[20px]">mail</span>
+                      <FaEnvelope className="text-[18px] text-primary/60" />
                     </div>
                     <Input
                       className="w-full pl-11 pr-4 py-6 bg-surface-container-low border-none rounded-xl text-on-surface placeholder:text-outline/50 focus-visible:ring-2 focus-visible:ring-secondary/20 transition-all shadow-none"
@@ -183,7 +184,7 @@ export default function Register() {
                   <label className="font-label text-sm font-bold text-primary px-1" htmlFor="password">Password</label>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
-                      <span className="material-symbols-outlined text-[20px]">lock</span>
+                      <FaLock className="text-[18px] text-primary/60" />
                     </div>
                     <Input
                       className="w-full pl-11 pr-12 py-6 bg-surface-container-low border-none rounded-xl text-on-surface placeholder:text-outline/50 focus-visible:ring-2 focus-visible:ring-secondary/20 transition-all shadow-none"

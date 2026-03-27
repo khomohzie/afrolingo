@@ -13,11 +13,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookOpen, LogOut, User, Mail } from 'lucide-react';
+import { BookOpen, LogOut } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +44,10 @@ const practiceLinks = [
   { href: "/community", label: "Community" },
 ];
 
+const isDisabledLink = (href: string) => {
+  return href === "/courses" || href === "/community";
+};
+
 export function Navbar() {
   const router = useRouter();
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -67,7 +70,6 @@ export function Navbar() {
   }, [dropdownOpen]);
 
   const headerRef = useRef<HTMLElement>(null);
-
   const isPracticePage =
     router.pathname.startsWith("/practice") ||
     router.pathname.startsWith("/learn");
@@ -83,7 +85,6 @@ export function Navbar() {
 
   useEffect(() => {
     if (!headerRef.current) return;
-
     const header = headerRef.current;
 
     gsap.fromTo(
@@ -101,15 +102,12 @@ export function Navbar() {
         const progress = self.progress;
         const blurIntensity = 8 + progress * 12;
         const shadowOpacity = progress * 0.1;
-
         header.style.backdropFilter = `blur(${blurIntensity}px)`;
         header.style.boxShadow = `0 4px 20px rgba(0,0,0,${shadowOpacity})`;
       },
     });
 
-    return () => {
-      trigger.kill();
-    };
+    return () => trigger.kill();
   }, [isPracticePage]);
 
   const isActive = (path: string) => router.pathname === path;
@@ -158,18 +156,33 @@ export function Navbar() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-on-surface-variant">
-            {currentNavLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`transition-colors hover:text-primary ${isActive(href)
-                  ? "text-primary font-bold border-b-2 border-primary pb-1"
-                  : ""
-                  }`}
-              >
-                {label}
-              </Link>
-            ))}
+            {currentNavLinks.map(({ href, label }) => {
+              const disabled = isDisabledLink(href);
+              const active = isActive(href) && !disabled;
+              if (disabled) {
+                return (
+                  <div
+                    key={href}
+                    className="transition-colors hover:text-primary cursor-pointer"
+                    onClick={() => {}}
+                  >
+                    {label}
+                  </div>
+                );
+              }
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`transition-colors hover:text-primary ${active
+                    ? "text-primary font-bold border-b-2 border-primary pb-1"
+                    : ""
+                    }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-4">
@@ -193,9 +206,12 @@ export function Navbar() {
 
             {isAuthenticated ? (
               <div className="hidden md:flex items-center gap-4">
-                <Button className="bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black px-6 py-6 font-bold border-none hover:opacity-90">
-                  Go Premium
-                </Button>
+                {/* Only show Go Premium button if user is not premium */}
+                {!user?.isPremium && (
+                  <Button className="bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black px-6 py-6 font-bold border-none hover:opacity-90">
+                    <Link href="/premium">Go Premium</Link>
+                  </Button>
+                )}
 
                 <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                   <DropdownMenuTrigger asChild>
@@ -212,15 +228,22 @@ export function Navbar() {
                     align="end"
                     className="w-64 p-2 mt-4 bg-surface-container-lowest/95 backdrop-blur-sm border border-outline-variant/20 rounded-xl shadow-xl"
                   >
-                    {/* User Info Section */}
+                    {/* User Info with Premium Badge */}
                     <div className="flex items-center gap-3 px-2 py-3 border-b border-outline-variant/20">
                       <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                         <span className="text-sm font-bold text-primary">{userInitial}</span>
                       </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-semibold text-on-surface truncate">
-                          {user?.name || "User"}
-                        </span>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-on-surface truncate">
+                            {user?.name || "User"}
+                          </span>
+                          {user?.isPremium && (
+                            <span className="bg-yellow-500 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                              PREMIUM
+                            </span>
+                          )}
+                        </div>
                         <span className="text-xs text-on-surface-variant/70 truncate">
                           {user?.email || "user@example.com"}
                         </span>
@@ -278,17 +301,32 @@ export function Navbar() {
 
               <SheetContent side="right" className="bg-surface p-6">
                 <div className="flex flex-col gap-6 mt-8">
-                  {currentNavLinks.map(({ href, label }) => (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={() => setOpen(false)}
-                      className={`text-lg font-medium transition-colors hover:text-primary ${isActive(href) ? "text-primary font-bold" : ""
-                        }`}
-                    >
-                      {label}
-                    </Link>
-                  ))}
+                  {currentNavLinks.map(({ href, label }) => {
+                    const disabled = isDisabledLink(href);
+                    const active = isActive(href) && !disabled;
+                    if (disabled) {
+                      return (
+                        <div
+                          key={href}
+                          className="text-lg font-medium transition-colors hover:text-primary cursor-pointer"
+                          onClick={() => {}}
+                        >
+                          {label}
+                        </div>
+                      );
+                    }
+                    return (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={() => setOpen(false)}
+                        className={`text-lg font-medium transition-colors hover:text-primary ${active ? "text-primary font-bold" : ""
+                          }`}
+                      >
+                        {label}
+                      </Link>
+                    );
+                  })}
 
                   {mounted && (
                     <button
@@ -314,9 +352,12 @@ export function Navbar() {
 
                   {isAuthenticated ? (
                     <div className="flex flex-col gap-4">
-                      <Button className="w-full bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none">
-                        Go Premium
-                      </Button>
+                      {/* Only show Go Premium button if user is not premium */}
+                      {!user?.isPremium && (
+                        <Button className="w-full bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none">
+                          <Link href="/premium">Go Premium</Link>
+                        </Button>
+                      )}
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -326,9 +367,16 @@ export function Navbar() {
                             </span>
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-on-surface-variant font-medium">
-                              {user?.name || "Profile"}
-                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-on-surface-variant font-medium">
+                                {user?.name || "Profile"}
+                              </span>
+                              {user?.isPremium && (
+                                <span className="bg-yellow-500 text-black text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+                                  PREMIUM
+                                </span>
+                              )}
+                            </div>
                             <span className="text-xs text-on-surface-variant/70">
                               {user?.email}
                             </span>
@@ -372,17 +420,21 @@ export function Navbar() {
         </div>
       </header>
 
-      {/* Logout confirmation dialog */}
-      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen} >
+      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
         <AlertDialogContent className="p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-semibold">Confirm Logout</AlertDialogTitle>
+            <AlertDialogTitle className="text-xl font-semibold">
+              Confirm Logout
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-sm">
-              Are you sure you want to log out? You'll need to sign in again to access your progress.
+              Are you sure you want to log out? You'll need to sign in again to access
+              your progress.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className=" px-6 py-6 cursor-pointer">No, go back</AlertDialogCancel>
+            <AlertDialogCancel className="px-6 py-6 cursor-pointer">
+              No, go back
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmLogout}
               className="cursor-pointer px-6 py-6 bg-red-500 hover:bg-red-600 focus:ring-red-500"
