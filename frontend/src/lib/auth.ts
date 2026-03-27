@@ -88,21 +88,15 @@ export function getPostAuthRoute(user?: User | null) {
 
 export async function getUpdatedUser(): Promise<User | null> {
   try {
-    // Fetch the updated user information
     const { data } = await api.get<ApiResponse<User>>("/user/me");
-
     if (data.success) {
       const updatedUser = data.data;
-
-      // Save the updated user data to localStorage
       saveAuth({
         ...getStoredUser(),
-        user: updatedUser, // Update user data
+        user: updatedUser,
       });
-
       return updatedUser;
     }
-
     return null;
   } catch (error) {
     console.error("Error fetching updated user:", error);

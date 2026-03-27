@@ -33,7 +33,7 @@ interface UserAnswer {
 }
 
 export default function QuizPage() {
-  const { user, authenticated, ready, getUpdatedUser } = useAuth();
+  const { user, authenticated, ready } = useAuth(); // removed getUpdatedUser
   const router = useRouter();
   const { unit } = router.query;
 
@@ -49,20 +49,14 @@ export default function QuizPage() {
 
   const questionContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auth guard
   useEffect(() => {
     if (!ready) return;
     if (!authenticated) {
       router.replace("/login");
       return;
     }
-    if (user && !user.selectedLanguage) {
-      router.replace("/onboarding/choose-language");
-      return;
-    }
-  }, [ready, authenticated, user, router]);
+  }, [ready, authenticated, router]);
 
-  // Fetch quiz data
   useEffect(() => {
     if (!router.isReady || !unit || !user) return;
 
@@ -91,7 +85,6 @@ export default function QuizPage() {
     }
   }, [currentIndex, quizData, quizResults]);
 
-  // Loading state
   if (isLoading || !quizData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface text-primary">
@@ -140,7 +133,6 @@ export default function QuizPage() {
         console.error("Submit error:", error);
       } finally {
         setIsSubmitting(false);
-        getUpdatedUser();
       }
     }
   };
@@ -226,11 +218,9 @@ export default function QuizPage() {
                 <Button
                   size="lg"
                   className="cursor-pointer w-full h-14 text-base font-extrabold rounded-2xl bg-primary text-on-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
-                  onClick={() =>
-                    quizResults.passed ? router.push("/learn") : router.reload()
-                  }
+                  onClick={() => router.back()}
                 >
-                  {quizResults.passed ? "Back to Learn Path" : "Try Again"}
+                  Back to Learn Path
                 </Button>
 
                 <button
@@ -305,11 +295,10 @@ export default function QuizPage() {
               <button
                 onClick={playAudio}
                 disabled={isPlayingAudio}
-                className={`cursor-pointer w-24 h-24 mb-10 rounded-full flex items-center justify-center shadow-xl transition-all ${
-                  isPlayingAudio
+                className={`cursor-pointer w-24 h-24 mb-10 rounded-full flex items-center justify-center shadow-xl transition-all ${isPlayingAudio
                     ? "bg-primary/80 text-on-primary scale-95 animate-pulse cursor-not-allowed"
                     : "bg-primary text-on-primary hover:scale-105 active:scale-95"
-                }`}
+                  }`}
               >
                 <Volume2 size={40} />
               </button>
@@ -324,11 +313,10 @@ export default function QuizPage() {
                     <button
                       key={idx}
                       onClick={() => setSelectedOption(option)}
-                      className={`cursor-pointer p-6 rounded-2xl text-lg font-bold text-center transition-all duration-200 active:scale-95 ${
-                        isSelected
+                      className={`cursor-pointer p-6 rounded-2xl text-lg font-bold text-center transition-all duration-200 active:scale-95 ${isSelected
                           ? "bg-primary/10 border-2 border-primary text-primary shadow-sm scale-[1.02]"
                           : "bg-surface-container-lowest border-2 border-outline-variant/20 hover:bg-surface-container-low hover:border-outline text-on-surface"
-                      }`}
+                        }`}
                     >
                       {option}
                     </button>
@@ -359,11 +347,10 @@ export default function QuizPage() {
               size="lg"
               onClick={handleNextOrSubmit}
               disabled={!selectedOption || isSubmitting}
-              className={`cursor-pointer w-full sm:w-auto min-w-[200px] h-14 text-base font-extrabold rounded-2xl transition-all ${
-                selectedOption
+              className={`cursor-pointer w-full sm:w-auto min-w-[200px] h-14 text-base font-extrabold rounded-2xl transition-all ${selectedOption
                   ? "bg-primary text-on-primary hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20"
                   : "bg-surface-container text-on-surface-variant cursor-not-allowed"
-              }`}
+                }`}
             >
               {isSubmitting ? (
                 <Loader2 className="animate-spin" size={20} />

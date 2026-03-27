@@ -1,4 +1,7 @@
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
 import gsap from "gsap";
+import { Loader2 } from "lucide-react";
 import {
   Ban,
   BookOpen,
@@ -8,25 +11,36 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Head from "next/head";
-import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   IInitiatePaymentResponse,
   IInterswitchPaymentResponse,
 } from "@/interfaces/payment.interface";
 import api from "@/lib/axios";
-import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function PremiumCheckout() {
+  const router = useRouter();
+  const { getUpdatedUser } = useAuth();
   const mainRef = useRef<HTMLElement>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout | null>(null);
 
+  // GSAP animations (unchanged)
   useEffect(() => {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
       tl.fromTo(
         ".value-prop-animate",
         { x: -40, opacity: 0 },
@@ -45,20 +59,23 @@ export default function PremiumCheckout() {
           "-=0.4"
         );
     }, mainRef);
-
     return () => ctx.revert();
   }, []);
 
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (redirectTimer) clearTimeout(redirectTimer);
+    };
+  }, [redirectTimer]);
+
   const handlePayment = async () => {
     try {
-      // Call backend to initialize payment
       const res = await api.post("/payment/initiate");
-
       toast.success(res.data.message);
 
       const data: IInitiatePaymentResponse = res.data.data;
 
-      // Trigger Interswitch Checkout
       window.webpayCheckout({
         ...data,
         merchant_code: process.env.NEXT_PUBLIC_MERCHANT_CODE,
@@ -66,20 +83,28 @@ export default function PremiumCheckout() {
         onComplete: async (response: IInterswitchPaymentResponse) => {
           try {
             console.log("Payment response:", response);
-
-            // Verify payment on backend
-            const res = await api.post("/payment/verify", {
+            const verifyRes = await api.post("/payment/verify", {
               txnRef: data.txn_ref,
             });
+            toast.success(verifyRes.data.message);
 
-            toast.success(res.data.message);
+            // Refresh user data (will fetch updated user with isPremium)
+            await getUpdatedUser();
+
+            // Show success modal
+            setShowSuccessModal(true);
+
+            // Auto‑redirect after 3 seconds
+            const timer = setTimeout(() => {
+              router.push("/learn");
+            }, 3000);
+            setRedirectTimer(timer);
           } catch (err: any) {
             console.error(err);
-
             if (err.response?.status === 404) {
               toast.error(
                 err.response.data?.message ||
-                  "Payment not found. Please contact support."
+                "Payment not found. Please contact support."
               );
             } else {
               toast.error("Verification failed. Try again.");
@@ -292,9 +317,28 @@ export default function PremiumCheckout() {
           </div>
         </main>
 
+
         {/* Global Footer */}
         <Footer />
       </div>
+      {/* Success Modal */}
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="sm:max-w-md text-center">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black text-primary mx-auto">
+              🎉 Welcome to Premium!
+            </DialogTitle>
+            <DialogDescription className="text-base pt-2">
+              Your payment was successful. You now have full access to all premium features.
+              <br />
+              Redirecting to your learning path...
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center mt-4">
+            <Loader2 className="animate-spin h-6 w-6 text-primary" />
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -11,7 +11,6 @@ import {
   Play,
   Trophy,
   User,
-  Users,
   Zap,
 } from "lucide-react";
 import { Geist } from "next/font/google";
@@ -142,7 +141,7 @@ export default function LearnPath() {
         className={`${geistSans.className} min-h-screen flex bg-background text-foreground`}
       >
         {/* LEFT SIDEBAR */}
-        <LeftSidebar title={meta.title} />
+        <LeftSidebar title={meta.title} isPremium={user?.isPremium} />
  
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 ml-60 mr-80 min-h-screen py-16 relative">

@@ -10,6 +10,7 @@ export interface ApiResponse<T> {
     _id: string;
     name: string;
     email: string;
+    isPremium?: boolean;
     selectedLanguage: string | null;
     xp: number;
     streak: number;

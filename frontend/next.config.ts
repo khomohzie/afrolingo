@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        // Optionally restrict path if needed:
+        // pathname: "/aida-public/**",
+      },
     ],
   },
   async headers() {
