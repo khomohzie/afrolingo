@@ -24,6 +24,7 @@ export type PhraseCategory =
 
 export interface IPhrase extends Document {
   _id: mongoose.Types.ObjectId;
+  createdBy?: mongoose.Types.ObjectId;
   language: "yoruba" | "igbo" | "hausa";
   text: string; // e.g. "Ẹ káàárọ̀"
   translation: string; // e.g. "Good morning"

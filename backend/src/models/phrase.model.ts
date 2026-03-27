@@ -3,6 +3,12 @@ import mongoose, { Schema } from "mongoose";
 
 const phraseModel = new Schema<IPhrase>(
   {
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+      index: true,
+    },
     language: {
       type: String,
       enum: ["yoruba", "igbo", "hausa"],
