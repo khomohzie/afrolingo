@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const MONGO_URI: string =
-  process.env.MONGO_URI || "mongodb://localhost:27017/afrolingo";
+  process.env.MONGO_URI || "mongodb://localhost:27020/afrolingo";
 
 const uri: string =
   process.env.NODE_ENV === "production"
