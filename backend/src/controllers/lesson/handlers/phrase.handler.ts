@@ -3,6 +3,8 @@ import phraseModel from "../../../models/phrase.model";
 import userProgressModel from "../../../models/user-progress.model";
 import CustomException from "../../../utils/handlers/error.handler";
 import CustomResponse from "../../../utils/handlers/response.handler";
+import { cacheAudioForPhrase } from "../../../services/yarngpt.service";
+import { translateText } from "../../../services/translation.service";
 
 /**
  * @route GET /api/lessons/phrase/:phraseId
@@ -105,6 +107,82 @@ export const completePhrase = async (
     );
 
     return new CustomResponse(res).success("Phrase completed", progress, 200);
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+};
+
+/**
+ * @route POST /api/lessons/phrase
+ * @desc Allows a user to submit a new phrase so they can get the audio speech
+ * @access Public
+ * @param req
+ * @param res
+ * @param next
+ */
+export const submitPhraseForAudio = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user.id;
+
+    const { text, language } = req.body;
+
+    if (!userId) {
+      return next(
+        new CustomException(401, "userId is required", {
+          success: false,
+          path: "/lessons/phrase",
+        })
+      );
+    }
+
+    if (!text) {
+      return next(
+        new CustomException(400, "text is required", {
+          success: false,
+          path: "/lessons/phrase",
+        })
+      );
+    }
+
+    const result = await translateText(
+      text,
+      language as "yoruba" | "igbo" | "hausa"
+    );
+
+    const url = await cacheAudioForPhrase({
+      phraseText: language === "yoruba" ? result.amiOhun : text,
+      language: language,
+    });
+
+    if (!url) {
+      return next(
+        new CustomException(500, "Failed to retrieve audio url", {
+          success: false,
+          path: "/lessons/phrase",
+        })
+      );
+    }
+
+    const newPhrase = new phraseModel({
+      language: language,
+      text: language === "yoruba" ? result.amiOhun : text,
+      translation: result.english,
+      audioUrl: url,
+      category: "custom",
+    });
+
+    await newPhrase.save();
+
+    return new CustomResponse(res).success(
+      "Speech generation successful!",
+      url,
+      200
+    );
   } catch (error) {
     console.error(error);
     return next(error);

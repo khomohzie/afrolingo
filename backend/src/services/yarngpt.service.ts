@@ -49,36 +49,61 @@ export const generateAudio = async (
 
 /**
  * Generate and cache audio for a single phrase.
- * Skips if audioUrl already exists.
+ * If phrase exists in the DB, skips if audioUrl already exists.
+ * If phrase does not exist, generates audio and saves it.
  */
-export const cacheAudioForPhrase = async (
-  phraseId: string
-): Promise<string | null> => {
-  const phrase = await phraseModel.findById(phraseId);
-  if (!phrase) throw new Error("Phrase not found");
+export const cacheAudioForPhrase = async ({
+  phraseId,
+  phraseText,
+  language,
+}: {
+  phraseId?: string;
+  phraseText?: string;
+  language?: "yoruba" | "igbo" | "hausa";
+}): Promise<string | null> => {
+  let phraseDoc: any = null;
+  let text: string;
+  let lang: "yoruba" | "igbo" | "hausa";
 
-  // Already cached — skip
-  if (phrase.audioUrl) return phrase.audioUrl;
+  if (phraseId) {
+    phraseDoc = await phraseModel.findById(phraseId);
+    if (!phraseDoc) throw new Error("Phrase not found");
+
+    // Already cached — skip
+    if (phraseDoc.audioUrl) return phraseDoc.audioUrl;
+
+    text = phraseDoc.text;
+    lang = phraseDoc.language;
+  } else if (phraseText && language) {
+    text = phraseText;
+    lang = language;
+  } else {
+    throw new Error("Provide either phraseId or (phraseText + language)");
+  }
 
   try {
-    const filePath = await generateAudio(phrase.text, phrase.language);
+    const filePath = await generateAudio(text, lang);
+
+    let audioUrl: string | null = null;
 
     // Upload audio to cloudinary
     const cloudinaryFolder = "afrolingo-media";
 
     if (filePath) {
       try {
-        const downloadURL = await cloudinaryUpload(filePath, cloudinaryFolder);
-
-        phrase.audioUrl = downloadURL;
+        audioUrl = await cloudinaryUpload(filePath, cloudinaryFolder);
       } catch (error: any) {
         console.error(error);
       }
     }
 
-    await phrase.save();
+    // Save only if it's a DB phrase
+    if (phraseDoc && audioUrl) {
+      phraseDoc.audioUrl = audioUrl;
+      await phraseDoc.save();
+    }
 
-    return phrase.audioUrl;
+    return audioUrl;
   } catch (error: any) {
     console.error(`YarnGPT failed for phrase ${phraseId}:`, error.message);
     return null;
