@@ -34,15 +34,15 @@ if (typeof window !== "undefined") {
 }
 
 const defaultLinks = [
-  { href: "/courses", label: "Courses" },
-  { href: "/community", label: "Community" },
+  { href: "/learn", label: "Courses" },
+  { href: "#", label: "Community", disabled: true },
   { href: "/about", label: "About" },
 ];
 
 const practiceLinks = [
   { href: "/learn", label: "Lessons" },
   { href: "/practice", label: "Practice" },
-  { href: "/community", label: "Community" },
+  { href: "#", label: "Community", disabled: true },
 ];
 
 export function Navbar() {
@@ -193,8 +193,10 @@ export function Navbar() {
 
             {isAuthenticated ? (
               <div className="hidden md:flex items-center gap-4">
-                <Button className="bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black px-6 py-6 font-bold border-none hover:opacity-90">
-                  Go Premium
+                <Button className="bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black px-6 py-6 font-bold border-none hover:opacity-90" asChild>
+                  <Link href="/premium">
+                    Go Premium
+                  </Link>
                 </Button>
 
                 <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
@@ -231,7 +233,7 @@ export function Navbar() {
 
                     <DropdownMenuItem
                       onClick={() => router.push("/learn")}
-                      className="group cursor-pointer hover:!bg-primary -mt-3 gap-3 py-3 px-4 rounded-lg transition-all duration-150"
+                      className="group cursor-pointer hover:bg-primary! -mt-3 gap-3 py-3 px-4 rounded-lg transition-all duration-150"
                     >
                       <BookOpen className="h-4 w-4 text-primary transition-transform group-hover:scale-110 group-hover:text-white" />
                       <span className="text-on-surface group-hover:text-white">My Learning</span>
@@ -241,7 +243,7 @@ export function Navbar() {
 
                     <DropdownMenuItem
                       onClick={handleSignOut}
-                      className="group cursor-pointer -mt-3 hover:!bg-red-500 gap-3 py-3 px-4 rounded-lg transition-all duration-150"
+                      className="group cursor-pointer -mt-3 hover:bg-red-500! gap-3 py-3 px-4 rounded-lg transition-all duration-150"
                     >
                       <LogOut className="h-4 w-4 text-red-500 transition-transform group-hover:translate-x-0.5 group-hover:text-white" />
                       <span className="text-red-500 group-hover:text-white">Logout</span>
@@ -314,8 +316,10 @@ export function Navbar() {
 
                   {isAuthenticated ? (
                     <div className="flex flex-col gap-4">
-                      <Button className="w-full bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none">
-                        Go Premium
+                      <Button className="w-full bg-linear-to-r from-[#d4af37] to-[#f3e5ab] text-black font-bold border-none" asChild>
+                        <Link href="/premium" onClick={() => setOpen(false)}>
+                          Go Premium
+                        </Link>
                       </Button>
 
                       <div className="flex items-center justify-between">
