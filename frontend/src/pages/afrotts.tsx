@@ -196,7 +196,7 @@ export default function AfroTTSPage() {
               <div className="relative">
                 <textarea
                   className="w-full h-[300px] p-6 bg-surface-container-lowest border border-border rounded-3xl shadow-sm resize-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-lg transition-all"
-                  placeholder={`Type something in ${language} to generate speech... \n\nExample: Bawo ni? (How are you?)`}
+                  placeholder={`Type something in ${language} to generate speech... \n\nExample: Bawo ni`}
                   value={text}
                   onChange={(e) => setText(e.target.value.slice(0, 500))}
                 />
