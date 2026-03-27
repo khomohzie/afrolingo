@@ -16,7 +16,6 @@ import {
   Download,
   Wand2,
   Languages,
-  UserCircle,
   Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -83,7 +82,7 @@ export default function AfroTTSPage() {
             <div className="lg:col-span-3 space-y-6">
               {/* Controls Bar */}
               <div className="flex flex-wrap gap-4 p-2 bg-surface-container-lowest border border-border rounded-2xl shadow-sm">
-                <div className="flex-1 flex items-center gap-3 px-4 py-2 border-r border-border">
+                <div className="flex-1 flex items-center gap-3 px-4 py-2">
                   <Languages size={18} className="text-muted-foreground" />
                   <select
                     className="bg-transparent border-none outline-none font-bold text-foreground w-full cursor-pointer"
@@ -95,19 +94,12 @@ export default function AfroTTSPage() {
                     <option value="Igbo">Igbo</option>
                   </select>
                 </div>
-                <div className="flex-1 flex items-center gap-3 px-4 py-2">
-                  <UserCircle size={18} className="text-muted-foreground" />
-                  <select className="bg-transparent border-none outline-none font-bold text-foreground w-full cursor-pointer">
-                    <option>Adebayo (Male)</option>
-                    <option>Folake (Female)</option>
-                  </select>
-                </div>
               </div>
 
               {/* Text Input Area */}
               <div className="relative">
                 <textarea
-                  className="w-full h-[300px] p-6 bg-surface-container-lowest border border-border rounded-3xl shadow-sm resize-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-lg transition-all"
+                  className="w-full h-75 p-6 bg-surface-container-lowest border border-border rounded-3xl shadow-sm resize-none focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-lg transition-all"
                   placeholder={`Type something in ${language} to generate speech... \n\nExample: Bawo ni? (How are you?)`}
                   value={text}
                   onChange={(e) => setText(e.target.value)}
@@ -120,11 +112,10 @@ export default function AfroTTSPage() {
               <Button
                 onClick={handleGenerate}
                 disabled={!text || isGenerating}
-                className={`w-full h-16 rounded-2xl font-bold text-lg shadow-lg transition-all ${
-                  isGenerating
+                className={`w-full h-16 rounded-2xl font-bold text-lg shadow-lg transition-all ${isGenerating
                     ? "bg-primary/70 cursor-wait"
                     : "bg-primary hover:scale-[1.02] hover:shadow-primary/30 active:scale-95"
-                }`}
+                  }`}
               >
                 {isGenerating ? (
                   <span className="flex items-center gap-2 animate-pulse">
@@ -156,11 +147,10 @@ export default function AfroTTSPage() {
                       {waveHeights.map((height, i) => (
                         <div
                           key={i}
-                          className={`w-2 rounded-full transition-all ${
-                            isPlaying
+                          className={`w-2 rounded-full transition-all ${isPlaying
                               ? "bg-primary animate-bounce duration-75"
                               : "bg-primary/30"
-                          }`}
+                            }`}
                           style={{
                             height: `${isPlaying ? height : height / 3}%`,
                             animationDelay: `${i * 0.05}s`,
@@ -206,7 +196,7 @@ export default function AfroTTSPage() {
 
                     <div className="text-center w-full bg-surface-container px-4 py-3 rounded-xl border border-border">
                       <p className="text-sm font-bold text-foreground">
-                        afrotts_yoruba_001.mp3
+                        afrotts_{language.toLowerCase()}_001.mp3
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
                         Ready to download

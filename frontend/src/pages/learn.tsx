@@ -17,13 +17,13 @@ import { Geist } from "next/font/google";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
- 
+import { useEffect, useState, useRef } from "react";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
- 
+
 const languageMeta: Record<
   string,
   { title: string; description: string; color?: string }
@@ -44,7 +44,7 @@ const languageMeta: Record<
     color: "#DAA520",
   },
 };
- 
+
 export default function LearnPath() {
   const { user, authenticated, ready, logout } = useAuth();
   const router = useRouter();
@@ -52,13 +52,13 @@ export default function LearnPath() {
   const [leaderboardData, setLeaderboardData] = useState<ILeaderboardData[]>(
     []
   );
- 
+  const hasFetched = useRef(false);
   const getLeaderboardData = async () => {
     setLoadingLeaderboard(true);
- 
+
     try {
       const res = await api.get("/progress/leaderboard");
- 
+
       setLeaderboardData(res.data.data);
     } catch (error) {
       console.error(error);
@@ -66,25 +66,28 @@ export default function LearnPath() {
       setLoadingLeaderboard(false);
     }
   };
- 
+
   useEffect(() => {
     if (!ready) return;
- 
+
     if (!authenticated) {
       router.replace("/login");
       return;
     }
- 
+
     if (user && !user.selectedLanguage) {
       router.replace("/onboarding/choose-language");
       return;
     }
   }, [ready, authenticated, user, router]);
- 
+
   useEffect(() => {
+  if (!hasFetched.current) {
+    hasFetched.current = true;
     getLeaderboardData();
-  }, []);
- 
+  }
+}, []);
+
   if (!ready || !authenticated || !user?.selectedLanguage) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -92,13 +95,13 @@ export default function LearnPath() {
       </div>
     );
   }
- 
+
   const languageCode = user.selectedLanguage.toLowerCase();
   const meta = languageMeta[languageCode] || {
     title: "Language Path",
     description: "Continue your learning journey",
   };
- 
+
   const getRankStyles = (rank: number) => {
     switch (rank) {
       case 1:
@@ -111,7 +114,7 @@ export default function LearnPath() {
         return "";
     }
   };
- 
+
   const getAvatarStyles = (rank: number) => {
     switch (rank) {
       case 1:
@@ -124,14 +127,14 @@ export default function LearnPath() {
         return "bg-warning/30 text-foreground";
     }
   };
- 
+
   const getRankIcon = (rank: number) => {
     if (rank === 1) return "🥇";
     if (rank === 2) return "🥈";
     if (rank === 3) return "🥉";
     return null;
   };
- 
+
   return (
     <>
       <Head>
@@ -142,7 +145,7 @@ export default function LearnPath() {
       >
         {/* LEFT SIDEBAR */}
         <LeftSidebar title={meta.title} isPremium={user?.isPremium} />
- 
+
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 ml-60 mr-80 min-h-screen py-16 relative">
           <div className="max-w-2xl mx-auto flex flex-col items-center">
@@ -154,10 +157,10 @@ export default function LearnPath() {
                 {meta.description}
               </p>
             </header>
- 
+
             <div className="relative flex flex-col items-center w-full">
               <div className="absolute top-0 bottom-11 left-1/2 -translate-x-1/2 w-1 border-l-[3px] border-dashed border-primary/20 z-0" />
- 
+
               {/* UNIT 1: COMPLETED */}
               <div className="relative z-10 flex flex-col items-center gap-4 mb-12 group cursor-pointer active:scale-95 transition-all">
                 <div className="w-16 h-16 rounded-full bg-green-600 text-white flex items-center justify-center shadow-md border-4 border-background group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
@@ -176,7 +179,7 @@ export default function LearnPath() {
                   </p>
                 </div>
               </div>
- 
+
               {/* UNIT 2: ACTIVE */}
               <Link href="/lessons/greetings">
                 <div className="relative z-10 flex flex-col items-center gap-4 mb-12 group cursor-pointer active:scale-95 transition-all">
@@ -196,7 +199,7 @@ export default function LearnPath() {
                   </div>
                 </div>
               </Link>
- 
+
               {/* UNIT 3: NEXT UP */}
               <div className="relative z-10 flex flex-col items-center gap-4 mb-12 group cursor-pointer active:scale-95 transition-all">
                 <div className="w-16 h-16 rounded-full bg-surface-container text-primary flex items-center justify-center shadow-sm border-4 border-background group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
@@ -213,7 +216,7 @@ export default function LearnPath() {
                   </p>
                 </div>
               </div>
- 
+
               {/* UNIT 4: LOCKED */}
               <div className="relative z-10 flex flex-col items-center gap-4 mb-12 opacity-40 group cursor-not-allowed">
                 <div className="w-16 h-16 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center shadow-sm border-4 border-background group-hover:bg-error/10 group-hover:text-error group-active:animate-bounce transition-colors">
@@ -231,7 +234,7 @@ export default function LearnPath() {
                   </p>
                 </div>
               </div>
- 
+
               {/* UNIT 5: LOCKED */}
               <div className="relative z-10 flex flex-col items-center gap-4 opacity-40 group cursor-not-allowed">
                 <div className="w-16 h-16 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center shadow-sm border-4 border-background group-hover:bg-error/10 group-hover:text-error group-active:animate-bounce transition-colors">
@@ -246,7 +249,7 @@ export default function LearnPath() {
             </div>
           </div>
         </main>
- 
+
         {/* RIGHT SIDEBAR */}
         <aside className="w-[390px] fixed right-0 top-0 bottom-0 border-l border-border bg-surface-container-lowest z-20 p-8 overflow-y-auto">
           <div className="flex items-center justify-between gap-4 mb-10">
@@ -277,7 +280,7 @@ export default function LearnPath() {
               </p>
             </div>
           </div>
- 
+
           <div className="mb-10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-xs tracking-widest text-muted-foreground uppercase">
@@ -290,7 +293,7 @@ export default function LearnPath() {
                 View All
               </Link>
             </div>
- 
+
             <div className="space-y-2">
               {/* Loading */}
               {loadingLeaderboard && (
@@ -308,88 +311,82 @@ export default function LearnPath() {
                   ))}
                 </div>
               )}
- 
+
               {/* Empty */}
               {!loadingLeaderboard && leaderboardData.length === 0 && (
                 <div className="text-center py-6 text-sm text-muted-foreground">
                   No leaderboard data available yet.
                 </div>
               )}
- 
+
               {/* Leaderboard */}
               {!loadingLeaderboard &&
                 leaderboardData.slice(0, 3).map((item) => {
                   const isCurrentUser = item.id === user._id;
                   const isTop3 = item.rank <= 3;
- 
+
                   const initials = item.name.slice(0, 2).toUpperCase();
- 
+
                   return (
                     <div
                       key={item.id}
                       className={`group flex items-center gap-4 p-3 rounded-xl border shadow-sm cursor-pointer transition-all active:scale-95
          
-          ${
-            isCurrentUser
-              ? "leaderboard-current-user shadow-md mt-2 hover:brightness-105 hover:-translate-y-0.5"
-              : isTop3
-              ? getRankStyles(item.rank)
-              : "bg-surface-container-lowest border-border hover:border-warning/50 hover:shadow-md"
-          }
+          ${isCurrentUser
+                          ? "leaderboard-current-user shadow-md mt-2 hover:brightness-105 hover:-translate-y-0.5"
+                          : isTop3
+                            ? getRankStyles(item.rank)
+                            : "bg-surface-container-lowest border-border hover:border-warning/50 hover:shadow-md"
+                        }
         `}
                     >
                       {/* Rank / Medal */}
                       <span
-                        className={`font-bold w-6 transition-colors ${
-                          isCurrentUser
-                            ? ""
-                            : isTop3
+                        className={`font-bold w-6 transition-colors ${isCurrentUser
+                          ? ""
+                          : isTop3
                             ? "text-primary"
                             : "text-muted-foreground group-hover:text-primary"
-                        }`}
+                          }`}
                       >
                         {getRankIcon(item.rank) || item.rank}
                       </span>
- 
+
                       {/* Avatar */}
                       <Avatar
-                        className={`w-8 h-8 transition-transform ${
-                          isCurrentUser
-                            ? "group-hover:rotate-6"
-                            : "group-hover:scale-110"
-                        }`}
+                        className={`w-8 h-8 transition-transform ${isCurrentUser
+                          ? "group-hover:rotate-6"
+                          : "group-hover:scale-110"
+                          }`}
                       >
                         <AvatarFallback
-                          className={`text-xs font-bold ${
-                            isCurrentUser
-                              ? "bg-on-primary/20 text-on-primary"
-                              : isTop3
+                          className={`text-xs font-bold ${isCurrentUser
+                            ? "bg-on-primary/20 text-on-primary"
+                            : isTop3
                               ? getAvatarStyles(item.rank)
                               : "bg-warning/30 text-foreground"
-                          }`}
+                            }`}
                         >
                           {initials}
                         </AvatarFallback>
                       </Avatar>
- 
+
                       {/* Name */}
                       <span
-                        className={`font-bold flex-1 text-sm ${
-                          isCurrentUser
-                            ? ""
-                            : "group-hover:text-primary transition-colors"
-                        }`}
+                        className={`font-bold flex-1 text-sm ${isCurrentUser
+                          ? ""
+                          : "group-hover:text-primary transition-colors"
+                          }`}
                       >
                         {isCurrentUser ? `You (${item.name})` : item.name}
                       </span>
- 
+
                       {/* XP */}
                       <span
-                        className={`font-bold text-sm ${
-                          isCurrentUser
-                            ? "text-on-primary"
-                            : "text-muted-foreground"
-                        }`}
+                        className={`font-bold text-sm ${isCurrentUser
+                          ? "text-on-primary"
+                          : "text-muted-foreground"
+                          }`}
                       >
                         {item.xp.toLocaleString()}
                       </span>
@@ -398,7 +395,7 @@ export default function LearnPath() {
                 })}
             </div>
           </div>
- 
+
           <div className="group bg-accent/5 border border-accent/20 p-6 rounded-2xl relative overflow-hidden cursor-pointer hover:shadow-md hover:border-accent/30 transition-all active:scale-[0.98]">
             <div className="absolute -right-4 -top-4 w-24 h-24 bg-accent/10 rounded-full blur-2xl group-hover:bg-accent/20 transition-colors"></div>
             <div className="flex items-start gap-4 relative z-10">

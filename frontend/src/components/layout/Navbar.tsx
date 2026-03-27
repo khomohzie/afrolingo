@@ -33,7 +33,7 @@ if (typeof window !== "undefined") {
 }
 
 const defaultLinks = [
-  { href: "/courses", label: "Courses" },
+  { href: "/learn", label: "Courses" },
   { href: "/community", label: "Community" },
   { href: "/about", label: "About" },
 ];
@@ -45,7 +45,7 @@ const practiceLinks = [
 ];
 
 const isDisabledLink = (href: string) => {
-  return href === "/courses" || href === "/community";
+  return href === "/community";
 };
 
 export function Navbar() {
